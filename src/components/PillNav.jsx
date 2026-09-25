@@ -227,13 +227,13 @@ const PillNav = ({
     <header className="pill-nav-container">
       <div className={`pill-nav-inner ${className}`} style={cssVars}>
         {/* BRAND IDENTITY (LEFT) */}
-        <Link to="/" className="nav-brand" title="Vinay Varma — Home" onClick={closeMobileMenu}>
+        <Link to="/" className="nav-brand" title="V2-Portfolio — Vinay Varma" onClick={closeMobileMenu}>
           <div className="nav-brand-logo-wrap">
             <img src={logo} alt={logoAlt} className="nav-brand-img" />
           </div>
           <div className="nav-brand-text">
-            <span className="nav-brand-name">VINAY VARMA</span>
-            <span className="nav-brand-sub">PORTFOLIO</span>
+            <span className="nav-brand-name">V2-PORTFOLIO</span>
+            <span className="nav-brand-sub">VINAY VARMA</span>
           </div>
         </Link>
 

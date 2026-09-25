@@ -470,7 +470,7 @@ export default function IntroLoader({ onComplete }) {
       {/* HEADER */}
       <header className="intro-header">
         <div className="intro-brand">NVV</div>
-        <div className="intro-header-title">PORTFOLIO</div>
+        <div className="intro-header-title">V2-PORTFOLIO</div>
         <button
           type="button"
           className="intro-skip-btn"
