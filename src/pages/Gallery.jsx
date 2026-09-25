@@ -317,6 +317,30 @@ export default function Gallery() {
             <span>LinkedIn</span>
             <span className="footer-link-arrow" aria-hidden="true">↗</span>
           </a>
+
+          <a
+            href="https://figma.com/@nvssvinayvarma"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Figma Profile: @nvssvinayvarma (opens in new tab)"
+            title="Figma — @nvssvinayvarma"
+            className="footer-social-link"
+          >
+            <span>Figma</span>
+            <span className="footer-link-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Send direct email to nvssvinayvarma@gmail.com (opens Gmail in new tab)"
+            title="Email — nvssvinayvarma@gmail.com"
+            className="footer-social-link"
+          >
+            <span>Email</span>
+            <span className="footer-link-arrow" aria-hidden="true">↗</span>
+          </a>
         </div>
       </motion.footer>
     </main>

@@ -225,10 +225,12 @@ export default function Home() {
 
             {/* EMAIL */}
             <a
-              href="mailto:nvssvinayvarma@gmail.com"
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hero-social-card"
-              title="Email — nvssvinayvarma@gmail.com (Direct Inquiries)"
-              aria-label="Send direct email to nvssvinayvarma@gmail.com"
+              title="Email — nvssvinayvarma@gmail.com (Opens Gmail compose in new tab)"
+              aria-label="Send email to nvssvinayvarma@gmail.com via Gmail (opens in new tab)"
             >
               <div className="hero-social-icon mail-icon">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -548,8 +550,10 @@ export default function Home() {
           </a>
 
           <a
-            href="mailto:nvssvinayvarma@gmail.com"
-            aria-label="Send direct email to nvssvinayvarma@gmail.com"
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Send direct email to nvssvinayvarma@gmail.com (opens Gmail in a new tab)"
             title="Email — nvssvinayvarma@gmail.com"
             className="footer-social-link"
           >

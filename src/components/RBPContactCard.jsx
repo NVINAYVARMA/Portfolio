@@ -45,23 +45,34 @@ export default function RBPContactCard() {
             </p>
 
             <div className="rbp-contact-actions">
-              <button
-                type="button"
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rbp-copy-email-btn"
-                onClick={handleCopyEmail}
-                title="Click to copy email address"
+                title="Open Gmail to compose email (or click icon to copy)"
               >
                 <div className="rbp-email-icon-box">
                   {copied ? <Check className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
                 </div>
                 <div className="rbp-email-text-box">
-                  <span className="rbp-email-label">EMAIL ME</span>
+                  <span className="rbp-email-label">EMAIL ME (OPENS GMAIL ↗)</span>
                   <span className="rbp-email-val">nvssvinayvarma@gmail.com</span>
                 </div>
-                <span className="rbp-copy-badge">
+                <button
+                  type="button"
+                  className="rbp-copy-badge"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCopyEmail();
+                  }}
+                  title="Copy email to clipboard"
+                  aria-label="Copy email address"
+                >
                   {copied ? "COPIED!" : <Copy className="w-3.5 h-3.5" />}
-                </span>
-              </button>
+                </button>
+              </a>
 
               <Link to="/contact" className="rbp-send-message-btn">
                 <span>Direct Contact Form</span>

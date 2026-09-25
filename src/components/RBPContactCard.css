@@ -99,6 +99,7 @@
   color: #09090b;
   border: 1px solid transparent;
   cursor: pointer;
+  text-decoration: none;
   transition: all 0.25s ease;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
@@ -106,6 +107,7 @@
 .rbp-copy-email-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 28px rgba(255, 255, 255, 0.2);
+  color: #09090b;
 }
 
 .rbp-email-icon-box {
@@ -145,8 +147,19 @@
   font-weight: 700;
   padding: 4px 8px;
   border-radius: 6px;
+  border: none;
   background: rgba(0, 0, 0, 0.08);
   color: #09090b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rbp-copy-badge:hover {
+  background: rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
 }
 
 .rbp-send-message-btn {

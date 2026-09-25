@@ -325,6 +325,22 @@ export default function About() {
             <span>Figma</span>
             <span className="footer-link-arrow" aria-hidden="true">↗</span>
           </a>
+
+          <a
+            href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Send direct email to nvssvinayvarma@gmail.com (opens Gmail in new tab)"
+            title="Email — nvssvinayvarma@gmail.com"
+            className="footer-social-link"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>Email</span>
+            <span className="footer-link-arrow" aria-hidden="true">↗</span>
+          </a>
         </div>
       </motion.footer>
     </main>

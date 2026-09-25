@@ -194,8 +194,11 @@ export default function Contact() {
                   <span className="info-label">EMAIL ADDRESS</span>
                   <div className="info-item-row">
                     <a
-                      href="mailto:nvssvinayvarma@gmail.com"
+                      href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="info-value info-email"
+                      title="Open Gmail compose in new tab"
                     >
                       nvssvinayvarma@gmail.com
                     </a>

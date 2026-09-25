@@ -107,15 +107,16 @@ export default function Resume() {
 
             <span aria-hidden="true">•</span>
 
-            <button
-              type="button"
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=nvssvinayvarma@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="resume-copy-btn"
-              onClick={() => copyToClipboard("nvssvinayvarma@gmail.com", "Email")}
-              title="Click to copy email address"
+              title="Open Gmail to email nvssvinayvarma@gmail.com (opens in new tab)"
             >
               <span>nvssvinayvarma@gmail.com</span>
-              <span className="copy-icon">⎘</span>
-            </button>
+              <span className="copy-icon" aria-hidden="true">↗</span>
+            </a>
           </div>
 
           <div className="resume-profiles">
