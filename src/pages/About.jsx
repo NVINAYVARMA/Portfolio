@@ -228,7 +228,8 @@ export default function About() {
                 srcA="/images/profile.png"
                 srcB="/images/profile-wave.png"
                 alt="Vinay Varma portrait"
-                focusY={1.0}
+                focusY={0.96}
+                zoom={1.45}
               />
             </div>
             <div className="profile-card-bottom">

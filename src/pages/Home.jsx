@@ -124,7 +124,8 @@ export default function Home() {
                   srcA="/images/profile.png"
                   srcB="/images/profile-wave.png"
                   alt="Vinay Varma portrait"
-                  focusY={1.0}
+                  focusY={0.96}
+                  zoom={1.45}
                 />
               </div>
 

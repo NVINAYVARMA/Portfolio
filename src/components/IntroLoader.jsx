@@ -5,24 +5,24 @@ import FallingDotsBackground from "./FallingDotsBackground";
 import "./IntroLoader.css";
 
 /* =========================================================
-   AUTHENTIC COMPETITION RUBIK'S CUBE COLORS
+   LUXURY TITANIUM & OBSIDIAN MONOCHROME PALETTE
    ========================================================= */
 
 const COLORS = {
-  U: "#ffffff", // Top (Pure White)
-  D: "#ffd500", // Bottom (Competition Yellow)
-  F: "#00a651", // Front (Vibrant Green)
-  B: "#0057b8", // Back (Cobalt Blue)
-  R: "#d00000", // Right (Competition Red)
-  L: "#ff7200", // Left (Vibrant Orange)
+  U: "#ffffff", // Pure Platinum White
+  D: "#1c1c24", // Carbon Graphite
+  F: "#e4e4e7", // Brushed Titanium
+  B: "#2e2e38", // Dark Slate
+  R: "#a1a1aa", // Frosted Chrome
+  L: "#141418", // Deep Obsidian
 };
 
 /* =========================================================
-   SCRAMBLE & SOLVE SEQUENCES (VERIFIED SOLVER)
+   PRECISION KINETIC SOLVE SEQUENCE
    ========================================================= */
 
-const SCRAMBLE = ["R", "U", "R'", "F", "D", "L'", "U", "F'", "R", "D'", "B", "L"];
-const SOLVE = ["L'", "B'", "D", "R'", "F", "U'", "L", "D'", "F'", "R", "U'", "R'"];
+const SCRAMBLE = ["R", "U", "F'", "L", "D'"];
+const SOLVE = ["D", "L'", "F", "U'", "R'"];
 
 /* =========================================================
    CUBE GEOMETRY CONSTANTS
@@ -335,9 +335,9 @@ function RubiksCanvas({ cube, activeMoveRef, solving, solved }) {
    TIMING CONFIGURATION
    ========================================================= */
 
-const TURN_DURATION_MS = 320; // Crisp, fluid turn duration
-const TURN_PAUSE_MS = 35; // Brief rhythm pause between turns
-const CURTAIN_DURATION_MS = 2300; // Synchronized with refined 2.3s curtain choreography
+const TURN_DURATION_MS = 180; // Fast, fluid precision turn
+const TURN_PAUSE_MS = 25; // Tactile rhythm pause
+const CURTAIN_DURATION_MS = 1100; // Smooth 1.1s reveal curtain
 
 /* =========================================================
    INTRO LOADER COMPONENT
@@ -354,13 +354,13 @@ export default function IntroLoader({ onComplete }) {
 
   // Ref driving Three.js 60-120fps rotation without ANY React state thrashing
   const activeMoveRef = useRef(null);
+  const isCancelledRef = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     async function performMove(move, index, total) {
-      if (cancelled) return;
+      if (isCancelledRef.current) return;
 
       const data = getMove(move);
       if (!data) return;
@@ -381,7 +381,7 @@ export default function IntroLoader({ onComplete }) {
 
       // Wait exactly TURN_DURATION_MS while Three.js animates the turn smoothly
       await wait(TURN_DURATION_MS);
-      if (cancelled) return;
+      if (isCancelledRef.current) return;
 
       // Commit the completed move to the cube state
       activeMoveRef.current = null;
@@ -395,33 +395,33 @@ export default function IntroLoader({ onComplete }) {
     async function runIntro() {
       // 1. Initial fade-in
       setPhase("intro");
-      await wait(500);
-      if (cancelled) return;
+      await wait(350);
+      if (isCancelledRef.current) return;
 
       // 2. Cube emerges in scrambled state
       setCubeVisible(true);
       setPhase("scrambled");
-      await wait(950);
-      if (cancelled) return;
+      await wait(400);
+      if (isCancelledRef.current) return;
 
       // 3. Solve sequence
       setPhase("solving");
       for (let i = 0; i < SOLVE.length; i++) {
         await performMove(SOLVE[i], i, SOLVE.length);
-        if (cancelled) return;
+        if (isCancelledRef.current) return;
       }
 
       // 4. Solved hero moment
       setPhase("solved");
       setProgress(100);
       setMoveNumber(SOLVE.length);
-      await wait(650);
-      if (cancelled) return;
+      await wait(400);
+      if (isCancelledRef.current) return;
 
       // 5. Cinematic curtain cascades smoothly over screen, displays logo, reveals site
       setClosing(true);
       await wait(CURTAIN_DURATION_MS);
-      if (cancelled) return;
+      if (isCancelledRef.current) return;
 
       // 6. Transition complete
       onComplete?.();
@@ -432,26 +432,31 @@ export default function IntroLoader({ onComplete }) {
     // Allow user to skip immediately with Escape key
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        cancelled = true;
+        isCancelledRef.current = true;
         onComplete?.();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      cancelled = true;
+      isCancelledRef.current = true;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [onComplete]);
 
+  const handleSkip = () => {
+    isCancelledRef.current = true;
+    onComplete?.();
+  };
+
   const statusText =
     phase === "intro"
-      ? "PREPARING"
+      ? "INITIALIZING SYSTEM"
       : phase === "scrambled"
-      ? "SCRAMBLED"
+      ? "CALIBRATING 3D MATRICES"
       : phase === "solving"
-      ? "SOLVING"
-      : "SOLVED";
+      ? "COMPUTING RESOLUTION"
+      : "SYSTEMS OPTIMIZED [100%]";
 
   return (
     <div className={`intro-loader ${closing ? "intro-closing" : ""}`}>
@@ -466,7 +471,14 @@ export default function IntroLoader({ onComplete }) {
       <header className="intro-header">
         <div className="intro-brand">NVV</div>
         <div className="intro-header-title">PORTFOLIO</div>
-        <div className="intro-year">2026</div>
+        <button
+          type="button"
+          className="intro-skip-btn"
+          onClick={handleSkip}
+          aria-label="Skip introductory animation"
+        >
+          Skip [Esc] ↗
+        </button>
       </header>
 
       {/* TOP META */}
@@ -576,7 +588,7 @@ export default function IntroLoader({ onComplete }) {
         <div className="intro-exit-panel" />
 
         <div className="intro-exit-center">
-          <img className="intro-exit-logo" src="/images/logo1.png" alt="" />
+          <img className="intro-exit-logo" src="/images/logo.png" alt="Vinay Varma Logo" />
           <div className="intro-exit-loader">
             <span />
             <span />

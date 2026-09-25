@@ -23,6 +23,7 @@ uniform vec2 uImageSize;
 uniform vec2 uOrigin;
 uniform vec2 uDirection;
 uniform float uFocusY;
+uniform float uZoom;
 
 varying vec2 vUv;
 
@@ -31,9 +32,10 @@ vec2 coverUv(vec2 uv) {
     min((uResolution.x / uResolution.y) / (uImageSize.x / uImageSize.y), 1.0),
     min((uResolution.y / uResolution.x) / (uImageSize.y / uImageSize.x), 1.0)
   );
+  vec2 scaledRatio = ratio / max(uZoom, 0.5);
   return vec2(
-    uv.x * ratio.x + (1.0 - ratio.x) * 0.5,
-    uv.y * ratio.y + (1.0 - ratio.y) * uFocusY
+    uv.x * scaledRatio.x + (1.0 - scaledRatio.x) * 0.5,
+    uv.y * scaledRatio.y + (1.0 - scaledRatio.y) * uFocusY
   );
 }
 
@@ -112,7 +114,8 @@ export default function PortraitMorph({
   alt = "Portrait",
   className = "",
   aspectRatio = "auto",
-  focusY = 1.0,
+  focusY = 0.96,
+  zoom = 1.45,
 }) {
   const containerRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -176,6 +179,7 @@ export default function PortraitMorph({
         uOrigin: { value: [0.5, 0.5] },
         uDirection: { value: [1, 0] },
         uFocusY: { value: focusY },
+        uZoom: { value: zoom },
       },
       transparent: true,
     });
@@ -306,7 +310,7 @@ export default function PortraitMorph({
       if (ext) ext.loseContext();
       if (canvas.parentNode === container) container.removeChild(canvas);
     };
-  }, [srcA, srcB, focusY]);
+  }, [srcA, srcB, focusY, zoom]);
 
   return (
     <div
