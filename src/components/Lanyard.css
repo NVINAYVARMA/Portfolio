@@ -1,0 +1,129 @@
+.lanyard-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.lanyard-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* =========================================================
+   INTERACTIVE CSS 3D FALLBACK ID CARD
+   ========================================================= */
+
+.lanyard-fallback-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  perspective: 1000px;
+  user-select: none;
+}
+
+.lanyard-fallback-ribbon {
+  width: 16px;
+  height: 80px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(200, 200, 200, 0.7) 100%);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  margin-bottom: -10px;
+  z-index: 1;
+}
+
+.lanyard-fallback-clasp {
+  width: 28px;
+  height: 14px;
+  background: linear-gradient(180deg, #d4d4d8 0%, #71717a 100%);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+  margin-bottom: -4px;
+}
+
+.lanyard-fallback-card-inner {
+  position: relative;
+  width: 210px;
+  height: 300px;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.lanyard-fallback-card-inner.flipped {
+  transform: perspective(900px) rotateY(180deg);
+}
+
+.lanyard-fallback-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  background: #09090b;
+}
+
+.lanyard-fallback-front {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.lanyard-fallback-back {
+  transform: rotateY(180deg);
+}
+
+.lanyard-fallback-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.lanyard-fallback-badge-overlay {
+  position: absolute;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lanyard-fallback-chip {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 3px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.lanyard-fallback-hint {
+  margin-top: 14px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #a1a1aa);
+  letter-spacing: 0.5px;
+}

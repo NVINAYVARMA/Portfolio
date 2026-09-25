@@ -1,0 +1,422 @@
+/* =========================================================
+   UNIFIED TOP NAVIGATION SYSTEM (PILL NAV + BRAND + ACTIONS)
+   ========================================================= */
+
+.pill-nav-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.pill-nav-inner {
+  --nav-h: 42px;
+  --pill-pad-x: 16px;
+  --pill-gap: 3px;
+
+  max-width: var(--container-max, 1200px);
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   BRAND IDENTITY (LEFT)
+   ========================================================= */
+
+.nav-brand {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--nav-h);
+  padding: 0 16px 0 6px;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--bg-surface, rgba(18, 18, 24, 0.85));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  text-decoration: none;
+  color: var(--text-primary, #ffffff);
+  transition: all var(--transition-fast, 0.2s ease);
+  flex-shrink: 0;
+}
+
+.nav-brand:hover {
+  background: var(--bg-surface-elevated, rgba(25, 25, 34, 0.95));
+  border-color: var(--border-hover, rgba(255, 255, 255, 0.25));
+  transform: translateY(-1px);
+}
+
+.nav-brand-logo-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.nav-brand-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+  display: block;
+}
+
+.nav-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.nav-brand-name {
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.nav-brand-sub {
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: var(--text-muted, #71717a);
+  white-space: nowrap;
+}
+
+/* =========================================================
+   DESKTOP CENTER PILL NAVIGATION
+   ========================================================= */
+
+.pill-nav-items {
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--nav-h);
+  background: var(--bg-surface, rgba(18, 18, 24, 0.85));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.pill-list {
+  list-style: none;
+  display: flex;
+  align-items: stretch;
+  gap: var(--pill-gap);
+  margin: 0;
+  padding: 3px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.pill-list li {
+  display: flex;
+  height: 100%;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 var(--pill-pad-x);
+  background: var(--pill-bg, transparent);
+  color: var(--pill-text, #f4f4f5);
+  text-decoration: none;
+  border-radius: var(--radius-full, 9999px);
+  box-sizing: border-box;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: color var(--transition-fast, 0.2s ease);
+}
+
+.pill.is-active {
+  color: var(--hover-text, #000000);
+  background: #ffffff;
+  font-weight: 700;
+}
+
+.pill .hover-circle {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  border-radius: 50%;
+  background: var(--base, #ffffff);
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.pill .label-stack {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+  z-index: 2;
+}
+
+.pill .pill-label {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  line-height: 1;
+  will-change: transform;
+}
+
+.pill .pill-label-hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--hover-text, #000000);
+  z-index: 3;
+  display: inline-block;
+  line-height: 1;
+  will-change: transform, opacity;
+  font-weight: 700;
+}
+
+/* =========================================================
+   RIGHT ACTIONS (REPLAY + MOBILE HAMBURGER)
+   ========================================================= */
+
+.nav-actions {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nav-replay-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--nav-h);
+  padding: 0 16px;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-full, 9999px);
+  background: var(--bg-surface, rgba(18, 18, 24, 0.85));
+  color: var(--text-primary, #f4f4f5);
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all var(--transition-fast, 0.2s ease);
+}
+
+.nav-replay-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  font-size: 13px;
+  line-height: 1;
+  color: #ffffff;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-replay-text {
+  white-space: nowrap;
+}
+
+.nav-replay-btn:hover {
+  color: #ffffff;
+  background: var(--bg-surface-elevated, rgba(25, 25, 34, 0.95));
+  border-color: var(--border-hover, rgba(255, 255, 255, 0.25));
+  transform: translateY(-1px);
+}
+
+.nav-replay-btn:hover .nav-replay-icon {
+  transform: rotate(360deg);
+}
+
+.nav-replay-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* =========================================================
+   MOBILE MENU TOGGLE BUTTON
+   ========================================================= */
+
+.mobile-menu-button {
+  width: var(--nav-h);
+  height: var(--nav-h);
+  border-radius: 50%;
+  background: var(--bg-surface, rgba(18, 18, 24, 0.85));
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all var(--transition-fast, 0.2s ease);
+}
+
+.mobile-menu-button:hover {
+  background: var(--bg-surface-elevated, rgba(25, 25, 34, 0.95));
+  border-color: var(--border-hover, rgba(255, 255, 255, 0.25));
+}
+
+.hamburger-line {
+  width: 16px;
+  height: 1.5px;
+  background: #ffffff;
+  border-radius: 1px;
+  transition: all 0.2s ease;
+  transform-origin: center;
+}
+
+/* =========================================================
+   MOBILE MENU DROPDOWN POPOVER
+   ========================================================= */
+
+.mobile-menu-popover {
+  pointer-events: auto;
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100vw - 32px), 340px);
+  background: #111116;
+  border: 1px solid var(--border-hover, rgba(255, 255, 255, 0.15));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius-md, 16px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+}
+
+.mobile-menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mobile-menu-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 18px;
+  color: var(--text-secondary, #a1a1aa);
+  background-color: transparent;
+  text-decoration: none;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-sm, 10px);
+  transition: all var(--transition-fast, 0.2s ease);
+}
+
+.mobile-menu-link:hover,
+.mobile-menu-link.is-active {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.mobile-menu-link.is-active {
+  font-weight: 700;
+}
+
+/* =========================================================
+   RESPONSIVENESS
+   ========================================================= */
+
+.desktop-only {
+  display: flex;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .nav-brand-text {
+    display: none;
+  }
+
+  .nav-brand {
+    padding: 0 4px;
+    width: var(--nav-h);
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .pill-nav-inner {
+    padding: 14px 16px;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: flex;
+  }
+
+  .nav-replay-text {
+    display: none;
+  }
+
+  .nav-replay-btn {
+    width: var(--nav-h);
+    padding: 0;
+  }
+
+  .nav-replay-icon {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .pill-nav-inner {
+    padding: 12px 14px;
+  }
+}
