@@ -1,5 +1,5 @@
 /* =========================================================
-   COMPETITIVE PROGRAMMING & RATINGS GRAPH
+   COMPETITIVE PROGRAMMING & GITHUB BENCHMARK GRAPH
    Design System: Professional Monochromatic Studio
    Conforms strictly to portfolio design tokens & layout
    ========================================================= */
@@ -58,6 +58,12 @@
   justify-content: center;
   flex-shrink: 0;
   transition: all var(--transition-fast);
+}
+
+.coding-brand-icon-box.github-box {
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.08);
 }
 
 .coding-brand-icon-box.leetcode-box {
@@ -319,7 +325,284 @@
 }
 
 /* =========================================================
-   3. CHART CANVAS STAGE
+   3. GITHUB CONTRIBUTION ACTIVITY GRID
+   ========================================================= */
+
+.github-activity-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+/* Controlled horizontal scroll area (never causes page overflow on mobile) */
+.github-calendar-scroll-area {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.github-calendar-scroll-area::-webkit-scrollbar {
+  height: 4px;
+}
+
+.github-calendar-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.github-calendar-scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.github-calendar-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.github-calendar-grid-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 780px;
+}
+
+/* Months labels header */
+.github-months-row {
+  display: flex;
+  align-items: center;
+  height: 16px;
+  position: relative;
+}
+
+.github-day-label-placeholder {
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.github-months-track {
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+.github-month-tag {
+  position: absolute;
+  top: 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* Calendar body: days labels + 52 weeks matrix */
+.github-calendar-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.github-weekdays-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 24px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.github-day-tag {
+  height: 11px;
+  line-height: 11px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  opacity: 0;
+}
+
+.github-day-tag.visible {
+  opacity: 1;
+}
+
+/* 52 Week Columns */
+.github-weeks-track {
+  display: flex;
+  gap: 3px;
+}
+
+.github-week-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* Individual Day Cell */
+.github-cell {
+  width: 11px;
+  height: 11px;
+  border-radius: 2.5px;
+  cursor: pointer;
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms ease;
+  will-change: transform;
+}
+
+/* Activity Levels (Vercel / Linear inspired Emerald Palette) */
+.github-cell.level-0 {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.github-cell.level-1 {
+  background: #0e4429;
+  border: 1px solid rgba(0, 230, 118, 0.22);
+}
+
+.github-cell.level-2 {
+  background: #006d32;
+  border: 1px solid rgba(0, 230, 118, 0.38);
+}
+
+.github-cell.level-3 {
+  background: #26a641;
+  border: 1px solid rgba(0, 230, 118, 0.55);
+}
+
+.github-cell.level-4 {
+  background: #39d353;
+  border: 1px solid #39d353;
+  box-shadow: 0 0 6px rgba(57, 211, 83, 0.45);
+}
+
+/* Tasteful cell hover state */
+.github-cell:hover {
+  transform: scale(1.3);
+  z-index: 10;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+}
+
+.github-cell.level-0:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+}
+
+/* Compact Glass Tooltip (Fixed position to avoid container clipping) */
+.github-cell-tooltip {
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -100%);
+  background: rgba(14, 15, 21, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--shadow-lg), 0 0 1px rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+
+.github-cell-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 4px;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: rgba(14, 15, 21, 0.96);
+}
+
+.tooltip-contrib-count {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.tooltip-contrib-date {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+/* GitHub Footer: Sync Status + Legend */
+.github-activity-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.github-sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sync-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.sync-status-dot.synced {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+}
+
+.sync-status-dot.cached {
+  background: #71717a;
+}
+
+.sync-status-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.github-legend-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+
+.legend-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-dim);
+}
+
+.legend-cells {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.legend-cells .github-cell {
+  cursor: default;
+}
+
+.legend-cells .github-cell:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================================
+   4. CONTEST TRAJECTORY CANVAS (LEETCODE & CODECHEF)
    ========================================================= */
 
 .coding-chart-stage {
@@ -338,7 +621,6 @@
   overflow: visible;
 }
 
-/* Radar pulse ripple on active point */
 .sonar-ripple-wave {
   animation: radarRipple 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   transform-origin: center;
@@ -359,15 +641,10 @@
   }
 }
 
-/* Static Peak Pill Pin */
 .peak-pin-marker {
   pointer-events: none;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
 }
-
-/* =========================================================
-   4. FLOATING GLASS HUD TOOLTIP
-   ========================================================= */
 
 .coding-chart-tooltip {
   position: absolute;
@@ -590,6 +867,8 @@
 
   .coding-tab-btn {
     flex: 1;
+    padding: 6px 10px;
+    font-size: 11.5px;
   }
 
   .coding-metrics-bar {
@@ -609,5 +888,11 @@
 
   .timeline-contest-pill {
     flex-shrink: 0;
+  }
+
+  .github-activity-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
