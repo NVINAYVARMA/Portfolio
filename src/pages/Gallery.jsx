@@ -6,6 +6,26 @@ import "./Gallery.css";
 
 const DRIFT_GALLERY_ITEMS = [
   {
+    id: "pr1",
+    image: "/images/promethean-first-prize.jpg",
+    title: "Promethean — 1st Prize Winner Felicitation",
+    category: "HACKATHONS & AWARDS",
+    date: "2026",
+    description:
+      "Awarded First Prize at Promethean, B V Raju Institute of Technology. Honored on stage by department faculty and dignitaries with the official winner certificate for outstanding technical execution, innovation, and presentation excellence.",
+    aspect: "landscape",
+  },
+  {
+    id: "pr2",
+    image: "/images/promethean-team-pitch.jpg",
+    title: "Promethean Champions — Strategy & Pitch Arena",
+    category: "CAMPUS & EVENTS",
+    date: "2026",
+    description:
+      "The winning team assembled in the presentation arena following our First Prize victory at Promethean, BVRIT campus. Celebrated after rigorous rounds of technical strategy, solution pitching, and competitive problem solving.",
+    aspect: "landscape",
+  },
+  {
     id: "h1",
     image: "/images/hackathon-certificate.jpg",
     title: "TechSurge 2k26 Certificate of Appreciation",
@@ -145,7 +165,7 @@ export default function Gallery() {
 
           <h1 className="gallery-title">Gallery</h1>
           <p className="gallery-subtitle">
-            An interactive 3D parallax drifting wall capturing 36-hour hackathons, stage felicitations, award ceremonies, and innovation lab sprints at B V Raju Institute of Technology.
+            An interactive 3D parallax drifting wall capturing our 1st-prize victory at Promethean, 36-hour hackathons, stage felicitations, and innovation lab sprints at B V Raju Institute of Technology.
           </p>
         </motion.div>
       </section>

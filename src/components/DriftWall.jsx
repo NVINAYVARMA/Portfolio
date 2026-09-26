@@ -3,6 +3,20 @@ import './DriftWall.css';
 
 const DEFAULT_ITEMS = [
   {
+    image: '/images/promethean-first-prize.jpg',
+    title: 'Promethean — 1st Prize Winner Felicitation',
+    category: 'HACKATHONS & AWARDS',
+    date: '2026',
+    description: 'Awarded First Prize at Promethean, B V Raju Institute of Technology. Honored on stage with the official winner certificate for outstanding innovation and presentation.'
+  },
+  {
+    image: '/images/promethean-team-pitch.jpg',
+    title: 'Promethean Champions — Strategy & Pitch Arena',
+    category: 'CAMPUS & EVENTS',
+    date: '2026',
+    description: 'The winning team assembled in the presentation arena following our First Prize victory at Promethean, BVRIT campus.'
+  },
+  {
     image: '/images/hackathon-certificate.jpg',
     title: 'Certificate of Appreciation • TechSurge 2k26',
     category: 'HACKATHONS & AWARDS',

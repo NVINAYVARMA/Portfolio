@@ -4,46 +4,60 @@ import "./PolaroidStrip.css";
 
 const POLAROIDS = [
   {
+    id: "p0",
+    title: "1st Prize Promethean",
+    sub: "Stage Felicitation • BVRIT",
+    image: "/images/promethean-first-prize.jpg",
+    rotate: -4,
+  },
+  {
     id: "p1",
     title: "3rd Prize Trophy",
     sub: "36-Hr Hackathon • BVRIT",
     image: "/images/hackathon-trophy.jpg",
-    rotate: -4,
+    rotate: 3.5,
   },
   {
     id: "p2",
     title: "Award Ceremony",
     sub: "Victory Stage • Feb 2026",
     image: "/images/hackathon-ceremony.jpg",
-    rotate: 3.5,
+    rotate: -3,
+  },
+  {
+    id: "p-pitch",
+    title: "Promethean Champions",
+    sub: "Winning Strategy Syndicate",
+    image: "/images/promethean-team-pitch.jpg",
+    rotate: 4,
   },
   {
     id: "p3",
     title: "Certificate of Honor",
     sub: "Healthcare & Biotech • C-FORCE",
     image: "/images/hackathon-certificate.jpg",
-    rotate: -3,
+    rotate: -2.5,
   },
   {
     id: "p4",
     title: "TechSurge 2k26 Stage",
     sub: "Kalachakra Hackathon • BVRIT",
     image: "/images/hackathon-techsurge-stage.jpg",
-    rotate: 4.5,
+    rotate: 3.5,
   },
   {
     id: "p5",
     title: "Innovation Lab Sprint",
     sub: "Mentorship & Project Review",
     image: "/images/hackathon-mentorship.jpg",
-    rotate: -2.5,
+    rotate: -3,
   },
   {
     id: "p6",
     title: "HackIndia Swag & Medals",
     sub: "Merit Kit & BVRIT Certificates",
     image: "/images/hackathon-swag-certificates.jpg",
-    rotate: 3.5,
+    rotate: 2.5,
   },
 ];
 
