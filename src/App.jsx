@@ -13,6 +13,7 @@ import ShaderFlow from "./components/ShaderFlow";
 import Navbar from "./components/Navbar";
 import ScrollProgress from "./components/ScrollProgress";
 import ScrollToTopButton from "./components/ScrollToTopButton";
+import SmoothScroll from "./components/SmoothScroll";
 
 import { lazy, Suspense } from "react";
 import Home from "./pages/Home";
@@ -36,10 +37,10 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0, y: 10, filter: "blur(3px)" }}
+        initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
-        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
         className="page-wrapper"
       >
         <Suspense fallback={<div className="page-suspense-fallback" style={{ minHeight: "80vh" }} />}>
@@ -71,14 +72,14 @@ function App() {
 
   return (
     <BrowserRouter>
-      {/* Universal Scroll Progress Indicator */}
-      <ScrollProgress />
+      <SmoothScroll>
+        {/* Universal Scroll Progress Indicator */}
+        <ScrollProgress />
 
-      {/* Floating Scroll To Top with Progress Ring */}
-      <ScrollToTopButton />
+        {/* Floating Scroll To Top with Progress Ring */}
+        <ScrollToTopButton />
 
-      {/* Signature WebGL Ambient Flow Waves (rbp-portfolio) - active after intro */}
-      {!loading && (
+        {/* Signature WebGL Ambient Flow Waves (rbp-portfolio) - active from start */}
         <div className="ambient-flow-shader-layer" aria-hidden="true">
           <ShaderFlow
             flowSpeed={[0.06, 0.12]}
@@ -90,26 +91,26 @@ function App() {
             bgColor={[0.035, 0.035, 0.04]}
           />
         </div>
-      )}
 
-      {/* Falling Cosmic Particles */}
-      <FallingDotsBackground />
+        {/* Falling Cosmic Particles */}
+        <FallingDotsBackground />
 
-      {/* Intro Loader */}
-      {loading && (
-        <IntroLoader onComplete={handleIntroComplete} />
-      )}
+        {/* Intro Loader */}
+        {loading && (
+          <IntroLoader onComplete={handleIntroComplete} />
+        )}
 
-      {/* Main application (hidden during intro to prevent background WebGL & layout lag) */}
-      <div className="app-root" style={{ display: loading ? "none" : "block" }}>
-        {/* Navigation */}
-        <Navbar />
+        {/* Main application (rendered underneath intro so curtain reveals home page seamlessly) */}
+        <div className="app-root">
+          {/* Navigation */}
+          <Navbar />
 
-        {/* Pages with smooth transitions */}
-        <main className="portfolio">
-          <AnimatedRoutes />
-        </main>
-      </div>
+          {/* Pages with smooth transitions */}
+          <main className="portfolio">
+            <AnimatedRoutes />
+          </main>
+        </div>
+      </SmoothScroll>
     </BrowserRouter>
   );
 }

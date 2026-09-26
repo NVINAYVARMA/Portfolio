@@ -434,6 +434,22 @@ export default function Home() {
         viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
+        <motion.div
+          className="home-section-header"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <div className="badge badge-status">
+            <span className="status-dot" />
+            <span>ALGORITHMS &amp; BENCHMARKS</span>
+          </div>
+          <h2 className="home-section-title">Contest Performance</h2>
+          <p className="home-section-sub">
+            Verified competitive programming ratings, global standing, and contest trajectory
+          </p>
+        </motion.div>
         <CodingStatsGraph />
       </motion.section>
 

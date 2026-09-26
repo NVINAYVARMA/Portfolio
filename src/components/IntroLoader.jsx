@@ -1,30 +1,123 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import "./IntroLoader.css";
 
 /* =========================================================
-   AUTHENTIC COMPETITION RUBIK'S CUBE COLORS
+   INTRO BACKGROUND MOVING DOTS CANVAS
+   (Solid black dark-theme background with falling particles)
+   ========================================================= */
+
+function IntroDots() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animFrame = null;
+    let width = (canvas.width = canvas.offsetWidth || window.innerWidth);
+    let height = (canvas.height = canvas.offsetHeight || window.innerHeight);
+
+    const isMobile = width < 768;
+    const dotCount = isMobile ? 25 : 48;
+
+    const dots = Array.from({ length: dotCount }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      speed: 0.35 + Math.random() * 0.75,
+      size: 1.0 + Math.random() * 1.6,
+      opacity: 0.15 + Math.random() * 0.45,
+      pulseSpeed: 0.01 + Math.random() * 0.02,
+      pulseDir: 1,
+    }));
+
+    const resize = () => {
+      width = canvas.width = canvas.offsetWidth || window.innerWidth;
+      height = canvas.height = canvas.offsetHeight || window.innerHeight;
+    };
+    window.addEventListener("resize", resize, { passive: true });
+
+    let lastTime = performance.now();
+
+    const draw = (now) => {
+      const delta = Math.min((now - lastTime) / 16.667, 2.0);
+      lastTime = now;
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < dots.length; i++) {
+        const d = dots[i];
+
+        d.y += d.speed * delta;
+        if (d.y > height + 10) {
+          d.y = -10;
+          d.x = Math.random() * width;
+        }
+
+        d.opacity += d.pulseDir * d.pulseSpeed * delta;
+        if (d.opacity > 0.6) {
+          d.opacity = 0.6;
+          d.pulseDir = -1;
+        } else if (d.opacity < 0.15) {
+          d.opacity = 0.15;
+          d.pulseDir = 1;
+        }
+
+        ctx.fillStyle = `rgba(255,255,255,${d.opacity})`;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      animFrame = requestAnimationFrame(draw);
+    };
+
+    const onVisibility = () => {
+      if (document.hidden) {
+        if (animFrame) cancelAnimationFrame(animFrame);
+      } else {
+        lastTime = performance.now();
+        animFrame = requestAnimationFrame(draw);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    animFrame = requestAnimationFrame(draw);
+
+    return () => {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      window.removeEventListener("resize", resize);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="intro-dots-canvas" />;
+}
+
+/* =========================================================
+   RUBIK'S CUBE COLORS (PRESERVED EXACTLY)
    ========================================================= */
 
 const COLORS = {
-  U: "#ffffff", // Top (Pure White)
-  D: "#ffd500", // Bottom (Competition Yellow)
-  F: "#00a651", // Front (Vibrant Green)
-  B: "#0057b8", // Back (Cobalt Blue)
-  R: "#d00000", // Right (Competition Red)
-  L: "#ff7200", // Left (Vibrant Orange)
+  U: "#ffffff", // Top
+  D: "#ffd500", // Bottom
+  F: "#00a651", // Front
+  B: "#0057b8", // Back
+  R: "#d00000", // Right
+  L: "#ff7200", // Left
 };
 
 /* =========================================================
-   SCRAMBLE & SOLVE SEQUENCES (VERIFIED SPEEDCUBING SOLVER)
+   SCRAMBLE / SOLVE SEQUENCES (PRESERVED EXACTLY)
    ========================================================= */
 
 const SCRAMBLE = ["R", "U", "R'", "F", "D", "L'", "U", "F'", "R", "D'", "B", "L"];
 const SOLVE = ["L'", "B'", "D", "R'", "F", "U'", "L", "D'", "F'", "R", "U'", "R'"];
 
 /* =========================================================
-   CUBE GEOMETRY CONSTANTS
+   CUBE SETTINGS (PRESERVED EXACTLY)
    ========================================================= */
 
 const CUBIE_SIZE = 0.94;
@@ -56,10 +149,6 @@ const AXIS_VECTORS = {
   z: new THREE.Vector3(0, 0, 1),
 };
 
-/* =========================================================
-   ROTATION HELPERS
-   ========================================================= */
-
 function getMove(move) {
   const face = move.replace("'", "");
   const definition = MOVE_DEFINITIONS[face];
@@ -75,10 +164,12 @@ function rotatePosition({ x, y, z }, axis, direction) {
   if (axis === "x") {
     return direction === 1 ? { x, y: -z, z: y } : { x, y: z, z: -y };
   }
+
   if (axis === "y") {
-    return direction === 1 ? { x: z, y, z: -x } : { x, y: z, z: -y };
+    return direction === 1 ? { x: z, y, z: -x } : { x: -z, y, z: x };
   }
-  return direction === 1 ? { x: -y, y: x, z } : { x, y: -x, z };
+
+  return direction === 1 ? { x: -y, y: x, z } : { x: y, y: -x, z };
 }
 
 function createSolvedCube() {
@@ -111,19 +202,12 @@ function applyMove(cube, move) {
   if (!data) return cube;
 
   const axis = AXIS_VECTORS[data.axis];
-  const rotation = new THREE.Quaternion().setFromAxisAngle(
-    axis,
-    (data.direction * Math.PI) / 2
-  );
+  const rotation = new THREE.Quaternion().setFromAxisAngle(axis, (data.direction * Math.PI) / 2);
 
   return cube.map((piece) => {
     if (piece[data.axis] !== data.layer) return piece;
 
-    const newPosition = rotatePosition(
-      { x: piece.x, y: piece.y, z: piece.z },
-      data.axis,
-      data.direction
-    );
+    const newPosition = rotatePosition({ x: piece.x, y: piece.y, z: piece.z }, data.axis, data.direction);
     const newQuaternion = rotation.clone().multiply(piece.quaternion);
 
     return { ...piece, ...newPosition, quaternion: newQuaternion };
@@ -145,52 +229,34 @@ function Sticker({ face, color }) {
   return (
     <mesh position={data.position}>
       <boxGeometry args={data.size} />
-      <meshStandardMaterial
-        color={COLORS[color]}
-        roughness={0.18}
-        metalness={0.02}
-        toneMapped={false}
-      />
+      <meshStandardMaterial color={COLORS[color]} roughness={0.28} metalness={0.02} toneMapped={false} />
     </mesh>
   );
 }
 
 /* =========================================================
-   CUBIE WITH PERFECT CIRCULAR ARC ROTATION (NO CLIPPING)
+   CUBIE
    ========================================================= */
 
-function Cubie({ piece, activeMoveRef }) {
+function Cubie({ piece, animation }) {
   const groupRef = useRef(null);
-  const startPos = useRef(new THREE.Vector3());
 
   useFrame(() => {
     const group = groupRef.current;
     if (!group) return;
 
-    const active = activeMoveRef.current;
+    if (animation) {
+      const { startPosition, endPosition, startQuaternion, endQuaternion, progress } = animation;
 
-    // Check if this cubie is on the currently turning layer
-    if (active && piece[active.axisName] === active.layer) {
-      const now = performance.now();
-      const progress = Math.min((now - active.startTime) / active.duration, 1.0);
+      // Cubic ease-in-out
+      const eased =
+        progress < 0.5 ? 4 * progress * progress * progress : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
-      // Buttery-smooth sinusoidal easing (zero acceleration discontinuity)
-      const eased = 0.5 - 0.5 * Math.cos(progress * Math.PI);
-      const angle = active.totalAngle * eased;
-
-      // 1. Rotate position along a circle around the rotation axis:
-      startPos.current.set(piece.x * SPACING, piece.y * SPACING, piece.z * SPACING);
-      group.position
-        .copy(startPos.current)
-        .applyAxisAngle(active.axisVector, angle);
-
-      // 2. Rotate orientation around the rotation axis:
-      const rotQuat = new THREE.Quaternion().setFromAxisAngle(active.axisVector, angle);
-      group.quaternion.copy(rotQuat).multiply(piece.quaternion);
+      group.position.lerpVectors(startPosition, endPosition, eased);
+      group.quaternion.slerpQuaternions(startQuaternion, endQuaternion, eased);
       return;
     }
 
-    // Default static position when not rotating:
     group.position.set(piece.x * SPACING, piece.y * SPACING, piece.z * SPACING);
     group.quaternion.copy(piece.quaternion);
   });
@@ -199,7 +265,7 @@ function Cubie({ piece, activeMoveRef }) {
     <group ref={groupRef}>
       <mesh>
         <boxGeometry args={[CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE]} />
-        <meshStandardMaterial color="#111116" roughness={0.3} metalness={0.08} />
+        <meshStandardMaterial color="#050505" roughness={0.3} metalness={0.08} />
       </mesh>
 
       {Object.entries(piece.stickers).map(([face, color]) => (
@@ -210,24 +276,48 @@ function Cubie({ piece, activeMoveRef }) {
 }
 
 /* =========================================================
-   RUBIK'S CUBE (SMOOTH PRESENTATION + FLOATING DYNAMICS)
+   RUBIK'S CUBE (MOTION & PRESENTATION)
    ========================================================= */
 
-function RubiksCube({ cube, activeMoveRef, solving, solved }) {
+function RubiksCube({ cube, activeMove, moveId, animationProgress, solving, solved }) {
   const cubeRef = useRef(null);
 
-  useFrame(() => {
+  const animations = useMemo(() => {
+    const move = activeMove ? getMove(activeMove) : null;
+    if (!move) return {};
+
+    const axis = AXIS_VECTORS[move.axis];
+    const rotation = new THREE.Quaternion().setFromAxisAngle(axis, (move.direction * Math.PI) / 2);
+    const result = {};
+
+    cube.forEach((piece) => {
+      if (piece[move.axis] !== move.layer) return;
+
+      const startPosition = new THREE.Vector3(piece.x * SPACING, piece.y * SPACING, piece.z * SPACING);
+      const rotated = rotatePosition({ x: piece.x, y: piece.y, z: piece.z }, move.axis, move.direction);
+      const endPosition = new THREE.Vector3(rotated.x * SPACING, rotated.y * SPACING, rotated.z * SPACING);
+      const startQuaternion = piece.quaternion.clone();
+      const endQuaternion = rotation.clone().multiply(startQuaternion);
+
+      result[piece.id] = { startPosition, endPosition, startQuaternion, endQuaternion, progress: animationProgress };
+    });
+
+    return result;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cube, activeMove, moveId, animationProgress]);
+
+  useFrame((state) => {
     const group = cubeRef.current;
     if (!group) return;
 
-    const time = performance.now() * 0.001;
+    const time = state.clock.getElapsedTime();
 
-    // Natural breathing float
+    // Subtle natural floating buoyancy
     group.position.x = 0;
     group.position.z = 0;
-    group.position.y = Math.sin(time * 1.2) * 0.015;
+    group.position.y = Math.sin(time * 0.95) * 0.018;
 
-    // Iconic 3-face perspective angle: ~30° tilt with ~45° turn
+    // Architectural presentation angle
     const targetRotationX = -0.52;
     const targetRotationY = 0.78;
 
@@ -235,40 +325,42 @@ function RubiksCube({ cube, activeMoveRef, solving, solved }) {
     group.rotation.y += (targetRotationY - group.rotation.y) * 0.04;
 
     if (solving) {
-      group.rotation.y += Math.sin(time * 2.2) * 0.0008;
+      group.rotation.y += Math.sin(time * 1.8) * 0.0006;
     }
 
     if (solved) {
-      group.rotation.x += (-0.62 - group.rotation.x) * 0.035;
-      group.rotation.y += (0.9 - group.rotation.y) * 0.035;
+      group.rotation.x += (-0.62 - group.rotation.x) * 0.03;
+      group.rotation.y += (0.9 - group.rotation.y) * 0.03;
     }
   });
 
   return (
     <group ref={cubeRef}>
       {cube.map((piece) => (
-        <Cubie key={piece.id} piece={piece} activeMoveRef={activeMoveRef} />
+        <Cubie key={piece.id} piece={piece} animation={animations[piece.id]} />
       ))}
     </group>
   );
 }
 
 /* =========================================================
-   SCENE / STUDIO LIGHTING
+   SCENE & STUDIO LIGHTING
    ========================================================= */
 
-function CubeScene({ cube, activeMoveRef, solving, solved }) {
+function CubeScene({ cube, activeMove, moveId, animationProgress, solving, solved }) {
   return (
     <>
-      <ambientLight intensity={2.0} />
-      <directionalLight position={[6, 8, 8]} intensity={4.0} />
-      <directionalLight position={[-6, 3, 5]} intensity={2.0} />
-      <directionalLight position={[-4, -3, -5]} intensity={1.2} />
-      <pointLight position={[0, 4, 4]} intensity={1.8} />
+      <ambientLight intensity={1.8} />
+      <directionalLight position={[5, 7, 8]} intensity={4.2} />
+      <directionalLight position={[-5, 3, 5]} intensity={1.8} />
+      <directionalLight position={[-4, 2, -5]} intensity={1.2} />
+      <pointLight position={[0, 5, 4]} intensity={1.8} />
 
       <RubiksCube
         cube={cube}
-        activeMoveRef={activeMoveRef}
+        activeMove={activeMove}
+        moveId={moveId}
+        animationProgress={animationProgress}
         solving={solving}
         solved={solved}
       />
@@ -276,21 +368,50 @@ function CubeScene({ cube, activeMoveRef, solving, solved }) {
   );
 }
 
-/* =========================================================
-   CANVAS WRAPPER
-   ========================================================= */
-
-function RubiksCanvas({ cube, activeMoveRef, solving, solved }) {
+function RubiksCanvas({ cube, activeMove, moveId, animationProgress, solving, solved }) {
   return (
     <Canvas
       className="rubiks-canvas"
       camera={{ position: [9, 8.2, 9.5], fov: 40, near: 0.1, far: 80 }}
-      dpr={[1, 1.5]}
+      dpr={[1, 1.75]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      onCreated={({ camera, gl }) => {
+        const canvas = gl.domElement;
+        const parent = canvas.parentElement;
+
+        const updateCanvasSize = () => {
+          const width = parent?.clientWidth || window.innerWidth;
+          const height = parent?.clientHeight || window.innerHeight;
+
+          camera.aspect = width / Math.max(height, 1);
+          camera.lookAt(0, 0, 0);
+          camera.updateProjectionMatrix();
+
+          gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+          gl.setSize(width, height, false);
+        };
+
+        updateCanvasSize();
+
+        const observer = parent ? new ResizeObserver(updateCanvasSize) : null;
+        observer?.observe(parent);
+        window.addEventListener("resize", updateCanvasSize);
+
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.display = "block";
+
+        return () => {
+          observer?.disconnect();
+          window.removeEventListener("resize", updateCanvasSize);
+        };
+      }}
     >
       <CubeScene
         cube={cube}
-        activeMoveRef={activeMoveRef}
+        activeMove={activeMove}
+        moveId={moveId}
+        animationProgress={animationProgress}
         solving={solving}
         solved={solved}
       />
@@ -302,64 +423,81 @@ function RubiksCanvas({ cube, activeMoveRef, solving, solved }) {
    TIMING CONFIGURATION
    ========================================================= */
 
-const TURN_DURATION_MS = 250; // Fast, snappy, buttery-smooth turn duration
-const TURN_PAUSE_MS = 25; // Brief rhythm pause between turns
-const CURTAIN_DURATION_MS = 2000; // Synchronized curtain reveal
+const TURN_DURATION_MS = 260;
+const TURN_PAUSE_MS = 30;
+// Curtains fall and glide over 3 seconds directly revealing the website with zero black-screen lag
+const CURTAIN_DURATION_MS = 3200;
 
 /* =========================================================
-   INTRO LOADER COMPONENT
+   INTRO LOADER COMPONENT (PROFESSIONAL LUXURY EDITORIAL UI)
    ========================================================= */
 
 export default function IntroLoader({ onComplete }) {
   const [cube, setCube] = useState(createScrambledCube);
-  const [phase, setPhase] = useState("scrambled"); // scrambled | solving | solved
+  const [phase, setPhase] = useState("intro"); // intro | scrambled | solving | solved
   const [activeMove, setActiveMove] = useState(null);
+  const [moveId, setMoveId] = useState(0);
+  const [animationProgress, setAnimationProgress] = useState(0);
   const [progress, setProgress] = useState(0);
   const [moveNumber, setMoveNumber] = useState(0);
-  const [cubeVisible, setCubeVisible] = useState(true);
+  const [cubeVisible, setCubeVisible] = useState(false);
   const [closing, setClosing] = useState(false);
+  const skipTriggeredRef = useRef(false);
 
-  // Stable callback ref
-  const onCompleteRef = useRef(onComplete);
+  const handleSkip = () => {
+    if (skipTriggeredRef.current) return;
+    skipTriggeredRef.current = true;
+    onComplete?.();
+  };
+
+  // Keyboard shortcut [Escape] to skip instantly
   useEffect(() => {
-    onCompleteRef.current = onComplete;
-  }, [onComplete]);
-
-  // Ref driving Three.js 60-120fps rotation without ANY React state thrashing
-  const activeMoveRef = useRef(null);
-  const isCancelledRef = useRef(false);
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleSkip();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
-    isCancelledRef.current = false;
+    let cancelled = false;
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     async function performMove(move, index, total) {
-      if (isCancelledRef.current) return;
-
-      const data = getMove(move);
-      if (!data) return;
+      if (cancelled) return;
 
       setActiveMove(move);
       setMoveNumber(index + 1);
+      setMoveId((value) => value + 1);
 
-      // Set active move parameters for the Three.js useFrame loop
-      activeMoveRef.current = {
-        move,
-        axisName: data.axis,
-        axisVector: AXIS_VECTORS[data.axis],
-        layer: data.layer,
-        totalAngle: (data.direction * Math.PI) / 2,
-        startTime: performance.now(),
-        duration: TURN_DURATION_MS,
-      };
+      const start = performance.now();
 
-      // Wait exactly TURN_DURATION_MS while Three.js animates the turn smoothly
-      await wait(TURN_DURATION_MS);
-      if (isCancelledRef.current) return;
+      await new Promise((resolve) => {
+        function animate(now) {
+          if (cancelled) {
+            resolve();
+            return;
+          }
 
-      // Commit the completed move to the cube state
-      activeMoveRef.current = null;
+          const value = Math.min((now - start) / TURN_DURATION_MS, 1);
+          setAnimationProgress(value);
+
+          if (value < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            resolve();
+          }
+        }
+
+        requestAnimationFrame(animate);
+      });
+
+      if (cancelled) return;
+
       setCube((current) => applyMove(current, move));
+      setAnimationProgress(0);
       setActiveMove(null);
       setProgress(Math.round(((index + 1) / total) * 100));
 
@@ -367,100 +505,95 @@ export default function IntroLoader({ onComplete }) {
     }
 
     async function runIntro() {
-      // 1. Initial breathing pose
-      setPhase("scrambled");
-      setCubeVisible(true);
-      await wait(600);
-      if (isCancelledRef.current) return;
+      // 1. Initial fade-in
+      setPhase("intro");
+      await wait(350);
+      if (cancelled) return;
 
-      // 2. Solve sequence
+      // 2. Cube enters
+      setCubeVisible(true);
+      setPhase("scrambled");
+      await wait(700);
+      if (cancelled) return;
+
+      // 3. Solving sequence
       setPhase("solving");
       for (let i = 0; i < SOLVE.length; i++) {
         await performMove(SOLVE[i], i, SOLVE.length);
-        if (isCancelledRef.current) return;
+        if (cancelled) return;
       }
 
-      // 3. Solved hero moment
+      // 4. Hero solved hold
       setPhase("solved");
       setProgress(100);
       setMoveNumber(SOLVE.length);
-      await wait(500);
-      if (isCancelledRef.current) return;
+      await wait(600);
+      if (cancelled) return;
 
-      // 4. Cinematic curtain cascades smoothly over screen, displays logo, reveals site
+      // 5. Cinematic curtain cascades smoothly over the stage and reveals the site
       setClosing(true);
       await wait(CURTAIN_DURATION_MS);
-      if (isCancelledRef.current) return;
+      if (cancelled) return;
 
-      // 5. Transition complete
-      onCompleteRef.current?.();
+      // 6. Complete handoff to application
+      if (!skipTriggeredRef.current) {
+        skipTriggeredRef.current = true;
+        onComplete?.();
+      }
     }
 
     runIntro();
 
-    // Allow user to skip immediately with Escape key
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        isCancelledRef.current = true;
-        onCompleteRef.current?.();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-
     return () => {
-      isCancelledRef.current = true;
-      window.removeEventListener("keydown", handleKeyDown);
+      cancelled = true;
     };
-  }, []);
+  }, [onComplete]);
 
-  const handleSkip = () => {
-    isCancelledRef.current = true;
-    onCompleteRef.current?.();
-  };
-
-  const statusText =
+  const statusLabel =
     phase === "intro"
-      ? "PREPARING"
+      ? "INITIALIZING"
       : phase === "scrambled"
-      ? "SCRAMBLED"
+      ? "SIMULATING"
       : phase === "solving"
-      ? "SOLVING"
-      : "SOLVED";
+      ? "SOLVING ALGORITHM"
+      : "OPTIMAL STATE REACHED";
 
   return (
     <div className={`intro-loader ${closing ? "intro-closing" : ""}`}>
-      {/* BACKGROUND ORBITS */}
-      <div className="intro-orbit intro-orbit-one" />
-      <div className="intro-orbit intro-orbit-two" />
-      <div className="intro-orbit intro-orbit-three" />
-      <div className="intro-noise" />
+      {/* SOLID DARK BACKGROUND WITH MOVING PARTICLES */}
+      <div className="intro-paper" />
+      <div className="intro-grid" />
+      <div className="intro-vignette" />
+      <IntroDots />
 
-      {/* HEADER */}
+      {/* REFINED ARCHITECTURAL HEADER */}
       <header className="intro-header">
-        <div className="intro-brand">NVV</div>
-        <div className="intro-header-title">V2-PORTFOLIO</div>
+        <div className="intro-brand-group">
+          <img src="/images/logo.png" alt="Vinay Varma" className="intro-brand-logo" />
+          <div className="intro-brand-text">
+            <span className="intro-brand-name">VINAY VARMA</span>
+            <span className="intro-brand-sub">PORTFOLIO // 2026</span>
+          </div>
+        </div>
+
+        <div className="intro-header-status">
+          <span className="intro-live-dot" />
+          <span className="intro-live-text">{statusLabel}</span>
+        </div>
+
         <button
           type="button"
           className="intro-skip-btn"
           onClick={handleSkip}
           aria-label="Skip introductory animation"
         >
-          Skip [Esc] ↗
+          <span>SKIP</span>
+          <span className="intro-skip-kbd">ESC</span>
+          <span className="intro-skip-arrow" aria-hidden="true">&rarr;</span>
         </button>
       </header>
 
-      {/* TOP META */}
-      <div className="intro-meta intro-meta-left">
-        <span>01</span>
-        <span>PERSONAL PORTFOLIO</span>
-      </div>
-
-      <div className="intro-meta intro-meta-right">
-        <span>3D / INTERACTION</span>
-        <span>RUBIK'S CUBE</span>
-      </div>
-
-      {/* CENTERED CUBE */}
+      {/* 3D CUBE STAGE (PRESERVED EXACT CUBE RENDERING) */}
       <div
         className={[
           "intro-cube",
@@ -472,96 +605,74 @@ export default function IntroLoader({ onComplete }) {
       >
         <RubiksCanvas
           cube={cube}
-          activeMoveRef={activeMoveRef}
+          activeMove={activeMove}
+          moveId={moveId}
+          animationProgress={animationProgress}
           solving={phase === "solving"}
           solved={phase === "solved"}
         />
       </div>
 
-      {/* CUBE STATUS */}
-      <div className={`intro-cube-info ${cubeVisible ? "info-visible" : "info-hidden"}`}>
-        <div className="intro-info-line">
-          <span className="intro-info-dot" />
-          <span>{statusText}</span>
-        </div>
-
-        <div className="intro-info-move">
-          <span>MOVE</span>
-          <strong>{activeMove || "—"}</strong>
-        </div>
-      </div>
-
-      {/* SOLUTION SEQUENCE */}
-      <div className={`intro-notation ${cubeVisible ? "notation-visible" : "notation-hidden"}`}>
-        <span className="notation-label">SOLUTION SEQUENCE</span>
-
-        <div className="notation-list">
-          {SOLVE.map((move, index) => (
-            <span
-              key={`${move}-${index}`}
-              className={[
-                "notation-move",
-                index < moveNumber ? "notation-complete" : "",
-                index === moveNumber - 1 ? "notation-current" : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            >
-              {move}
+      {/* PROFESSIONAL TELEMETRY & MICRO-STEPPER */}
+      <div className={`intro-cube-badge ${cubeVisible ? "badge-visible" : "badge-hidden"}`}>
+        <div className="intro-cube-badge-inner">
+          <div className="cube-badge-header">
+            <span className="cube-badge-kicker">ALGORITHM</span>
+            <span className="cube-badge-title">
+              {phase === "solving"
+                ? `STEP ${moveNumber} OF ${SOLVE.length}`
+                : phase === "solved"
+                ? "SOLVED"
+                : "3D SIMULATION"}
             </span>
-          ))}
-        </div>
-      </div>
-
-      {/* SIDE LABELS */}
-      <div className="intro-side-label intro-side-left">DESIGN / CODE / CURIOSITY</div>
-      <div className="intro-side-label intro-side-right">HYDERABAD / INDIA</div>
-
-      {/* FOOTER */}
-      <footer className="intro-footer">
-        <span>HYDERABAD, INDIA</span>
-
-        <div className="intro-progress">
-          <div className="intro-progress-label">
-            <span>EXPERIENCE</span>
-            <strong>{String(progress).padStart(3, "0")}%</strong>
+            {activeMove && <span className="cube-badge-move">{activeMove}</span>}
           </div>
 
+          <div className="cube-stepper" aria-hidden="true">
+            {SOLVE.map((_, i) => (
+              <span
+                key={i}
+                className={`cube-stepper-tick ${i < moveNumber ? "tick-active" : ""}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* LUXURY EDITORIAL FOOTER */}
+      <footer className="intro-footer">
+        <div className="intro-footer-col">
+          <span className="intro-footer-label">EXPERIENCE</span>
+          <span className="intro-footer-val">SOFTWARE &bull; UI/UX</span>
+        </div>
+
+        <div className="intro-progress-hub">
+          <div className="intro-progress-meta">
+            <span className="intro-progress-status">SYSTEM INITIALIZATION</span>
+            <span className="intro-progress-num">{String(progress).padStart(3, "0")}%</span>
+          </div>
           <div className="intro-progress-track">
             <div style={{ width: `${progress}%` }} />
           </div>
         </div>
 
-        <span>2026</span>
+        <div className="intro-footer-col intro-footer-right">
+          <span className="intro-footer-label">LOCATION</span>
+          <span className="intro-footer-val">HYDERABAD, INDIA</span>
+        </div>
       </footer>
 
-      {/* DECORATIVE MARKS */}
-      <span className="intro-dot intro-dot-one" />
-      <span className="intro-dot intro-dot-two" />
-      <span className="intro-dot intro-dot-three" />
-      <span className="intro-cross intro-cross-one">+</span>
-      <span className="intro-cross intro-cross-two">+</span>
-
-      <div className="intro-coordinate intro-coordinate-tl">17.3850° N</div>
-      <div className="intro-coordinate intro-coordinate-tr">78.4867° E</div>
-      <div className="intro-coordinate intro-coordinate-bl">NVV / 001</div>
-      <div className="intro-coordinate intro-coordinate-br">BUILD / CREATE</div>
-
-      {/* FIVE-PANEL CINEMATIC CURTAIN */}
+      {/* FOUR-PANEL CINEMATIC CURTAIN */}
       <div className="intro-exit" aria-hidden="true">
-        <div className="intro-exit-panel" />
         <div className="intro-exit-panel" />
         <div className="intro-exit-panel" />
         <div className="intro-exit-panel" />
         <div className="intro-exit-panel" />
 
         <div className="intro-exit-center">
-          <img className="intro-exit-logo" src="/images/logo.png" alt="Vinay Varma Logo" />
-          <div className="intro-exit-loader">
-            <span />
-            <span />
-            <span />
-            <span />
+          <img className="intro-exit-logo" src="/images/logo.png" alt="Vinay Varma" />
+          <div className="intro-exit-lightline">
+            <div className="intro-exit-lightline-beam" />
           </div>
         </div>
       </div>

@@ -1,151 +1,70 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  TrendingUp,
-  Trophy,
-  ExternalLink,
-  Award,
-  Zap,
-  CheckCircle2,
-  Code2,
-} from "lucide-react";
+import { ArrowUpRight, Trophy, Award, TrendingUp, Sparkles, Activity } from "lucide-react";
 import "./CodingStatsGraph.css";
 
-// Real, verified contest data from live accounts
-const LEETCODE_DATA = {
-  platform: "LeetCode",
-  username: "nvssvinay2348",
-  profileUrl: "https://leetcode.com/u/nvssvinay2348/",
-  rating: 1706,
-  peakRating: 1706,
-  badge: "Top 13.6% Worldwide",
-  globalRank: "118,161",
-  totalParticipants: "884,439",
-  totalSolved: 176,
-  contestsAttended: 4,
-  solvedBreakdown: [
-    { label: "Easy", count: 123, color: "#00b8a3" },
-    { label: "Medium", count: 51, color: "#ffc01e" },
-    { label: "Hard", count: 2, color: "#ff375f" },
-  ],
-  accentColor: "#FFA116",
-  accentGlow: "rgba(255, 161, 22, 0.45)",
-  minY: 1450,
-  maxY: 1760,
-  history: [
-    {
-      contest: "Starting Baseline",
-      short: "Initial",
-      date: "Aug 2026",
-      rating: 1500,
-      delta: 0,
-      rank: "Baseline",
-      solved: "Initial Entry",
-    },
-    {
-      contest: "Weekly Contest 517",
-      short: "WC 517",
-      date: "Aug 2026",
-      rating: 1591,
-      delta: 91,
-      rank: "#4,581",
-      solved: "2 / 4 Solved",
-    },
-    {
-      contest: "Weekly Contest 518",
-      short: "WC 518",
-      date: "Aug 2026",
-      rating: 1640,
-      delta: 49,
-      rank: "#4,299",
-      solved: "3 / 4 Solved",
-    },
-    {
-      contest: "Biweekly Contest 191",
-      short: "BC 191",
-      date: "Sep 2026",
-      rating: 1706,
-      delta: 66,
-      rank: "#1,908",
-      solved: "3 / 4 Solved",
-    },
-  ],
+/* =========================================================
+   COMPETITIVE PROGRAMMING DATA
+   Verified profile statistics from LeetCode & CodeChef
+   ========================================================= */
+
+const PLATFORM_DATA = {
+  leetcode: {
+    platform: "LeetCode",
+    username: "nvssvinay2348",
+    profileUrl: "https://leetcode.com/u/nvssvinay2348/",
+    rating: 1706,
+    peakRating: 1706,
+    standing: "Top 13.6%",
+    globalRank: "Rank #118,161",
+    percentile: "Top 13.6%",
+    badge: "Knight Candidate",
+    bestRank: "#1,908",
+    totalContests: 4,
+    accent: "#FFA116",
+    accentLight: "rgba(255, 161, 22, 0.15)",
+    minY: 1450,
+    maxY: 1750,
+    history: [
+      { contest: "Baseline", short: "Initial", date: "Aug 2026", rating: 1500, delta: 0, rank: "Baseline", note: "Starting Rating" },
+      { contest: "Weekly Contest 517", short: "WC 517", date: "Aug 2026", rating: 1591, delta: 91, rank: "#4,581", note: "3/4 Solved" },
+      { contest: "Weekly Contest 518", short: "WC 518", date: "Aug 2026", rating: 1640, delta: 49, rank: "#4,299", note: "3/4 Solved" },
+      { contest: "Biweekly Contest 191", short: "BC 191", date: "Sep 2026", rating: 1706, delta: 66, rank: "#1,908", note: "Peak Performance" },
+    ],
+  },
+  codechef: {
+    platform: "CodeChef",
+    username: "ideal_voice_80",
+    profileUrl: "https://www.codechef.com/users/ideal_voice_80",
+    rating: 1493,
+    peakRating: 1493,
+    standing: "Division 3 (2★)",
+    globalRank: "Global #797",
+    percentile: "Div 3 (2-Star)",
+    badge: "2-Star Coder",
+    bestRank: "#797",
+    totalContests: 6,
+    accent: "#60A5FA",
+    accentLight: "rgba(96, 165, 250, 0.15)",
+    minY: 1000,
+    maxY: 1550,
+    history: [
+      { contest: "Starters 250", short: "START 250", date: "Aug 05", rating: 1065, delta: 0, rank: "#8,989", note: "Initial Rated" },
+      { contest: "Starters 251", short: "START 251", date: "Aug 12", rating: 1272, delta: 207, rank: "#3,140", note: "+207 Jump" },
+      { contest: "Starters 252", short: "START 252", date: "Aug 19", rating: 1356, delta: 84, rank: "#3,183", note: "+84 Steady" },
+      { contest: "Starters 253", short: "START 253", date: "Aug 26", rating: 1439, delta: 83, rank: "#1,402", note: "+83 Top 1.4k" },
+      { contest: "Starters 254", short: "START 254", date: "Sep 02", rating: 1455, delta: 16, rank: "#1,842", note: "+16 Consistent" },
+      { contest: "Starters 256", short: "START 256", date: "Sep 16", rating: 1493, delta: 38, rank: "#797", note: "Global Peak #797" },
+    ],
+  },
 };
 
-const CODECHEF_DATA = {
-  platform: "CodeChef",
-  username: "ideal_voice_80",
-  profileUrl: "https://www.codechef.com/users/ideal_voice_80",
-  rating: 1493,
-  peakRating: 1493,
-  badge: "Division 3 • 2★",
-  globalRank: "#797 Best",
-  totalContests: 6,
-  totalSolved: 60,
-  accentColor: "#60A5FA",
-  accentGlow: "rgba(96, 165, 250, 0.45)",
-  minY: 1000,
-  maxY: 1550,
-  history: [
-    {
-      contest: "Starters 250",
-      short: "START 250",
-      date: "Aug 05",
-      rating: 1065,
-      delta: 0,
-      rank: "#8,989",
-      solved: "1 / 4 Solved",
-    },
-    {
-      contest: "Starters 251",
-      short: "START 251",
-      date: "Aug 12",
-      rating: 1272,
-      delta: 207,
-      rank: "#3,140",
-      solved: "2 / 4 Solved",
-    },
-    {
-      contest: "Starters 252",
-      short: "START 252",
-      date: "Aug 19",
-      rating: 1356,
-      delta: 84,
-      rank: "#3,183",
-      solved: "3 / 5 Solved",
-    },
-    {
-      contest: "Starters 253",
-      short: "START 253",
-      date: "Aug 26",
-      rating: 1439,
-      delta: 83,
-      rank: "#1,402",
-      solved: "3 / 5 Solved",
-    },
-    {
-      contest: "Starters 254",
-      short: "START 254",
-      date: "Sep 02",
-      rating: 1455,
-      delta: 16,
-      rank: "#1,842",
-      solved: "3 / 6 Solved",
-    },
-    {
-      contest: "Starters 256",
-      short: "START 256",
-      date: "Sep 16",
-      rating: 1493,
-      delta: 38,
-      rank: "#797",
-      solved: "4 / 6 Solved",
-    },
-  ],
-};
+/* =========================================================
+   ORGANIC CUBIC BÉZIER SPLINE GENERATOR
+   Creates smooth, non-oscillating trajectory curve
+   ========================================================= */
 
-// Generates a continuous, organic cubic Bézier spline with natural tension
-function getSmoothSvgPath(points, tension = 0.25) {
+function getSmoothSvgPath(points, tension = 0.22, minY = 20, maxY = 220) {
   if (!points || points.length === 0) return "";
   if (points.length === 1) return `M ${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`;
 
@@ -156,55 +75,109 @@ function getSmoothSvgPath(points, tension = 0.25) {
     const pNext = points[i + 1];
     const pAfter = points[i + 2 < points.length ? i + 2 : i + 1];
 
-    const cp1x = pCurr.x + (pNext.x - pPrev.x) * tension;
-    const cp1y = pCurr.y + (pNext.y - pPrev.y) * tension;
-    const cp2x = pNext.x - (pAfter.x - pCurr.x) * tension;
-    const cp2y = pNext.y - (pAfter.y - pCurr.y) * tension;
+    let cp1x = pCurr.x + (pNext.x - pPrev.x) * tension;
+    let cp1y = pCurr.y + (pNext.y - pPrev.y) * tension;
+    let cp2x = pNext.x - (pAfter.x - pCurr.x) * tension;
+    let cp2y = pNext.y - (pAfter.y - pCurr.y) * tension;
+
+    // Clamp control points within chart bounds to eliminate clipping
+    cp1y = Math.max(minY, Math.min(maxY, cp1y));
+    cp2y = Math.max(minY, Math.min(maxY, cp2y));
 
     d += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${pNext.x.toFixed(2)},${pNext.y.toFixed(2)}`;
   }
   return d;
 }
 
+/* =========================================================
+   ANIMATED NUMBER COUNTER HOOK
+   Smoothly interpolates rating values on mount & tab changes
+   ========================================================= */
+
+function useAnimatedCounter(targetValue, duration = 800) {
+  const [displayValue, setDisplayValue] = useState(targetValue);
+  const prevRef = useRef(targetValue);
+
+  useEffect(() => {
+    const startVal = prevRef.current;
+    const endVal = targetValue;
+    prevRef.current = targetValue;
+
+    if (startVal === endVal) return;
+
+    let startTime = null;
+    let animFrame = null;
+
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Fast-out, gentle settle easing (cubic-bezier approximation)
+      const easeProgress = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(startVal + (endVal - startVal) * easeProgress);
+      setDisplayValue(current);
+
+      if (progress < 1) {
+        animFrame = requestAnimationFrame(step);
+      }
+    };
+
+    animFrame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animFrame);
+  }, [targetValue, duration]);
+
+  return displayValue;
+}
+
 export default function CodingStatsGraph() {
-  const [activePlatform, setActivePlatform] = useState("leetcode"); // "leetcode" | "codechef"
+  const [platform, setPlatform] = useState("leetcode");
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const svgWrapRef = useRef(null);
 
-  const activeData = activePlatform === "codechef" ? CODECHEF_DATA : LEETCODE_DATA;
+  const data = PLATFORM_DATA[platform];
+  const history = data.history;
+  const animatedRating = useAnimatedCounter(data.rating, 800);
 
-  // Chart Geometry with generous padding to prevent edge clipping
-  const svgWidth = 840;
-  const svgHeight = 290;
-  const paddingLeft = 70;
-  const paddingRight = 72; // ample room for the latest point and its present callout
-  const paddingTop = 48; // headroom for rating chips above the curve
-  const paddingBottom = 46;
+  // SVG Geometry Constants
+  const svgWidth = 860;
+  const svgHeight = 250;
+  const paddingLeft = 58;
+  const paddingRight = 50;
+  const paddingTop = 36;
+  const paddingBottom = 42;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
-
-  const history = activeData.history;
   const n = history.length;
 
-  const points = history.map((item, idx) => {
-    const x = paddingLeft + (idx / (n - 1)) * chartWidth;
-    const normalizedY =
-      (item.rating - activeData.minY) / (activeData.maxY - activeData.minY);
-    const y = paddingTop + (1 - normalizedY) * chartHeight;
-    return { x, y, item, idx };
-  });
+  // Compute normalized point positions
+  const points = useMemo(() => {
+    return history.map((item, idx) => {
+      const x = paddingLeft + (idx / (n - 1)) * chartWidth;
+      const normalizedY = (item.rating - data.minY) / (data.maxY - data.minY);
+      const y = paddingTop + (1 - normalizedY) * chartHeight;
+      return { x, y, item, idx };
+    });
+  }, [history, n, chartWidth, chartHeight, data.minY, data.maxY, paddingLeft, paddingTop]);
 
-  const pathD = getSmoothSvgPath(points);
-  const areaD =
-    points.length > 0
+  const pathD = useMemo(
+    () => getSmoothSvgPath(points, 0.22, paddingTop - 4, paddingTop + chartHeight + 4),
+    [points, paddingTop, chartHeight]
+  );
+
+  const areaD = useMemo(() => {
+    return points.length > 0
       ? `${pathD} L ${points[points.length - 1].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} L ${points[0].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} Z`
       : "";
+  }, [points, pathD, paddingTop, chartHeight]);
 
-  const latestPoint = points[points.length - 1];
-  const activePoint = hoveredIndex !== null ? points[hoveredIndex] : null;
+  // Find Peak Point for badge pin
+  const peakPoint = useMemo(() => {
+    return points.reduce((max, pt) => (pt.item.rating > max.item.rating ? pt : max), points[0]);
+  }, [points]);
 
-  // Fluid scrubber across the SVG canvas
+  // Pointer hover scrubber
   const handlePointerMove = useCallback(
     (e) => {
       if (!svgWrapRef.current) return;
@@ -215,10 +188,8 @@ export default function CodingStatsGraph() {
       const relativeX = (clientX - rect.left) / rect.width;
       const svgX = relativeX * svgWidth;
 
-      // Find closest data point
       let closestIdx = 0;
       let minDistance = Infinity;
-
       points.forEach((pt, idx) => {
         const dist = Math.abs(pt.x - svgX);
         if (dist < minDistance) {
@@ -226,7 +197,6 @@ export default function CodingStatsGraph() {
           closestIdx = idx;
         }
       });
-
       setHoveredIndex(closestIdx);
     },
     [points, svgWidth]
@@ -236,609 +206,439 @@ export default function CodingStatsGraph() {
     setHoveredIndex(null);
   }, []);
 
-  // Grid lines
-  const gridSteps = 4;
+  // Grid steps (horizontal lines)
+  const gridSteps = 3;
   const gridLines = Array.from({ length: gridSteps + 1 }).map((_, i) => {
-    const val = Math.round(
-      activeData.minY + (i / gridSteps) * (activeData.maxY - activeData.minY)
-    );
+    const val = Math.round(data.minY + (i / gridSteps) * (data.maxY - data.minY));
     const y = paddingTop + (1 - i / gridSteps) * chartHeight;
     return { val, y };
   });
 
-  // Calculate safe tooltip horizontal alignment (prevents edge clipping)
-  const getTooltipTransform = (pt) => {
-    if (!pt) return "translate(-50%, -125%)";
-    const percent = (pt.x / svgWidth) * 100;
-    if (percent > 78) return "translate(-88%, -125%)"; // shift left when near right edge
-    if (percent < 22) return "translate(-12%, -125%)"; // shift right when near left edge
-    return "translate(-50%, -125%)";
-  };
+  const activePoint = hoveredIndex !== null ? points[hoveredIndex] : points[points.length - 1];
+  const isCustomHover = hoveredIndex !== null;
+  const latestContest = history[history.length - 1];
 
   return (
-    <div
-      className="coding-stats-section-wrap"
-      style={{
-        "--platform-accent": activeData.accentColor,
-        "--platform-glow": activeData.accentGlow,
-      }}
-    >
-      {/* SECTION HEADER MATCHING V2-PORTFOLIO DESIGN */}
-      <div className="coding-stats-header">
-        <div className="coding-header-text">
-          <div className="badge badge-status">
-            <span className="status-dot" />
-            <span>ALGORITHMS &amp; DATA STRUCTURES</span>
-          </div>
-          <h2 className="home-section-title">Contest Performance &amp; Ratings</h2>
-          <p className="home-section-sub">
-            Verified competitive programming ratings, trajectory curves, and algorithmic solutions across LeetCode and CodeChef.
-          </p>
-        </div>
-
-        {/* LIQUID TABS SWITCHER (LEETCODE & CODECHEF ONLY) */}
-        <div className="coding-tabs-control" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activePlatform === "leetcode"}
-            className={`coding-tab-btn ${activePlatform === "leetcode" ? "active" : ""}`}
-            onClick={() => {
-              setActivePlatform("leetcode");
-              setHoveredIndex(null);
-            }}
+    <div className="coding-card">
+      {/* 1. TOP CARD HEADER BAR: BRAND LOCKUP + PILL NAV SWITCHER */}
+      <div className="coding-card-header">
+        <div className="coding-brand-lockup">
+          <div
+            className={`coding-brand-icon-box ${platform === "leetcode" ? "leetcode-box" : "codechef-box"}`}
           >
-            {activePlatform === "leetcode" && (
-              <motion.div
-                layoutId="activeTabGlow"
-                className="tab-active-glow tab-glow-lc"
-                transition={{ type: "spring", stiffness: 450, damping: 35 }}
-              />
-            )}
-            <span className="tab-icon-wrap lc-icon-wrap" aria-hidden="true">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            {platform === "leetcode" ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
               </svg>
-            </span>
-            <span className="tab-label">LeetCode</span>
-            <span className="tab-score-badge">1706</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activePlatform === "codechef"}
-            className={`coding-tab-btn ${activePlatform === "codechef" ? "active" : ""}`}
-            onClick={() => {
-              setActivePlatform("codechef");
-              setHoveredIndex(null);
-            }}
-          >
-            {activePlatform === "codechef" && (
-              <motion.div
-                layoutId="activeTabGlow"
-                className="tab-active-glow tab-glow-cc"
-                transition={{ type: "spring", stiffness: 450, damping: 35 }}
-              />
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M16 18l6-6-6-6" />
+                <path d="M8 6l-6 6 6 6" />
+              </svg>
             )}
-            <span className="tab-icon-wrap cc-icon-wrap" aria-hidden="true">
-              <Code2 className="w-3.5 h-3.5" />
-            </span>
-            <span className="tab-label">CodeChef</span>
-            <span className="tab-score-badge">1493</span>
-          </button>
+          </div>
+
+          <div className="coding-brand-meta">
+            <div className="coding-brand-title-row">
+              <strong className="coding-brand-title">{data.platform} Performance</strong>
+              <a
+                href={data.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="coding-profile-link"
+                title={`Open ${data.platform} profile (@${data.username}) in new tab`}
+              >
+                <span>@{data.username}</span>
+                <ArrowUpRight className="coding-profile-arrow" />
+              </a>
+            </div>
+            <div className="coding-brand-subtitle">
+              <span className="coding-standing-tag">{data.standing}</span>
+              <span className="coding-dot-sep">•</span>
+              <span className="coding-rank-tag">{data.globalRank}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Website-Style Pill Segmented Control */}
+        <div className="coding-tabs-pill-wrap" role="tablist" aria-label="Platform selection">
+          {["leetcode", "codechef"].map((key) => {
+            const isActive = platform === key;
+            const p = PLATFORM_DATA[key];
+            return (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                className={`coding-tab-btn ${isActive ? "active" : ""}`}
+                onClick={() => {
+                  setPlatform(key);
+                  setHoveredIndex(null);
+                }}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeCodingTabPill"
+                    className="coding-tab-active-bg"
+                    transition={{ type: "spring", stiffness: 480, damping: 34 }}
+                  />
+                )}
+                <span className="coding-tab-text">
+                  <span
+                    className="coding-tab-indicator"
+                    style={{ backgroundColor: p.accent }}
+                  />
+                  <span>{p.platform}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* GRAPH & METRICS PRESENTATION */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activePlatform}
-          className="coding-graph-wrapper"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        >
-          {/* THREE METRICS SPOTLIGHT ROW */}
-          <div className="coding-metrics-row">
-            {/* PRIMARY RATING CARD */}
-            <div className="coding-metric-card primary-rating-card">
-              <div className="metric-header">
-                <span className="metric-eyebrow">CURRENT CONTEST RATING</span>
-                <TrendingUp
-                  className="metric-icon"
-                  style={{ color: activeData.accentColor }}
-                />
-              </div>
-              <div className="metric-main-value">
-                <strong>{activeData.rating}</strong>
-                <span className="metric-peak-badge">
-                  <Zap className="w-3 h-3" />
-                  <span>Peak: {activeData.peakRating}</span>
-                </span>
-              </div>
-              <div className="metric-sub-detail">
-                <span className="metric-highlight">{activeData.badge}</span>
-                <span className="metric-dot">•</span>
-                <span className="metric-handle">@{activeData.username}</span>
-              </div>
-            </div>
-
-            {activePlatform === "leetcode" ? (
-              <>
-                <div className="coding-metric-card">
-                  <div className="metric-header">
-                    <span className="metric-eyebrow">PROBLEMS SOLVED</span>
-                    <CheckCircle2 className="metric-icon text-emerald-400" />
-                  </div>
-                  <div className="metric-main-value">
-                    <strong>{activeData.totalSolved}</strong>
-                    <span className="metric-unit">Verified Solved</span>
-                  </div>
-                  <div className="leetcode-breakdown-bar">
-                    <div
-                      className="bar-segment easy"
-                      style={{ width: `${(123 / 176) * 100}%` }}
-                      title="123 Easy"
-                    />
-                    <div
-                      className="bar-segment medium"
-                      style={{ width: `${(51 / 176) * 100}%` }}
-                      title="51 Medium"
-                    />
-                    <div
-                      className="bar-segment hard"
-                      style={{ width: `${(2 / 176) * 100}%` }}
-                      title="2 Hard"
-                    />
-                  </div>
-                  <div className="leetcode-breakdown-labels">
-                    <span className="text-teal-400">123 Easy</span>
-                    <span className="text-amber-400">51 Med</span>
-                    <span className="text-rose-400">2 Hard</span>
-                  </div>
-                </div>
-
-                <div className="coding-metric-card">
-                  <div className="metric-header">
-                    <span className="metric-eyebrow">GLOBAL STANDING</span>
-                    <Trophy className="metric-icon text-yellow-400" />
-                  </div>
-                  <div className="metric-main-value">
-                    <strong>Top 13.6%</strong>
-                  </div>
-                  <div className="metric-sub-detail">
-                    <span>Rank #{activeData.globalRank}</span>
-                    <span className="metric-dot">•</span>
-                    <span>Top Tier Contender</span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="coding-metric-card">
-                  <div className="metric-header">
-                    <span className="metric-eyebrow">BEST CONTEST RANK</span>
-                    <Trophy className="metric-icon text-yellow-400" />
-                  </div>
-                  <div className="metric-main-value">
-                    <strong>#797</strong>
-                    <span className="metric-unit">Worldwide Rank</span>
-                  </div>
-                  <div className="metric-sub-detail">
-                    <span>Starters 256</span>
-                    <span className="metric-dot">•</span>
-                    <span className="text-emerald-400">+38 Rating Gain</span>
-                  </div>
-                </div>
-
-                <div className="coding-metric-card">
-                  <div className="metric-header">
-                    <span className="metric-eyebrow">DIVISION &amp; STARS</span>
-                    <Award className="metric-icon text-blue-400" />
-                  </div>
-                  <div className="metric-main-value">
-                    <strong>Division 3</strong>
-                    <span className="metric-stars">★★</span>
-                  </div>
-                  <div className="metric-sub-detail">
-                    <span>6 Rated Sprints</span>
-                    <span className="metric-dot">•</span>
-                    <span className="text-emerald-400">1065 → 1493 (+428)</span>
-                  </div>
-                </div>
-              </>
+      {/* 2. STATS BAR (MIRRORS .home-metrics-bar) */}
+      <div className="coding-metrics-bar">
+        {/* CURRENT RATING */}
+        <div className="coding-metric-item">
+          <div className="coding-metric-header">
+            <span className="metric-status-dot" />
+            <span>CURRENT RATING</span>
+          </div>
+          <div className="coding-rating-num-wrap">
+            <strong className="coding-rating-number">{animatedRating.toLocaleString()}</strong>
+            {latestContest.delta > 0 && (
+              <span className="coding-delta-badge">+{latestContest.delta} pts</span>
             )}
           </div>
+        </div>
 
-          {/* INTERACTIVE GRAPH CANVAS CARD */}
-          <div className="coding-graph-card">
-            {/* Ambient Platform Glow inside Card */}
-            <div
-              className="graph-ambient-glow"
-              style={{
-                background: `radial-gradient(ellipse 65% 55% at 50% 10%, ${activeData.accentColor}18, transparent 75%)`,
-              }}
+        <div className="coding-metric-divider" />
+
+        {/* ALL-TIME PEAK */}
+        <div className="coding-metric-item">
+          <div className="coding-metric-header">
+            <Trophy className="metric-header-icon" />
+            <span>ALL-TIME PEAK</span>
+          </div>
+          <strong className="coding-metric-val">{data.peakRating}</strong>
+          <span className="coding-metric-sub">Highest Rating Achieved</span>
+        </div>
+
+        <div className="coding-metric-divider" />
+
+        {/* GLOBAL STANDING */}
+        <div className="coding-metric-item">
+          <div className="coding-metric-header">
+            <Award className="metric-header-icon" />
+            <span>GLOBAL STANDING</span>
+          </div>
+          <strong className="coding-metric-val">{data.standing}</strong>
+          <span className="coding-metric-sub">{data.globalRank}</span>
+        </div>
+
+        <div className="coding-metric-divider" />
+
+        {/* BEST CONTEST FINISH */}
+        <div className="coding-metric-item">
+          <div className="coding-metric-header">
+            <TrendingUp className="metric-header-icon" />
+            <span>BEST CONTEST RANK</span>
+          </div>
+          <strong className="coding-metric-val">{data.bestRank}</strong>
+          <span className="coding-metric-sub">{data.badge}</span>
+        </div>
+      </div>
+
+      {/* 3. INTERACTIVE CHART STAGE */}
+      <div
+        ref={svgWrapRef}
+        className="coding-chart-stage"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      >
+        <svg
+          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+          className="coding-svg"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            {/* Gradient Area Fill */}
+            <linearGradient id={`area-grad-${platform}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={data.accent} stopOpacity="0.20" />
+              <stop offset="70%" stopColor={data.accent} stopOpacity="0.03" />
+              <stop offset="100%" stopColor={data.accent} stopOpacity="0.0" />
+            </linearGradient>
+
+            {/* Stroke Progression Gradient */}
+            <linearGradient id={`stroke-grad-${platform}`} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor={data.accent} stopOpacity="0.75" />
+              <stop offset="60%" stopColor={data.accent} stopOpacity="1" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
+            </linearGradient>
+
+            {/* Laser Line Glow Filter */}
+            <filter id="chartGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+
+            {/* Crosshair Laser Guideline Gradient */}
+            <linearGradient id="crosshairGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.0)" />
+              <stop offset="25%" stopColor="rgba(255,255,255,0.3)" />
+              <stop offset="75%" stopColor="rgba(255,255,255,0.3)" />
+              <stop offset="100%" stopColor="rgba(255,255,255,0.0)" />
+            </linearGradient>
+          </defs>
+
+          {/* Horizontal Gridlines & Y-Axis Labels */}
+          {gridLines.map((line, i) => (
+            <g key={`grid-line-${i}`}>
+              <line
+                x1={paddingLeft}
+                y1={line.y}
+                x2={svgWidth - paddingRight}
+                y2={line.y}
+                stroke="rgba(255, 255, 255, 0.06)"
+                strokeDasharray="4 4"
+                strokeWidth="1"
+              />
+              <text
+                x={paddingLeft - 14}
+                y={line.y + 3.5}
+                fill="rgba(255, 255, 255, 0.35)"
+                fontSize="10"
+                textAnchor="end"
+                fontFamily="var(--font-mono)"
+              >
+                {line.val}
+              </text>
+            </g>
+          ))}
+
+          {/* Animated Area Fill */}
+          <motion.path
+            key={`area-${platform}`}
+            d={areaD}
+            fill={`url(#area-grad-${platform})`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          {/* Ambient Diffused Glow Path */}
+          <motion.path
+            key={`glow-${platform}`}
+            d={pathD}
+            fill="none"
+            stroke={data.accent}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            opacity={0.25}
+            filter="url(#chartGlowFilter)"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 0.25 }}
+            transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          {/* Crisp Primary Trajectory Stroke */}
+          <motion.path
+            key={`path-${platform}`}
+            d={pathD}
+            fill="none"
+            stroke={`url(#stroke-grad-${platform})`}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
+          />
+
+          {/* Interactive Crosshair Guideline */}
+          {activePoint && (
+            <line
+              x1={activePoint.x}
+              y1={paddingTop - 10}
+              x2={activePoint.x}
+              y2={paddingTop + chartHeight + 10}
+              stroke="url(#crosshairGrad)"
+              strokeDasharray="3 3"
+              strokeWidth="1.2"
             />
+          )}
 
-            <div className="graph-card-top">
-              <div className="graph-info">
-                <span className="graph-badge">INTERACTIVE RATING CURVE</span>
-
-                {/* PROMINENT LIVE PRESENT RATING BANNER */}
-                <div className="graph-present-callout-pill" style={{ borderColor: `${activeData.accentColor}40` }}>
-                  <span className="present-live-dot" style={{ backgroundColor: activeData.accentColor }} />
-                  <span className="present-pill-label">PRESENT RATING:</span>
-                  <strong className="present-pill-val" style={{ color: activeData.accentColor }}>
-                    {activeData.rating}
-                  </strong>
-                  {latestPoint.item.delta > 0 && (
-                    <span className="present-pill-gain">
-                      +{latestPoint.item.delta} in {latestPoint.item.short}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <a
-                href={activeData.profileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="graph-external-link"
-                title={`View official ${activeData.platform} profile`}
+          {/* Static Peak Pill Pin (Shows peak rating at a glance) */}
+          {peakPoint && (
+            <g className="peak-pin-marker">
+              <rect
+                x={peakPoint.x - 34}
+                y={peakPoint.y - 28}
+                width="68"
+                height="20"
+                rx="5"
+                fill="rgba(17, 17, 22, 0.92)"
+                stroke={data.accent}
+                strokeWidth="1"
+              />
+              <text
+                x={peakPoint.x}
+                y={peakPoint.y - 14.5}
+                fill="#ffffff"
+                fontSize="9.5"
+                fontFamily="var(--font-mono)"
+                fontWeight="700"
+                textAnchor="middle"
               >
-                <span>Visit {activeData.platform} Profile</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            </div>
+                ★ {peakPoint.item.rating}
+              </text>
+            </g>
+          )}
 
-            {/* SVG CANVAS WITH SMOOTH POINTER SCRUBBER */}
-            <div
-              ref={svgWrapRef}
-              className="svg-canvas-wrap"
-              onPointerMove={handlePointerMove}
-              onPointerLeave={handlePointerLeave}
-              onTouchMove={handlePointerMove}
-            >
-              <svg
-                viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-                className="coding-svg"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  {/* Smooth Area Gradient */}
-                  <linearGradient
-                    id={`graph-gradient-${activePlatform}`}
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor={activeData.accentColor}
-                      stopOpacity="0.28"
-                    />
-                    <stop
-                      offset="50%"
-                      stopColor={activeData.accentColor}
-                      stopOpacity="0.08"
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={activeData.accentColor}
-                      stopOpacity="0.0"
-                    />
-                  </linearGradient>
+          {/* Contest Data Points with Staggered Elastic Pop-In */}
+          {points.map((pt, idx) => {
+            const isActive = activePoint && activePoint.idx === idx;
+            const isLatest = idx === points.length - 1;
+            const isPeak = pt.idx === peakPoint.idx;
 
-                  {/* Laser Guideline Gradient */}
-                  <linearGradient id="laser-guideline" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={activeData.accentColor} stopOpacity="0.0" />
-                    <stop offset="30%" stopColor={activeData.accentColor} stopOpacity="0.75" />
-                    <stop offset="70%" stopColor={activeData.accentColor} stopOpacity="0.9" />
-                    <stop offset="100%" stopColor={activeData.accentColor} stopOpacity="0.0" />
-                  </linearGradient>
-
-                  {/* Soft Drop Glow */}
-                  <filter
-                    id="glow-filter"
-                    x="-20%"
-                    y="-20%"
-                    width="140%"
-                    height="140%"
-                  >
-                    <feDropShadow
-                      dx="0"
-                      dy="2"
-                      stdDeviation="4"
-                      floodColor={activeData.accentColor}
-                      floodOpacity="0.45"
-                    />
-                  </filter>
-                </defs>
-
-                {/* HORIZONTAL GRID LINES & RATINGS */}
-                {gridLines.map((line, i) => (
-                  <g key={i}>
-                    <line
-                      x1={paddingLeft}
-                      y1={line.y}
-                      x2={svgWidth - paddingRight}
-                      y2={line.y}
-                      stroke="rgba(255, 255, 255, 0.04)"
-                      strokeDasharray="4 6"
-                      strokeWidth="1"
-                    />
-                    <text
-                      x={paddingLeft - 14}
-                      y={line.y + 3.5}
-                      fill="rgba(255, 255, 255, 0.35)"
-                      fontSize="10"
-                      textAnchor="end"
-                      fontFamily="var(--font-mono, monospace)"
-                    >
-                      {line.val}
-                    </text>
-                  </g>
-                ))}
-
-                {/* AREA UNDER CURVE */}
-                <motion.path
-                  d={areaD}
-                  fill={`url(#graph-gradient-${activePlatform})`}
-                  className="chart-area-path"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.6 }}
-                />
-
-                {/* MAIN SMOOTH CURVE PATH */}
-                <motion.path
-                  d={pathD}
-                  fill="none"
-                  stroke={activeData.accentColor}
-                  strokeWidth="3.0"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  filter="url(#glow-filter)"
-                  className="chart-curve-path"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
-                />
-
-                {/* LUMINOUS VERTICAL LASER GUIDELINE ON HOVER */}
-                {activePoint && (
-                  <line
-                    x1={activePoint.x}
-                    y1={paddingTop - 10}
-                    x2={activePoint.x}
-                    y2={paddingTop + chartHeight + 10}
-                    stroke="url(#laser-guideline)"
-                    strokeWidth="1.8"
+            return (
+              <g key={`point-${platform}-${idx}`}>
+                {/* Sonar Ripple on Active Node */}
+                {isActive && (
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={14}
+                    fill={data.accent}
+                    opacity={0.2}
+                    className="sonar-ripple-wave"
                   />
                 )}
 
-                {/* PREVIOUS CONTEST RATING LABELS ALONG THE CURVE */}
-                {points.slice(0, points.length - 1).map((pt, idx) => (
-                  <g key={`rating-chip-${idx}`} className="curve-rating-chip-group">
-                    <rect
-                      x={pt.x - 21}
-                      y={pt.y - 26}
-                      width="42"
-                      height="18"
-                      rx="9"
-                      fill="#0d0e14"
-                      stroke="rgba(255, 255, 255, 0.12)"
-                      strokeWidth="1"
-                    />
-                    <text
-                      x={pt.x}
-                      y={pt.y - 13.5}
-                      fill="rgba(255, 255, 255, 0.82)"
-                      fontSize="10"
-                      fontWeight="700"
-                      textAnchor="middle"
-                      fontFamily="var(--font-mono, monospace)"
-                    >
-                      {pt.item.rating}
-                    </text>
-                  </g>
-                ))}
+                {/* Outer Shell Circle */}
+                <motion.circle
+                  cx={pt.x}
+                  cy={pt.y}
+                  r={isActive ? 6.5 : isPeak ? 5 : isLatest ? 4.5 : 3.5}
+                  fill="#111116"
+                  stroke={isPeak ? "#ffffff" : data.accent}
+                  strokeWidth={isActive ? 2.5 : 1.8}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{
+                    duration: 0.45,
+                    delay: 0.3 + (idx / Math.max(n - 1, 1)) * 0.45,
+                    ease: [0.34, 1.56, 0.64, 1],
+                  }}
+                  style={{ transformOrigin: `${pt.x}px ${pt.y}px` }}
+                />
 
-                {/* PERMANENT, GLOWING PRESENT RATING CALLOUT PINNED ON LATEST POINT */}
-                {latestPoint && (
-                  <g className="present-rating-callout-beacon">
-                    {/* Stem connecting badge to point */}
-                    <line
-                      x1={latestPoint.x}
-                      y1={latestPoint.y - 9}
-                      x2={latestPoint.x}
-                      y2={latestPoint.y - 25}
-                      stroke={activeData.accentColor}
-                      strokeWidth="1.8"
-                      strokeDasharray="2 2"
-                    />
-                    {/* Floating Callout Pill */}
-                    <g transform={`translate(${latestPoint.x - 52}, ${latestPoint.y - 48})`}>
-                      <rect
-                        x="0"
-                        y="0"
-                        width="104"
-                        height="26"
-                        rx="13"
-                        fill="#0c0d13"
-                        stroke={activeData.accentColor}
-                        strokeWidth="1.8"
-                        filter="url(#glow-filter)"
-                      />
-                      {/* Pulsing beacon dot */}
-                      <circle
-                        cx="14"
-                        cy="13"
-                        r="3.5"
-                        fill={activeData.accentColor}
-                      />
-                      {/* Present Rating Value */}
-                      <text
-                        x="24"
-                        y="17"
-                        fill="#ffffff"
-                        fontSize="12"
-                        fontWeight="800"
-                        fontFamily="var(--font-mono, monospace)"
-                        letterSpacing="0.2px"
-                      >
-                        {activeData.rating}
-                      </text>
-                      {/* NOW / CURRENT Label */}
-                      <text
-                        x="62"
-                        y="16.5"
-                        fill={activeData.accentColor}
-                        fontSize="9"
-                        fontWeight="800"
-                        fontFamily="var(--font-mono, monospace)"
-                        letterSpacing="0.6px"
-                      >
-                        PRESENT
-                      </text>
-                    </g>
-                  </g>
+                {/* Inner Core Dot */}
+                {(isActive || isLatest || isPeak) && (
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={isActive ? 2.5 : 1.5}
+                    fill={isPeak ? data.accent : "#ffffff"}
+                  />
                 )}
 
-                {/* DATA POINTS WITH HALO */}
-                {points.map((pt, idx) => {
-                  const isSelected = activePoint && activePoint.idx === idx;
-                  const isLatest = idx === points.length - 1;
-                  return (
-                    <g key={idx} className="graph-point-group">
-                      {/* Outer pulse aura for selected or latest point */}
-                      {(isSelected || isLatest) && (
-                        <circle
-                          cx={pt.x}
-                          cy={pt.y}
-                          r={isSelected ? "16" : "11"}
-                          fill={activeData.accentColor}
-                          fillOpacity={isSelected ? "0.22" : "0.12"}
-                        />
-                      )}
+                {/* X Axis Contest Label */}
+                <text
+                  x={pt.x}
+                  y={paddingTop + chartHeight + 22}
+                  fill={isActive ? "#ffffff" : "rgba(255, 255, 255, 0.45)"}
+                  fontSize="10"
+                  textAnchor="middle"
+                  fontFamily="var(--font-mono)"
+                  fontWeight={isActive ? "700" : "400"}
+                >
+                  {pt.item.short}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
 
-                      {/* Point Outer Ring */}
-                      <circle
-                        cx={pt.x}
-                        cy={pt.y}
-                        r={isSelected ? "7" : isLatest ? "5.5" : "4.2"}
-                        fill="#0c0d12"
-                        stroke={activeData.accentColor}
-                        strokeWidth={isSelected ? "2.6" : isLatest ? "2.2" : "1.8"}
-                        style={{
-                          transition: "r 0.18s ease, stroke-width 0.18s ease",
-                        }}
-                      />
-
-                      {/* Center Bright Dot */}
-                      <circle
-                        cx={pt.x}
-                        cy={pt.y}
-                        r={isSelected ? "2.8" : "2"}
-                        fill={isSelected ? "#ffffff" : isLatest ? "#ffffff" : activeData.accentColor}
-                      />
-
-                      {/* Bottom X-Axis Label */}
-                      <text
-                        x={pt.x}
-                        y={paddingTop + chartHeight + 22}
-                        fill={isSelected ? "#ffffff" : isLatest ? "#ffffff" : "rgba(255, 255, 255, 0.5)"}
-                        fontSize="10"
-                        textAnchor="middle"
-                        fontFamily="var(--font-mono, monospace)"
-                        fontWeight={isSelected || isLatest ? "700" : "500"}
-                      >
-                        {pt.item.short}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-
-              {/* FLOATING HOVER TOOLTIP (APPEARS ON HOVER ONLY WITH SMART BOUNDARY OFFSET) */}
-              <AnimatePresence>
-                {activePoint && (
-                  <motion.div
-                    className="graph-floating-tooltip"
-                    key={activePoint.idx}
-                    initial={{ opacity: 0, scale: 0.94, y: -4 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.94 }}
-                    transition={{ duration: 0.15 }}
-                    style={{
-                      left: `${(activePoint.x / svgWidth) * 100}%`,
-                      top: `${(activePoint.y / svgHeight) * 100}%`,
-                      transform: getTooltipTransform(activePoint),
-                    }}
-                  >
-                    <div
-                      className="tooltip-inner"
-                      style={{
-                        borderTopColor: activeData.accentColor,
-                      }}
-                    >
-                      <div className="tooltip-top">
-                        <strong>{activePoint.item.contest}</strong>
-                        <span className="tooltip-date">{activePoint.item.date}</span>
-                      </div>
-                      <div className="tooltip-rating-row">
-                        <span className="tooltip-rating-val">{activePoint.item.rating}</span>
-                        {activePoint.item.delta > 0 && (
-                          <span className="tooltip-gain-badge">
-                            +{activePoint.item.delta}
-                          </span>
-                        )}
-                      </div>
-                      <div className="tooltip-stats-grid">
-                        <div>
-                          <span>Rank</span>
-                          <strong>{activePoint.item.rank}</strong>
-                        </div>
-                        <div>
-                          <span>Solved</span>
-                          <strong>{activePoint.item.solved}</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* CONTEST RECAP CHIPS / TIMELINE */}
-            <div className="contest-timeline-bar">
-              <span className="timeline-label">RATED TIMELINE:</span>
-              <div className="timeline-chips">
-                {history.map((h, i) => {
-                  const isCurrent = i === history.length - 1;
-                  const isSelected = activePoint && activePoint.idx === i;
-                  return (
-                    <button
-                      type="button"
-                      key={i}
-                      className={`timeline-chip ${isSelected ? "active-chip" : ""} ${isCurrent ? "current-chip" : ""}`}
-                      onClick={() => setHoveredIndex(i)}
-                    >
-                      <span className="chip-name">{h.short}</span>
-                      <strong className="chip-rating">{h.rating}</strong>
-                      {isCurrent && <span className="chip-current-badge">CURRENT</span>}
-                      {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
-                    </button>
-                  );
-                })}
+        {/* FLOATING GLASS HUD TOOLTIP */}
+        <AnimatePresence>
+          {activePoint && (
+            <motion.div
+              key={`tooltip-${platform}-${activePoint.idx}`}
+              className={`coding-chart-tooltip ${isCustomHover ? "is-hovered" : "is-active"}`}
+              style={{
+                left: `${(activePoint.x / svgWidth) * 100}%`,
+                top: `${(activePoint.y / svgHeight) * 100}%`,
+                borderColor: isCustomHover ? data.accent : "var(--border-medium)",
+              }}
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6, scale: 0.95 }}
+              transition={{ duration: 0.16, ease: "easeOut" }}
+            >
+              <div className="tooltip-top-row">
+                <div className="tooltip-title-wrap">
+                  <span
+                    className="tooltip-accent-dot"
+                    style={{ backgroundColor: data.accent }}
+                  />
+                  <strong>{activePoint.item.contest}</strong>
+                </div>
+                <span className="tooltip-date-tag">{activePoint.item.date}</span>
               </div>
-            </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+
+              <div className="tooltip-rating-row">
+                <span className="tooltip-val">{activePoint.item.rating}</span>
+                {activePoint.item.delta > 0 && (
+                  <span className="tooltip-gain-pill">
+                    +{activePoint.item.delta} pts
+                  </span>
+                )}
+              </div>
+
+              <div className="tooltip-meta-row">
+                <span className="tooltip-rank-tag">Rank: {activePoint.item.rank}</span>
+                {activePoint.item.note && (
+                  <span className="tooltip-note-tag">{activePoint.item.note}</span>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* 4. BOTTOM INTERACTIVE CONTEST TIMELINE SCRUBBER */}
+      <div className="coding-card-timeline">
+        <span className="timeline-header-label">CONTEST TIMELINE:</span>
+        <div className="timeline-pills-row">
+          {history.map((item, idx) => {
+            const isSelected = activePoint && activePoint.idx === idx;
+            return (
+              <button
+                key={idx}
+                type="button"
+                className={`timeline-contest-pill ${isSelected ? "selected" : ""}`}
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                onClick={() => setHoveredIndex(idx)}
+              >
+                <span className="pill-contest-title">{item.short}</span>
+                <span
+                  className="pill-contest-rating"
+                  style={{ color: isSelected ? data.accent : "rgba(255, 255, 255, 0.75)" }}
+                >
+                  {item.rating}
+                </span>
+                {item.delta > 0 && (
+                  <span className="pill-contest-gain">+{item.delta}</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

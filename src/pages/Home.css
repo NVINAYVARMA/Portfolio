@@ -581,6 +581,21 @@
   margin-top: 0;
 }
 
+/* Coding & Competitive Programming Section Wrapper */
+.home-coding-section {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 10px auto 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-coding-section .home-section-header {
+  margin-top: 0;
+  margin-bottom: 28px;
+}
+
 /* =========================================================
    HOME FEATURED PROJECTS SHOWCASE (DRIBBBLE STYLE)
    ========================================================= */
