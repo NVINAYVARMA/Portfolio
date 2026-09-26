@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import RBPContactCard from "../components/RBPContactCard";
 import PortraitMorph from "../components/PortraitMorph";
+import CodingStatsGraph from "../components/CodingStatsGraph";
 import "./Home.css";
 
 const featuredProjects = [
@@ -193,6 +194,53 @@ export default function Home() {
                   <span className="external-arrow" aria-hidden="true">↗</span>
                 </div>
                 <span className="hero-social-meta">in/nvssvinayvarma</span>
+              </div>
+            </a>
+
+            {/* LEETCODE */}
+            <a
+              href="https://leetcode.com/u/nvssvinay2348/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hero-social-card"
+              title="LeetCode — @nvssvinay2348 (Rating: 1706 • Top 13.6%)"
+              aria-label="LeetCode Profile: @nvssvinay2348 (opens in new tab)"
+            >
+              <div className="hero-social-icon leetcode-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
+                </svg>
+              </div>
+              <div className="hero-social-info">
+                <div className="hero-social-title">
+                  <strong>LeetCode</strong>
+                  <span className="external-arrow" aria-hidden="true">↗</span>
+                </div>
+                <span className="hero-social-meta">@nvssvinay2348 • 1706</span>
+              </div>
+            </a>
+
+            {/* CODECHEF */}
+            <a
+              href="https://www.codechef.com/users/ideal_voice_80"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hero-social-card"
+              title="CodeChef — @ideal_voice_80 (Rating: 1493 • Div 3)"
+              aria-label="CodeChef Profile: @ideal_voice_80 (opens in new tab)"
+            >
+              <div className="hero-social-icon codechef-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M16 18l6-6-6-6" />
+                  <path d="M8 6l-6 6 6 6" />
+                </svg>
+              </div>
+              <div className="hero-social-info">
+                <div className="hero-social-title">
+                  <strong>CodeChef</strong>
+                  <span className="external-arrow" aria-hidden="true">↗</span>
+                </div>
+                <span className="hero-social-meta">@ideal_voice_80 • 1493</span>
               </div>
             </a>
 
@@ -468,6 +516,17 @@ export default function Home() {
         </div>
       </motion.section>
 
+      {/* COMPETITIVE PROGRAMMING & DSA RATING SECTION */}
+      <motion.section
+        className="home-coding-section"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <CodingStatsGraph />
+      </motion.section>
+
       {/* SIGNATURE RBP SHADER CONTACT CARD */}
       <motion.section
         className="home-contact-section"
@@ -527,6 +586,37 @@ export default function Home() {
               <circle cx="4" cy="4" r="2" />
             </svg>
             <span>LinkedIn</span>
+            <span className="footer-link-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a
+            href="https://leetcode.com/u/nvssvinay2348/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="LeetCode Profile: @nvssvinay2348 (opens in new tab)"
+            title="LeetCode — @nvssvinay2348 (Rating: 1706)"
+            className="footer-social-link"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
+            </svg>
+            <span>LeetCode</span>
+            <span className="footer-link-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a
+            href="https://www.codechef.com/users/ideal_voice_80"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="CodeChef Profile: @ideal_voice_80 (opens in new tab)"
+            title="CodeChef — @ideal_voice_80 (Rating: 1493)"
+            className="footer-social-link"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M16 18l6-6-6-6" />
+              <path d="M8 6l-6 6 6 6" />
+            </svg>
+            <span>CodeChef</span>
             <span className="footer-link-arrow" aria-hidden="true">↗</span>
           </a>
 

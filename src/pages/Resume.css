@@ -841,3 +841,13 @@
     width: fit-content;
   }
 }
+
+/* =========================================================
+   RESUME CODING STATS SECTION
+   ========================================================= */
+
+.resume-coding-section {
+  width: 100%;
+  margin-top: 56px;
+  margin-bottom: 24px;
+}
