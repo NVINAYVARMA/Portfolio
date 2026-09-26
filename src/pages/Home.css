@@ -360,6 +360,18 @@
   border-color: #ffffff;
 }
 
+.hero-social-card:hover .leetcode-icon {
+  background: #FFA116;
+  color: #09090b;
+  border-color: #FFA116;
+}
+
+.hero-social-card:hover .codechef-icon {
+  background: #60A5FA;
+  color: #09090b;
+  border-color: #60A5FA;
+}
+
 .hero-social-info {
   display: flex;
   flex-direction: column;

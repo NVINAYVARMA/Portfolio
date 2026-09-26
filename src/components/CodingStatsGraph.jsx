@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   TrendingUp,
@@ -8,39 +8,41 @@ import {
   Zap,
   CheckCircle2,
   Code2,
+  Sparkles,
 } from "lucide-react";
 import "./CodingStatsGraph.css";
 
-// Official Real Data fetched from user's live profiles
+// Real, verified data from user's live accounts
 const LEETCODE_DATA = {
   platform: "LeetCode",
   username: "nvssvinay2348",
   profileUrl: "https://leetcode.com/u/nvssvinay2348/",
   rating: 1706,
   peakRating: 1706,
-  badge: "Top 13.6%",
+  badge: "Top 13.6% Worldwide",
   globalRank: "118,161",
   totalParticipants: "884,439",
   totalSolved: 176,
+  contestsAttended: 4,
   solvedBreakdown: [
     { label: "Easy", count: 123, color: "#00b8a3" },
     { label: "Medium", count: 51, color: "#ffc01e" },
     { label: "Hard", count: 2, color: "#ff375f" },
   ],
   accentColor: "#FFA116",
-  gradientStart: "rgba(255, 161, 22, 0.45)",
+  gradientStart: "rgba(255, 161, 22, 0.35)",
   gradientEnd: "rgba(255, 161, 22, 0.0)",
   minY: 1450,
   maxY: 1750,
   history: [
     {
       contest: "Starting Baseline",
-      short: "Base",
-      date: "Initial",
+      short: "Initial",
+      date: "Aug 2026",
       rating: 1500,
       delta: 0,
-      rank: "-",
-      solved: "-",
+      rank: "Baseline",
+      solved: "Initial Entry",
     },
     {
       contest: "Weekly Contest 517",
@@ -49,7 +51,7 @@ const LEETCODE_DATA = {
       rating: 1591,
       delta: 91,
       rank: "#4,581",
-      solved: "2 / 4",
+      solved: "2 / 4 Solved",
     },
     {
       contest: "Weekly Contest 518",
@@ -58,7 +60,7 @@ const LEETCODE_DATA = {
       rating: 1640,
       delta: 49,
       rank: "#4,299",
-      solved: "3 / 4",
+      solved: "3 / 4 Solved",
     },
     {
       contest: "Biweekly Contest 191",
@@ -67,7 +69,7 @@ const LEETCODE_DATA = {
       rating: 1706,
       delta: 66,
       rank: "#1,908",
-      solved: "3 / 4",
+      solved: "3 / 4 Solved",
     },
   ],
 };
@@ -78,13 +80,13 @@ const CODECHEF_DATA = {
   profileUrl: "https://www.codechef.com/users/ideal_voice_80",
   rating: 1493,
   peakRating: 1493,
-  badge: "Div 3 • 2★",
+  badge: "Division 3 • 2★",
   globalRank: "#797 Best",
   totalContests: 6,
   totalSolved: 60,
-  accentColor: "#5B8BF7",
-  gradientStart: "rgba(91, 139, 247, 0.45)",
-  gradientEnd: "rgba(91, 139, 247, 0.0)",
+  accentColor: "#60A5FA",
+  gradientStart: "rgba(96, 165, 250, 0.35)",
+  gradientEnd: "rgba(96, 165, 250, 0.0)",
   minY: 1000,
   maxY: 1550,
   history: [
@@ -95,7 +97,7 @@ const CODECHEF_DATA = {
       rating: 1065,
       delta: 0,
       rank: "#8,989",
-      solved: "1 / 4",
+      solved: "1 / 4 Solved",
     },
     {
       contest: "Starters 251",
@@ -104,7 +106,7 @@ const CODECHEF_DATA = {
       rating: 1272,
       delta: 207,
       rank: "#3,140",
-      solved: "2 / 4",
+      solved: "2 / 4 Solved",
     },
     {
       contest: "Starters 252",
@@ -113,7 +115,7 @@ const CODECHEF_DATA = {
       rating: 1356,
       delta: 84,
       rank: "#3,183",
-      solved: "3 / 5",
+      solved: "3 / 5 Solved",
     },
     {
       contest: "Starters 253",
@@ -122,7 +124,7 @@ const CODECHEF_DATA = {
       rating: 1439,
       delta: 83,
       rank: "#1,402",
-      solved: "3 / 5",
+      solved: "3 / 5 Solved",
     },
     {
       contest: "Starters 254",
@@ -131,7 +133,7 @@ const CODECHEF_DATA = {
       rating: 1455,
       delta: 16,
       rank: "#1,842",
-      solved: "3 / 6",
+      solved: "3 / 6 Solved",
     },
     {
       contest: "Starters 256",
@@ -140,7 +142,7 @@ const CODECHEF_DATA = {
       rating: 1493,
       delta: 38,
       rank: "#797",
-      solved: "4 / 6",
+      solved: "4 / 6 Solved",
     },
   ],
 };
@@ -161,18 +163,19 @@ function getSmoothSvgPath(points) {
     const cp2x = p2.x - (p3.x - p1.x) / 6;
     const cp2y = p2.y - (p3.y - p1.y) / 6;
 
-    d += ` C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p2.x},${p2.y}`;
+    d += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
   }
   return d;
 }
 
 export default function CodingStatsGraph() {
-  const [activePlatform, setActivePlatform] = useState("leetcode");
+  const [activePlatform, setActivePlatform] = useState("leetcode"); // "leetcode" | "codechef" | "overview"
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const svgWrapRef = useRef(null);
 
-  const activeData = activePlatform === "leetcode" ? LEETCODE_DATA : CODECHEF_DATA;
+  const activeData = activePlatform === "codechef" ? CODECHEF_DATA : LEETCODE_DATA;
 
-  // SVG Chart Dimensions
+  // Chart Geometry
   const svgWidth = 840;
   const svgHeight = 280;
   const paddingLeft = 56;
@@ -205,112 +208,200 @@ export default function CodingStatsGraph() {
       ? points[hoveredIndex]
       : points[points.length - 1];
 
-  // Gridlines values
+  // Fluid scrubber across the entire SVG canvas
+  const handlePointerMove = useCallback(
+    (e) => {
+      if (!svgWrapRef.current) return;
+      const rect = svgWrapRef.current.getBoundingClientRect();
+      const clientX = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+      if (clientX === undefined) return;
+
+      const relativeX = (clientX - rect.left) / rect.width;
+      const svgX = relativeX * svgWidth;
+
+      // Find closest data point
+      let closestIdx = 0;
+      let minDistance = Infinity;
+
+      points.forEach((pt, idx) => {
+        const dist = Math.abs(pt.x - svgX);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestIdx = idx;
+        }
+      });
+
+      setHoveredIndex(closestIdx);
+    },
+    [points, svgWidth]
+  );
+
+  const handlePointerLeave = useCallback(() => {
+    setHoveredIndex(null);
+  }, []);
+
+  // Grid lines
   const gridSteps = 4;
   const gridLines = Array.from({ length: gridSteps + 1 }).map((_, i) => {
     const val = Math.round(
-      activeData.minY +
-        (i / gridSteps) * (activeData.maxY - activeData.minY)
+      activeData.minY + (i / gridSteps) * (activeData.maxY - activeData.minY)
     );
     const y = paddingTop + (1 - i / gridSteps) * chartHeight;
     return { val, y };
   });
 
   return (
-    <div className="coding-stats-container">
-      {/* HEADER SECTION */}
+    <div className="coding-stats-section-wrap">
+      {/* SECTION HEADER MATCHING HOME / PORTFOLIO STYLE */}
       <div className="coding-stats-header">
-        <div className="coding-stats-title-wrap">
-          <div className="coding-stats-badge">
-            <span className="coding-stats-dot" />
-            <span>COMPETITIVE PROGRAMMING &amp; DSA</span>
+        <div className="coding-header-text">
+          <div className="badge badge-status">
+            <span className="status-dot" />
+            <span>ALGORITHMS &amp; DATA STRUCTURES</span>
           </div>
-          <h2 className="coding-stats-heading">Contest Rating Growth</h2>
-          <p className="coding-stats-sub">
-            Verified algorithmic contest progression across rated competitions on LeetCode &amp; CodeChef.
+          <h2 className="home-section-title">Contest Performance &amp; Ratings</h2>
+          <p className="home-section-sub">
+            Verified competitive programming ratings, trajectory curves, and algorithmic solutions across LeetCode and CodeChef.
           </p>
         </div>
 
-        {/* PLATFORM SWITCHER TABS */}
-        <div className="coding-platform-tabs">
+        {/* LIQUID TABS SWITCHER */}
+        <div className="coding-tabs-control" role="tablist">
           <button
             type="button"
-            className={`platform-tab ${activePlatform === "leetcode" ? "active lc-active" : ""}`}
+            role="tab"
+            aria-selected={activePlatform === "leetcode"}
+            className={`coding-tab-btn ${activePlatform === "leetcode" ? "active" : ""}`}
             onClick={() => {
               setActivePlatform("leetcode");
               setHoveredIndex(null);
             }}
           >
-            <span className="platform-tab-icon lc-icon" aria-hidden="true">
-              {/* LeetCode Icon */}
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            {activePlatform === "leetcode" && (
+              <motion.div
+                layoutId="activeTabGlow"
+                className="tab-active-glow tab-glow-lc"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              />
+            )}
+            <span className="tab-icon-wrap lc-icon-wrap" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
               </svg>
             </span>
-            <div className="platform-tab-text">
-              <span className="platform-name">LeetCode</span>
-              <span className="platform-stat">Rating 1706</span>
-            </div>
-            {activePlatform === "leetcode" && (
-              <span className="platform-pill-badge">Top 13.6%</span>
-            )}
+            <span className="tab-label">LeetCode</span>
+            <span className="tab-score-badge">1706</span>
           </button>
 
           <button
             type="button"
-            className={`platform-tab ${activePlatform === "codechef" ? "active cc-active" : ""}`}
+            role="tab"
+            aria-selected={activePlatform === "codechef"}
+            className={`coding-tab-btn ${activePlatform === "codechef" ? "active" : ""}`}
             onClick={() => {
               setActivePlatform("codechef");
               setHoveredIndex(null);
             }}
           >
-            <span className="platform-tab-icon cc-icon" aria-hidden="true">
-              {/* CodeChef Icon */}
-              <Code2 className="w-4 h-4" />
-            </span>
-            <div className="platform-tab-text">
-              <span className="platform-name">CodeChef</span>
-              <span className="platform-stat">Rating 1493</span>
-            </div>
             {activePlatform === "codechef" && (
-              <span className="platform-pill-badge cc-badge">Div 3 • 2★</span>
+              <motion.div
+                layoutId="activeTabGlow"
+                className="tab-active-glow tab-glow-cc"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              />
             )}
+            <span className="tab-icon-wrap cc-icon-wrap" aria-hidden="true">
+              <Code2 className="w-3.5 h-3.5" />
+            </span>
+            <span className="tab-label">CodeChef</span>
+            <span className="tab-score-badge">1493</span>
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activePlatform === "overview"}
+            className={`coding-tab-btn ${activePlatform === "overview" ? "active" : ""}`}
+            onClick={() => {
+              setActivePlatform("overview");
+              setHoveredIndex(null);
+            }}
+          >
+            {activePlatform === "overview" && (
+              <motion.div
+                layoutId="activeTabGlow"
+                className="tab-active-glow tab-glow-all"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              />
+            )}
+            <span className="tab-icon-wrap all-icon-wrap" aria-hidden="true">
+              <Sparkles className="w-3.5 h-3.5" />
+            </span>
+            <span className="tab-label">Dual Overview</span>
           </button>
         </div>
       </div>
 
-      {/* METRIC SPOTLIGHT CARDS */}
-      <div className="coding-metrics-row">
-        <div className="coding-metric-card primary-rating-card">
-          <div className="metric-header">
-            <span className="metric-eyebrow">CURRENT CONTEST RATING</span>
-            <TrendingUp className="metric-icon" style={{ color: activeData.accentColor }} />
-          </div>
-          <div className="metric-main-value">
-            <strong>{activeData.rating}</strong>
-            <span className="metric-peak-badge">
-              <Zap className="w-3 h-3" />
-              <span>Peak: {activeData.peakRating}</span>
-            </span>
-          </div>
-          <div className="metric-sub-detail">
-            <span>{activeData.badge}</span>
-            <span className="metric-dot">•</span>
-            <span className="metric-handle">@{activeData.username}</span>
-          </div>
-        </div>
+      {/* DUAL OVERVIEW COMPARISON MODE */}
+      <AnimatePresence mode="wait">
+        {activePlatform === "overview" ? (
+          <motion.div
+            key="overview-panel"
+            className="coding-dual-overview-grid"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* LEETCODE SUMMARY CARD */}
+            <div className="overview-platform-card lc-overview-border">
+              <div className="overview-card-header">
+                <div className="overview-brand">
+                  <div className="platform-avatar lc-avatar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="overview-title">LeetCode</h3>
+                    <span className="overview-handle">@nvssvinay2348</span>
+                  </div>
+                </div>
 
-        {activePlatform === "leetcode" ? (
-          <>
-            <div className="coding-metric-card">
-              <div className="metric-header">
-                <span className="metric-eyebrow">PROBLEMS SOLVED</span>
-                <CheckCircle2 className="metric-icon text-emerald-400" />
+                <a
+                  href={LEETCODE_DATA.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="overview-visit-link"
+                >
+                  <span>Profile</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
-              <div className="metric-main-value">
-                <strong>{activeData.totalSolved}</strong>
-                <span className="metric-unit">Solved</span>
+
+              <div className="overview-rating-spotlight">
+                <span className="overview-rating-label">CONTEST RATING</span>
+                <div className="overview-rating-number">
+                  <strong>1706</strong>
+                  <span className="overview-badge-tag tag-amber">Top 13.6%</span>
+                </div>
               </div>
+
+              <div className="overview-stats-columns">
+                <div className="overview-stat-cell">
+                  <span>Problems Solved</span>
+                  <strong>176 Total</strong>
+                </div>
+                <div className="overview-stat-cell">
+                  <span>Global Rank</span>
+                  <strong>#118,161</strong>
+                </div>
+                <div className="overview-stat-cell">
+                  <span>Rated Sprints</span>
+                  <strong>4 Active</strong>
+                </div>
+              </div>
+
               <div className="leetcode-breakdown-bar">
                 <div
                   className="bar-segment easy"
@@ -333,298 +424,457 @@ export default function CodingStatsGraph() {
                 <span className="text-amber-400">51 Med</span>
                 <span className="text-rose-400">2 Hard</span>
               </div>
-            </div>
 
-            <div className="coding-metric-card">
-              <div className="metric-header">
-                <span className="metric-eyebrow">GLOBAL STANDING</span>
-                <Trophy className="metric-icon text-yellow-400" />
-              </div>
-              <div className="metric-main-value">
-                <strong>Top 13.6%</strong>
-              </div>
-              <div className="metric-sub-detail">
-                <span>Rank #{activeData.globalRank}</span>
-                <span className="metric-dot">•</span>
-                <span>Active Contender</span>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="coding-metric-card">
-              <div className="metric-header">
-                <span className="metric-eyebrow">BEST CONTEST RANK</span>
-                <Trophy className="metric-icon text-yellow-400" />
-              </div>
-              <div className="metric-main-value">
-                <strong>#797</strong>
-                <span className="metric-unit">Worldwide</span>
-              </div>
-              <div className="metric-sub-detail">
-                <span>Starters 256</span>
-                <span className="metric-dot">•</span>
-                <span className="text-emerald-400">+38 Rating Gain</span>
-              </div>
-            </div>
-
-            <div className="coding-metric-card">
-              <div className="metric-header">
-                <span className="metric-eyebrow">DIVISION &amp; STARS</span>
-                <Award className="metric-icon text-indigo-400" />
-              </div>
-              <div className="metric-main-value">
-                <strong>Division 3</strong>
-                <span className="metric-stars">★★</span>
-              </div>
-              <div className="metric-sub-detail">
-                <span>6 Consecutive Rated Sprints</span>
-                <span className="metric-dot">•</span>
-                <span className="text-emerald-400">1065 → 1493 (+428)</span>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* INTERACTIVE SVG GRAPH CONTAINER */}
-      <div className="coding-graph-card">
-        <div className="graph-card-top">
-          <div className="graph-info">
-            <span className="graph-badge">INTERACTIVE RATING CURVE</span>
-            <span className="graph-hint">Hover points to view contest results</span>
-          </div>
-
-          <a
-            href={activeData.profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="graph-external-link"
-            title={`View official ${activeData.platform} profile`}
-          >
-            <span>Visit {activeData.platform} Profile</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        </div>
-
-        {/* SVG CANVAS */}
-        <div className="svg-canvas-wrap">
-          <svg
-            viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-            className="coding-svg"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <linearGradient
-                id={`graph-gradient-${activePlatform}`}
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
+              <button
+                type="button"
+                className="overview-switch-btn"
+                onClick={() => setActivePlatform("leetcode")}
               >
-                <stop offset="0%" stopColor={activeData.accentColor} stopOpacity="0.32" />
-                <stop offset="60%" stopColor={activeData.accentColor} stopOpacity="0.08" />
-                <stop offset="100%" stopColor={activeData.accentColor} stopOpacity="0.0" />
-              </linearGradient>
+                <span>View Full LeetCode Trajectory Graph →</span>
+              </button>
+            </div>
 
-              <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
+            {/* CODECHEF SUMMARY CARD */}
+            <div className="overview-platform-card cc-overview-border">
+              <div className="overview-card-header">
+                <div className="overview-brand">
+                  <div className="platform-avatar cc-avatar">
+                    <Code2 className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="overview-title">CodeChef</h3>
+                    <span className="overview-handle">@ideal_voice_80</span>
+                  </div>
+                </div>
 
-            {/* HORIZONTAL GRID LINES & LABELS */}
-            {gridLines.map((line, i) => (
-              <g key={i}>
-                <line
-                  x1={paddingLeft}
-                  y1={line.y}
-                  x2={svgWidth - paddingRight}
-                  y2={line.y}
-                  stroke="rgba(255, 255, 255, 0.08)"
-                  strokeDasharray="3 4"
-                />
-                <text
-                  x={paddingLeft - 10}
-                  y={line.y + 4}
-                  fill="rgba(255, 255, 255, 0.4)"
-                  fontSize="10"
-                  textAnchor="end"
-                  fontFamily="var(--font-mono, monospace)"
+                <a
+                  href={CODECHEF_DATA.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="overview-visit-link"
                 >
-                  {line.val}
-                </text>
-              </g>
-            ))}
+                  <span>Profile</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
 
-            {/* AREA UNDER CURVE */}
-            <path
-              d={areaD}
-              fill={`url(#graph-gradient-${activePlatform})`}
-              className="chart-area-path"
-            />
+              <div className="overview-rating-spotlight">
+                <span className="overview-rating-label">CONTEST RATING</span>
+                <div className="overview-rating-number">
+                  <strong>1493</strong>
+                  <span className="overview-badge-tag tag-blue">Div 3 • 2★</span>
+                </div>
+              </div>
 
-            {/* MAIN CURVE PATH */}
-            <path
-              d={pathD}
-              fill="none"
-              stroke={activeData.accentColor}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              filter="url(#glow-filter)"
-              className="chart-curve-path"
-            />
+              <div className="overview-stats-columns">
+                <div className="overview-stat-cell">
+                  <span>Best Contest Rank</span>
+                  <strong>#797 Worldwide</strong>
+                </div>
+                <div className="overview-stat-cell">
+                  <span>Recent Gain</span>
+                  <strong className="text-emerald-400">+428 Pts</strong>
+                </div>
+                <div className="overview-stat-cell">
+                  <span>Rated Contests</span>
+                  <strong>6 Consecutive</strong>
+                </div>
+              </div>
 
-            {/* VERTICAL GUIDELINE ON HOVER */}
-            {activePoint && (
-              <line
-                x1={activePoint.x}
-                y1={paddingTop}
-                x2={activePoint.x}
-                y2={paddingTop + chartHeight}
-                stroke="rgba(255, 255, 255, 0.25)"
-                strokeDasharray="4 4"
-                strokeWidth="1"
-              />
-            )}
+              <div className="cc-milestone-box">
+                <span className="cc-milestone-title">RECENT CONTEST MILESTONE</span>
+                <div className="cc-milestone-body">
+                  <span>Starters 256: Placed <strong>#797</strong> with 4 solved problems, boosting rating to peak <strong>1493</strong>.</span>
+                </div>
+              </div>
 
-            {/* DATA POINTS & INTERACTIVE HITBOXES */}
-            {points.map((pt, idx) => {
-              const isSelected = activePoint && activePoint.idx === idx;
-              return (
-                <g
-                  key={idx}
-                  className="graph-point-group"
-                  onMouseEnter={() => setHoveredIndex(idx)}
-                  onClick={() => setHoveredIndex(idx)}
+              <button
+                type="button"
+                className="overview-switch-btn"
+                onClick={() => setActivePlatform("codechef")}
+              >
+                <span>View Full CodeChef Trajectory Graph →</span>
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key={activePlatform}
+            className="coding-graph-wrapper"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          >
+            {/* THREE METRICS SPOTLIGHT ROW */}
+            <div className="coding-metrics-row">
+              {/* PRIMARY RATING CARD */}
+              <div className="coding-metric-card primary-rating-card">
+                <div className="metric-header">
+                  <span className="metric-eyebrow">CURRENT CONTEST RATING</span>
+                  <TrendingUp
+                    className="metric-icon"
+                    style={{ color: activeData.accentColor }}
+                  />
+                </div>
+                <div className="metric-main-value">
+                  <strong>{activeData.rating}</strong>
+                  <span className="metric-peak-badge">
+                    <Zap className="w-3 h-3" />
+                    <span>Peak: {activeData.peakRating}</span>
+                  </span>
+                </div>
+                <div className="metric-sub-detail">
+                  <span className="metric-highlight">{activeData.badge}</span>
+                  <span className="metric-dot">•</span>
+                  <span className="metric-handle">@{activeData.username}</span>
+                </div>
+              </div>
+
+              {activePlatform === "leetcode" ? (
+                <>
+                  <div className="coding-metric-card">
+                    <div className="metric-header">
+                      <span className="metric-eyebrow">PROBLEMS SOLVED</span>
+                      <CheckCircle2 className="metric-icon text-emerald-400" />
+                    </div>
+                    <div className="metric-main-value">
+                      <strong>{activeData.totalSolved}</strong>
+                      <span className="metric-unit">Verified Solved</span>
+                    </div>
+                    <div className="leetcode-breakdown-bar">
+                      <div
+                        className="bar-segment easy"
+                        style={{ width: `${(123 / 176) * 100}%` }}
+                        title="123 Easy"
+                      />
+                      <div
+                        className="bar-segment medium"
+                        style={{ width: `${(51 / 176) * 100}%` }}
+                        title="51 Medium"
+                      />
+                      <div
+                        className="bar-segment hard"
+                        style={{ width: `${(2 / 176) * 100}%` }}
+                        title="2 Hard"
+                      />
+                    </div>
+                    <div className="leetcode-breakdown-labels">
+                      <span className="text-teal-400">123 Easy</span>
+                      <span className="text-amber-400">51 Med</span>
+                      <span className="text-rose-400">2 Hard</span>
+                    </div>
+                  </div>
+
+                  <div className="coding-metric-card">
+                    <div className="metric-header">
+                      <span className="metric-eyebrow">GLOBAL STANDING</span>
+                      <Trophy className="metric-icon text-yellow-400" />
+                    </div>
+                    <div className="metric-main-value">
+                      <strong>Top 13.6%</strong>
+                    </div>
+                    <div className="metric-sub-detail">
+                      <span>Global Rank #{activeData.globalRank}</span>
+                      <span className="metric-dot">•</span>
+                      <span>Active Contender</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="coding-metric-card">
+                    <div className="metric-header">
+                      <span className="metric-eyebrow">BEST CONTEST RANK</span>
+                      <Trophy className="metric-icon text-yellow-400" />
+                    </div>
+                    <div className="metric-main-value">
+                      <strong>#797</strong>
+                      <span className="metric-unit">Worldwide Rank</span>
+                    </div>
+                    <div className="metric-sub-detail">
+                      <span>Starters 256</span>
+                      <span className="metric-dot">•</span>
+                      <span className="text-emerald-400">+38 Rating Gain</span>
+                    </div>
+                  </div>
+
+                  <div className="coding-metric-card">
+                    <div className="metric-header">
+                      <span className="metric-eyebrow">DIVISION &amp; STARS</span>
+                      <Award className="metric-icon text-blue-400" />
+                    </div>
+                    <div className="metric-main-value">
+                      <strong>Division 3</strong>
+                      <span className="metric-stars">★★</span>
+                    </div>
+                    <div className="metric-sub-detail">
+                      <span>6 Rated Sprints</span>
+                      <span className="metric-dot">•</span>
+                      <span className="text-emerald-400">1065 → 1493 (+428)</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* INTERACTIVE GRAPH CANVAS CARD */}
+            <div className="coding-graph-card">
+              <div className="graph-card-top">
+                <div className="graph-info">
+                  <span className="graph-badge">INTERACTIVE RATING CURVE</span>
+                  <span className="graph-hint">Move cursor over chart to inspect contest stats</span>
+                </div>
+
+                <a
+                  href={activeData.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="graph-external-link"
+                  title={`View official ${activeData.platform} profile`}
                 >
-                  {/* Invisible generous hitbox for easy hover */}
-                  <rect
-                    x={pt.x - 20}
-                    y={paddingTop}
-                    width={40}
-                    height={chartHeight}
-                    fill="transparent"
-                    style={{ cursor: "pointer" }}
+                  <span>Visit {activeData.platform} Profile</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+
+              {/* SVG CANVAS WITH SMOOTH POINTER SCRUBBER */}
+              <div
+                ref={svgWrapRef}
+                className="svg-canvas-wrap"
+                onPointerMove={handlePointerMove}
+                onPointerLeave={handlePointerLeave}
+                onTouchMove={handlePointerMove}
+              >
+                <svg
+                  viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                  className="coding-svg"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <linearGradient
+                      id={`graph-gradient-${activePlatform}`}
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor={activeData.accentColor}
+                        stopOpacity="0.32"
+                      />
+                      <stop
+                        offset="60%"
+                        stopColor={activeData.accentColor}
+                        stopOpacity="0.06"
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor={activeData.accentColor}
+                        stopOpacity="0.0"
+                      />
+                    </linearGradient>
+
+                    <filter
+                      id="glow-filter"
+                      x="-20%"
+                      y="-20%"
+                      width="140%"
+                      height="140%"
+                    >
+                      <feGaussianBlur stdDeviation="3.5" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  </defs>
+
+                  {/* HORIZONTAL GRID LINES & LABELS */}
+                  {gridLines.map((line, i) => (
+                    <g key={i}>
+                      <line
+                        x1={paddingLeft}
+                        y1={line.y}
+                        x2={svgWidth - paddingRight}
+                        y2={line.y}
+                        stroke="rgba(255, 255, 255, 0.07)"
+                        strokeDasharray="3 4"
+                      />
+                      <text
+                        x={paddingLeft - 12}
+                        y={line.y + 4}
+                        fill="rgba(255, 255, 255, 0.4)"
+                        fontSize="10"
+                        textAnchor="end"
+                        fontFamily="var(--font-mono, monospace)"
+                      >
+                        {line.val}
+                      </text>
+                    </g>
+                  ))}
+
+                  {/* AREA UNDER CURVE */}
+                  <motion.path
+                    d={areaD}
+                    fill={`url(#graph-gradient-${activePlatform})`}
+                    className="chart-area-path"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6 }}
                   />
 
-                  {/* Outer glow ring when selected */}
-                  {isSelected && (
-                    <circle
-                      cx={pt.x}
-                      cy={pt.y}
-                      r="12"
-                      fill={activeData.accentColor}
-                      fillOpacity="0.2"
+                  {/* MAIN CURVE PATH (ANIMATED STROKE) */}
+                  <motion.path
+                    d={pathD}
+                    fill="none"
+                    stroke={activeData.accentColor}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    filter="url(#glow-filter)"
+                    className="chart-curve-path"
+                    initial={{ pathLength: 0, opacity: 0 }}
+                    animate={{ pathLength: 1, opacity: 1 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                  />
+
+                  {/* VERTICAL GUIDELINE ON HOVER */}
+                  {activePoint && (
+                    <line
+                      x1={activePoint.x}
+                      y1={paddingTop}
+                      x2={activePoint.x}
+                      y2={paddingTop + chartHeight}
+                      stroke="rgba(255, 255, 255, 0.3)"
+                      strokeDasharray="4 4"
+                      strokeWidth="1.2"
                     />
                   )}
 
-                  {/* Point Ring */}
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r={isSelected ? "6" : "4.5"}
-                    fill="#121316"
-                    stroke={activeData.accentColor}
-                    strokeWidth={isSelected ? "2.5" : "2"}
-                    style={{
-                      transition: "all 0.2s ease",
-                      cursor: "pointer",
-                    }}
-                  />
+                  {/* DATA POINTS */}
+                  {points.map((pt, idx) => {
+                    const isSelected = activePoint && activePoint.idx === idx;
+                    return (
+                      <g key={idx} className="graph-point-group">
+                        {/* Outer glow ring when selected */}
+                        {isSelected && (
+                          <circle
+                            cx={pt.x}
+                            cy={pt.y}
+                            r="13"
+                            fill={activeData.accentColor}
+                            fillOpacity="0.22"
+                          />
+                        )}
 
-                  {/* Inner center dot */}
-                  <circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r="2"
-                    fill={isSelected ? activeData.accentColor : "#ffffff"}
-                  />
+                        {/* Point Outer Ring */}
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r={isSelected ? "6.5" : "4.5"}
+                          fill="#121316"
+                          stroke={activeData.accentColor}
+                          strokeWidth={isSelected ? "2.5" : "2"}
+                          style={{
+                            transition: "r 0.15s ease, stroke-width 0.15s ease",
+                          }}
+                        />
 
-                  {/* Bottom X-Axis Label */}
-                  <text
-                    x={pt.x}
-                    y={paddingTop + chartHeight + 22}
-                    fill={isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.5)"}
-                    fontSize="10"
-                    textAnchor="middle"
-                    fontFamily="var(--font-mono, monospace)"
-                    fontWeight={isSelected ? "700" : "500"}
-                  >
-                    {pt.item.short}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
+                        {/* Center Dot */}
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r="2.2"
+                          fill={isSelected ? activeData.accentColor : "#ffffff"}
+                        />
 
-          {/* FLOATING HOVER TOOLTIP */}
-          <AnimatePresence>
-            {activePoint && (
-              <motion.div
-                className="graph-floating-tooltip"
-                key={activePoint.idx}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                style={{
-                  left: `${(activePoint.x / svgWidth) * 100}%`,
-                  top: `${(activePoint.y / svgHeight) * 100}%`,
-                }}
-              >
-                <div className="tooltip-inner">
-                  <div className="tooltip-top">
-                    <strong>{activePoint.item.contest}</strong>
-                    <span className="tooltip-date">{activePoint.item.date}</span>
-                  </div>
-                  <div className="tooltip-rating-row">
-                    <span className="tooltip-rating-val">{activePoint.item.rating}</span>
-                    {activePoint.item.delta > 0 && (
-                      <span className="tooltip-gain-badge">
-                        +{activePoint.item.delta}
-                      </span>
-                    )}
-                  </div>
-                  <div className="tooltip-stats-grid">
-                    <div>
-                      <span>Rank</span>
-                      <strong>{activePoint.item.rank}</strong>
-                    </div>
-                    <div>
-                      <span>Solved</span>
-                      <strong>{activePoint.item.solved}</strong>
-                    </div>
-                  </div>
+                        {/* Bottom X-Axis Label */}
+                        <text
+                          x={pt.x}
+                          y={paddingTop + chartHeight + 22}
+                          fill={isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.45)"}
+                          fontSize="10"
+                          textAnchor="middle"
+                          fontFamily="var(--font-mono, monospace)"
+                          fontWeight={isSelected ? "700" : "500"}
+                        >
+                          {pt.item.short}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* FLOATING HOVER TOOLTIP */}
+                <AnimatePresence>
+                  {activePoint && (
+                    <motion.div
+                      className="graph-floating-tooltip"
+                      key={activePoint.idx}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      style={{
+                        left: `${(activePoint.x / svgWidth) * 100}%`,
+                        top: `${(activePoint.y / svgHeight) * 100}%`,
+                      }}
+                    >
+                      <div className="tooltip-inner">
+                        <div className="tooltip-top">
+                          <strong>{activePoint.item.contest}</strong>
+                          <span className="tooltip-date">{activePoint.item.date}</span>
+                        </div>
+                        <div className="tooltip-rating-row">
+                          <span className="tooltip-rating-val">{activePoint.item.rating}</span>
+                          {activePoint.item.delta > 0 && (
+                            <span className="tooltip-gain-badge">
+                              +{activePoint.item.delta}
+                            </span>
+                          )}
+                        </div>
+                        <div className="tooltip-stats-grid">
+                          <div>
+                            <span>Rank</span>
+                            <strong>{activePoint.item.rank}</strong>
+                          </div>
+                          <div>
+                            <span>Solved</span>
+                            <strong>{activePoint.item.solved}</strong>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* CONTEST RECAP CHIPS / TIMELINE */}
+              <div className="contest-timeline-bar">
+                <span className="timeline-label">RATED TIMELINE:</span>
+                <div className="timeline-chips">
+                  {history.map((h, i) => (
+                    <button
+                      type="button"
+                      key={i}
+                      className={`timeline-chip ${
+                        activePoint && activePoint.idx === i ? "active-chip" : ""
+                      }`}
+                      onClick={() => setHoveredIndex(i)}
+                    >
+                      <span className="chip-name">{h.short}</span>
+                      <span className="chip-rating">{h.rating}</span>
+                      {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
+                    </button>
+                  ))}
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* CONTEST RECAP CHIPS / TIMELINE */}
-        <div className="contest-timeline-bar">
-          <span className="timeline-label">CONTEST PROGRESSION:</span>
-          <div className="timeline-chips">
-            {history.map((h, i) => (
-              <button
-                type="button"
-                key={i}
-                className={`timeline-chip ${activePoint && activePoint.idx === i ? "active-chip" : ""}`}
-                onClick={() => setHoveredIndex(i)}
-              >
-                <span className="chip-name">{h.short}</span>
-                <span className="chip-rating">{h.rating}</span>
-                {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

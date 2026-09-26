@@ -58,12 +58,14 @@ function AnimatedRoutes() {
 }
 
 function App() {
-  const [loading, setLoading] = useState(
-    sessionStorage.getItem("introShown") !== "true"
-  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Ensure intro always plays when user reloads or enters the site
+    sessionStorage.removeItem("introShown");
+  }, []);
 
   const handleIntroComplete = () => {
-    sessionStorage.setItem("introShown", "true");
     setLoading(false);
   };
 
