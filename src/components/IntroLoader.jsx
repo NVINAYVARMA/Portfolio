@@ -1,28 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import FallingDotsBackground from "./FallingDotsBackground";
 import "./IntroLoader.css";
 
 /* =========================================================
-   LUXURY TITANIUM & OBSIDIAN MONOCHROME PALETTE
+   AUTHENTIC COMPETITION RUBIK'S CUBE COLORS
    ========================================================= */
 
 const COLORS = {
-  U: "#ffffff", // Pure Platinum White
-  D: "#27272a", // Charcoal Matte
-  F: "#f4f4f5", // Pure Titanium
-  B: "#3f3f46", // Dark Slate Steel
-  R: "#d4d4d8", // Frosted Chrome
-  L: "#222227", // Deep Graphite
+  U: "#ffffff", // Top (Pure White)
+  D: "#ffd500", // Bottom (Competition Yellow)
+  F: "#00a651", // Front (Vibrant Green)
+  B: "#0057b8", // Back (Cobalt Blue)
+  R: "#d00000", // Right (Competition Red)
+  L: "#ff7200", // Left (Vibrant Orange)
 };
 
 /* =========================================================
-   PRECISION KINETIC SOLVE SEQUENCE
+   SCRAMBLE & SOLVE SEQUENCES (VERIFIED SPEEDCUBING SOLVER)
    ========================================================= */
 
-const SCRAMBLE = ["R", "U", "F'", "L", "D'"];
-const SOLVE = ["D", "L'", "F", "U'", "R'"];
+const SCRAMBLE = ["R", "U", "R'", "F", "D", "L'", "U", "F'", "R", "D'", "B", "L"];
+const SOLVE = ["L'", "B'", "D", "R'", "F", "U'", "L", "D'", "F'", "R", "U'", "R'"];
 
 /* =========================================================
    CUBE GEOMETRY CONSTANTS
@@ -77,9 +76,9 @@ function rotatePosition({ x, y, z }, axis, direction) {
     return direction === 1 ? { x, y: -z, z: y } : { x, y: z, z: -y };
   }
   if (axis === "y") {
-    return direction === 1 ? { x: z, y, z: -x } : { x: -z, y, z: x };
+    return direction === 1 ? { x: z, y, z: -x } : { x, y: z, z: -y };
   }
-  return direction === 1 ? { x: -y, y: x, z } : { x: y, y: -x, z };
+  return direction === 1 ? { x: -y, y: x, z } : { x, y: -x, z };
 }
 
 function createSolvedCube() {
@@ -148,8 +147,8 @@ function Sticker({ face, color }) {
       <boxGeometry args={data.size} />
       <meshStandardMaterial
         color={COLORS[color]}
-        roughness={0.24}
-        metalness={0.03}
+        roughness={0.18}
+        metalness={0.02}
         toneMapped={false}
       />
     </mesh>
@@ -179,7 +178,7 @@ function Cubie({ piece, activeMoveRef }) {
       const eased = 0.5 - 0.5 * Math.cos(progress * Math.PI);
       const angle = active.totalAngle * eased;
 
-      // 1. Rotate position along a PERFECT circle around the rotation axis:
+      // 1. Rotate position along a circle around the rotation axis:
       startPos.current.set(piece.x * SPACING, piece.y * SPACING, piece.z * SPACING);
       group.position
         .copy(startPos.current)
@@ -200,7 +199,7 @@ function Cubie({ piece, activeMoveRef }) {
     <group ref={groupRef}>
       <mesh>
         <boxGeometry args={[CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE]} />
-        <meshStandardMaterial color="#18181b" roughness={0.32} metalness={0.15} />
+        <meshStandardMaterial color="#111116" roughness={0.3} metalness={0.08} />
       </mesh>
 
       {Object.entries(piece.stickers).map(([face, color]) => (
@@ -217,7 +216,7 @@ function Cubie({ piece, activeMoveRef }) {
 function RubiksCube({ cube, activeMoveRef, solving, solved }) {
   const cubeRef = useRef(null);
 
-  useFrame((state) => {
+  useFrame(() => {
     const group = cubeRef.current;
     if (!group) return;
 
@@ -261,11 +260,11 @@ function RubiksCube({ cube, activeMoveRef, solving, solved }) {
 function CubeScene({ cube, activeMoveRef, solving, solved }) {
   return (
     <>
-      <ambientLight intensity={2.2} />
-      <directionalLight position={[6, 8, 8]} intensity={4.2} />
-      <directionalLight position={[-6, 3, 5]} intensity={2.4} />
-      <directionalLight position={[-4, -3, -5]} intensity={1.5} />
-      <pointLight position={[0, 4, 4]} intensity={2.0} />
+      <ambientLight intensity={2.0} />
+      <directionalLight position={[6, 8, 8]} intensity={4.0} />
+      <directionalLight position={[-6, 3, 5]} intensity={2.0} />
+      <directionalLight position={[-4, -3, -5]} intensity={1.2} />
+      <pointLight position={[0, 4, 4]} intensity={1.8} />
 
       <RubiksCube
         cube={cube}
@@ -286,7 +285,7 @@ function RubiksCanvas({ cube, activeMoveRef, solving, solved }) {
     <Canvas
       className="rubiks-canvas"
       camera={{ position: [9, 8.2, 9.5], fov: 40, near: 0.1, far: 80 }}
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
     >
       <CubeScene
@@ -303,9 +302,9 @@ function RubiksCanvas({ cube, activeMoveRef, solving, solved }) {
    TIMING CONFIGURATION
    ========================================================= */
 
-const TURN_DURATION_MS = 180; // Fast, fluid precision turn
-const TURN_PAUSE_MS = 25; // Tactile rhythm pause
-const CURTAIN_DURATION_MS = 1100; // Smooth 1.1s reveal curtain
+const TURN_DURATION_MS = 250; // Fast, snappy, buttery-smooth turn duration
+const TURN_PAUSE_MS = 25; // Brief rhythm pause between turns
+const CURTAIN_DURATION_MS = 2000; // Synchronized curtain reveal
 
 /* =========================================================
    INTRO LOADER COMPONENT
@@ -371,7 +370,7 @@ export default function IntroLoader({ onComplete }) {
       // 1. Initial breathing pose
       setPhase("scrambled");
       setCubeVisible(true);
-      await wait(500);
+      await wait(600);
       if (isCancelledRef.current) return;
 
       // 2. Solve sequence
@@ -385,7 +384,7 @@ export default function IntroLoader({ onComplete }) {
       setPhase("solved");
       setProgress(100);
       setMoveNumber(SOLVE.length);
-      await wait(450);
+      await wait(500);
       if (isCancelledRef.current) return;
 
       // 4. Cinematic curtain cascades smoothly over screen, displays logo, reveals site
@@ -416,22 +415,21 @@ export default function IntroLoader({ onComplete }) {
 
   const handleSkip = () => {
     isCancelledRef.current = true;
-    onComplete?.();
+    onCompleteRef.current?.();
   };
 
   const statusText =
     phase === "intro"
-      ? "INITIALIZING SYSTEM"
+      ? "PREPARING"
       : phase === "scrambled"
-      ? "CALIBRATING 3D MATRICES"
+      ? "SCRAMBLED"
       : phase === "solving"
-      ? "COMPUTING RESOLUTION"
-      : "SYSTEMS OPTIMIZED [100%]";
+      ? "SOLVING"
+      : "SOLVED";
 
   return (
     <div className={`intro-loader ${closing ? "intro-closing" : ""}`}>
-      {/* IDENTICAL WEBSITE FALLING DOTS BACKGROUND */}
-      <FallingDotsBackground />
+      {/* BACKGROUND ORBITS */}
       <div className="intro-orbit intro-orbit-one" />
       <div className="intro-orbit intro-orbit-two" />
       <div className="intro-orbit intro-orbit-three" />

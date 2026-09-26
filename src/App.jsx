@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   BrowserRouter,
   Routes,
@@ -65,9 +65,9 @@ function App() {
     sessionStorage.removeItem("introShown");
   }, []);
 
-  const handleIntroComplete = () => {
+  const handleIntroComplete = useCallback(() => {
     setLoading(false);
-  };
+  }, []);
 
   return (
     <BrowserRouter>
@@ -77,29 +77,31 @@ function App() {
       {/* Floating Scroll To Top with Progress Ring */}
       <ScrollToTopButton />
 
-      {/* Signature WebGL Ambient Flow Waves (rbp-portfolio) */}
-      <div className="ambient-flow-shader-layer" aria-hidden="true">
-        <ShaderFlow
-          flowSpeed={[0.06, 0.12]}
-          iterations={12}
-          scale={5.0}
-          brightness={0.85}
-          colorLow={[0.1, 0.12, 0.18]}
-          colorHigh={[0.35, 0.32, 0.28]}
-          bgColor={[0.035, 0.035, 0.04]}
-        />
-      </div>
+      {/* Signature WebGL Ambient Flow Waves (rbp-portfolio) - active after intro */}
+      {!loading && (
+        <div className="ambient-flow-shader-layer" aria-hidden="true">
+          <ShaderFlow
+            flowSpeed={[0.06, 0.12]}
+            iterations={10}
+            scale={5.0}
+            brightness={0.85}
+            colorLow={[0.1, 0.12, 0.18]}
+            colorHigh={[0.35, 0.32, 0.28]}
+            bgColor={[0.035, 0.035, 0.04]}
+          />
+        </div>
+      )}
 
       {/* Falling Cosmic Particles */}
       <FallingDotsBackground />
 
-      {/* Intro */}
+      {/* Intro Loader */}
       {loading && (
         <IntroLoader onComplete={handleIntroComplete} />
       )}
 
-      {/* Main application */}
-      <div className="app-root">
+      {/* Main application (hidden during intro to prevent background WebGL & layout lag) */}
+      <div className="app-root" style={{ display: loading ? "none" : "block" }}>
         {/* Navigation */}
         <Navbar />
 
