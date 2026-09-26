@@ -10,11 +10,11 @@ import "./IntroLoader.css";
 
 const COLORS = {
   U: "#ffffff", // Pure Platinum White
-  D: "#1c1c24", // Carbon Graphite
-  F: "#e4e4e7", // Brushed Titanium
-  B: "#2e2e38", // Dark Slate
-  R: "#a1a1aa", // Frosted Chrome
-  L: "#141418", // Deep Obsidian
+  D: "#27272a", // Charcoal Matte
+  F: "#f4f4f5", // Pure Titanium
+  B: "#3f3f46", // Dark Slate Steel
+  R: "#d4d4d8", // Frosted Chrome
+  L: "#222227", // Deep Graphite
 };
 
 /* =========================================================
@@ -200,7 +200,7 @@ function Cubie({ piece, activeMoveRef }) {
     <group ref={groupRef}>
       <mesh>
         <boxGeometry args={[CUBIE_SIZE, CUBIE_SIZE, CUBIE_SIZE]} />
-        <meshStandardMaterial color="#0b0b0e" roughness={0.3} metalness={0.08} />
+        <meshStandardMaterial color="#18181b" roughness={0.32} metalness={0.15} />
       </mesh>
 
       {Object.entries(piece.stickers).map(([face, color]) => (
@@ -261,11 +261,11 @@ function RubiksCube({ cube, activeMoveRef, solving, solved }) {
 function CubeScene({ cube, activeMoveRef, solving, solved }) {
   return (
     <>
-      <ambientLight intensity={1.8} />
-      <directionalLight position={[6, 8, 8]} intensity={3.8} />
-      <directionalLight position={[-6, 3, 5]} intensity={1.8} />
-      <directionalLight position={[-4, -3, -5]} intensity={1.2} />
-      <pointLight position={[0, 4, 4]} intensity={1.5} />
+      <ambientLight intensity={2.2} />
+      <directionalLight position={[6, 8, 8]} intensity={4.2} />
+      <directionalLight position={[-6, 3, 5]} intensity={2.4} />
+      <directionalLight position={[-4, -3, -5]} intensity={1.5} />
+      <pointLight position={[0, 4, 4]} intensity={2.0} />
 
       <RubiksCube
         cube={cube}
@@ -313,18 +313,25 @@ const CURTAIN_DURATION_MS = 1100; // Smooth 1.1s reveal curtain
 
 export default function IntroLoader({ onComplete }) {
   const [cube, setCube] = useState(createScrambledCube);
-  const [phase, setPhase] = useState("intro"); // intro | scrambled | solving | solved
+  const [phase, setPhase] = useState("scrambled"); // scrambled | solving | solved
   const [activeMove, setActiveMove] = useState(null);
   const [progress, setProgress] = useState(0);
   const [moveNumber, setMoveNumber] = useState(0);
-  const [cubeVisible, setCubeVisible] = useState(false);
+  const [cubeVisible, setCubeVisible] = useState(true);
   const [closing, setClosing] = useState(false);
+
+  // Stable callback ref
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   // Ref driving Three.js 60-120fps rotation without ANY React state thrashing
   const activeMoveRef = useRef(null);
   const isCancelledRef = useRef(false);
 
   useEffect(() => {
+    isCancelledRef.current = false;
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
     async function performMove(move, index, total) {
@@ -361,38 +368,33 @@ export default function IntroLoader({ onComplete }) {
     }
 
     async function runIntro() {
-      // 1. Initial fade-in
-      setPhase("intro");
-      await wait(350);
-      if (isCancelledRef.current) return;
-
-      // 2. Cube emerges in scrambled state
-      setCubeVisible(true);
+      // 1. Initial breathing pose
       setPhase("scrambled");
-      await wait(400);
+      setCubeVisible(true);
+      await wait(500);
       if (isCancelledRef.current) return;
 
-      // 3. Solve sequence
+      // 2. Solve sequence
       setPhase("solving");
       for (let i = 0; i < SOLVE.length; i++) {
         await performMove(SOLVE[i], i, SOLVE.length);
         if (isCancelledRef.current) return;
       }
 
-      // 4. Solved hero moment
+      // 3. Solved hero moment
       setPhase("solved");
       setProgress(100);
       setMoveNumber(SOLVE.length);
-      await wait(400);
+      await wait(450);
       if (isCancelledRef.current) return;
 
-      // 5. Cinematic curtain cascades smoothly over screen, displays logo, reveals site
+      // 4. Cinematic curtain cascades smoothly over screen, displays logo, reveals site
       setClosing(true);
       await wait(CURTAIN_DURATION_MS);
       if (isCancelledRef.current) return;
 
-      // 6. Transition complete
-      onComplete?.();
+      // 5. Transition complete
+      onCompleteRef.current?.();
     }
 
     runIntro();
@@ -401,7 +403,7 @@ export default function IntroLoader({ onComplete }) {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         isCancelledRef.current = true;
-        onComplete?.();
+        onCompleteRef.current?.();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -410,7 +412,7 @@ export default function IntroLoader({ onComplete }) {
       isCancelledRef.current = true;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onComplete]);
+  }, []);
 
   const handleSkip = () => {
     isCancelledRef.current = true;

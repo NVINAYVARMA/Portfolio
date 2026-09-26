@@ -222,9 +222,9 @@
   top: 50%;
   width: min(620px, 72vw);
   height: min(620px, 72vw);
-  transform: translate3d(-50%, -50%, 0) scale(0.72);
+  transform: translate3d(-50%, -50%, 0) scale(1);
   transform-origin: center center;
-  opacity: 0;
+  opacity: 1;
   z-index: 150;
   will-change: transform, opacity;
   transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),

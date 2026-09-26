@@ -31,7 +31,7 @@ const LEETCODE_DATA = {
   accentColor: "#FFA116",
   accentGlow: "rgba(255, 161, 22, 0.45)",
   minY: 1450,
-  maxY: 1750,
+  maxY: 1760,
   history: [
     {
       contest: "Starting Baseline",
@@ -173,13 +173,13 @@ export default function CodingStatsGraph() {
 
   const activeData = activePlatform === "codechef" ? CODECHEF_DATA : LEETCODE_DATA;
 
-  // Chart Geometry
+  // Chart Geometry with generous padding to prevent edge clipping
   const svgWidth = 840;
-  const svgHeight = 280;
-  const paddingLeft = 56;
-  const paddingRight = 40;
-  const paddingTop = 36;
-  const paddingBottom = 48;
+  const svgHeight = 290;
+  const paddingLeft = 70;
+  const paddingRight = 72; // ample room for the latest point and its present callout
+  const paddingTop = 48; // headroom for rating chips above the curve
+  const paddingBottom = 46;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
@@ -201,10 +201,8 @@ export default function CodingStatsGraph() {
       ? `${pathD} L ${points[points.length - 1].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} L ${points[0].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} Z`
       : "";
 
-  const activePoint =
-    hoveredIndex !== null && points[hoveredIndex]
-      ? points[hoveredIndex]
-      : points[points.length - 1];
+  const latestPoint = points[points.length - 1];
+  const activePoint = hoveredIndex !== null ? points[hoveredIndex] : null;
 
   // Fluid scrubber across the SVG canvas
   const handlePointerMove = useCallback(
@@ -247,6 +245,15 @@ export default function CodingStatsGraph() {
     const y = paddingTop + (1 - i / gridSteps) * chartHeight;
     return { val, y };
   });
+
+  // Calculate safe tooltip horizontal alignment (prevents edge clipping)
+  const getTooltipTransform = (pt) => {
+    if (!pt) return "translate(-50%, -125%)";
+    const percent = (pt.x / svgWidth) * 100;
+    if (percent > 78) return "translate(-88%, -125%)"; // shift left when near right edge
+    if (percent < 22) return "translate(-12%, -125%)"; // shift right when near left edge
+    return "translate(-50%, -125%)";
+  };
 
   return (
     <div
@@ -447,7 +454,7 @@ export default function CodingStatsGraph() {
 
           {/* INTERACTIVE GRAPH CANVAS CARD */}
           <div className="coding-graph-card">
-            {/* Ambient Background Radial Glow */}
+            {/* Ambient Platform Glow inside Card */}
             <div
               className="graph-ambient-glow"
               style={{
@@ -458,7 +465,20 @@ export default function CodingStatsGraph() {
             <div className="graph-card-top">
               <div className="graph-info">
                 <span className="graph-badge">INTERACTIVE RATING CURVE</span>
-                <span className="graph-hint">Hover or swipe along curve to inspect contest results</span>
+
+                {/* PROMINENT LIVE PRESENT RATING BANNER */}
+                <div className="graph-present-callout-pill" style={{ borderColor: `${activeData.accentColor}40` }}>
+                  <span className="present-live-dot" style={{ backgroundColor: activeData.accentColor }} />
+                  <span className="present-pill-label">PRESENT RATING:</span>
+                  <strong className="present-pill-val" style={{ color: activeData.accentColor }}>
+                    {activeData.rating}
+                  </strong>
+                  {latestPoint.item.delta > 0 && (
+                    <span className="present-pill-gain">
+                      +{latestPoint.item.delta} in {latestPoint.item.short}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <a
@@ -515,8 +535,8 @@ export default function CodingStatsGraph() {
                   {/* Laser Guideline Gradient */}
                   <linearGradient id="laser-guideline" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={activeData.accentColor} stopOpacity="0.0" />
-                    <stop offset="30%" stopColor={activeData.accentColor} stopOpacity="0.65" />
-                    <stop offset="70%" stopColor={activeData.accentColor} stopOpacity="0.85" />
+                    <stop offset="30%" stopColor={activeData.accentColor} stopOpacity="0.75" />
+                    <stop offset="70%" stopColor={activeData.accentColor} stopOpacity="0.9" />
                     <stop offset="100%" stopColor={activeData.accentColor} stopOpacity="0.0" />
                   </linearGradient>
 
@@ -578,7 +598,7 @@ export default function CodingStatsGraph() {
                   d={pathD}
                   fill="none"
                   stroke={activeData.accentColor}
-                  strokeWidth="2.8"
+                  strokeWidth="3.0"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   filter="url(#glow-filter)"
@@ -592,27 +612,116 @@ export default function CodingStatsGraph() {
                 {activePoint && (
                   <line
                     x1={activePoint.x}
-                    y1={paddingTop - 8}
+                    y1={paddingTop - 10}
                     x2={activePoint.x}
-                    y2={paddingTop + chartHeight + 8}
+                    y2={paddingTop + chartHeight + 10}
                     stroke="url(#laser-guideline)"
-                    strokeWidth="1.5"
+                    strokeWidth="1.8"
                   />
+                )}
+
+                {/* PREVIOUS CONTEST RATING LABELS ALONG THE CURVE */}
+                {points.slice(0, points.length - 1).map((pt, idx) => (
+                  <g key={`rating-chip-${idx}`} className="curve-rating-chip-group">
+                    <rect
+                      x={pt.x - 21}
+                      y={pt.y - 26}
+                      width="42"
+                      height="18"
+                      rx="9"
+                      fill="#0d0e14"
+                      stroke="rgba(255, 255, 255, 0.12)"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={pt.x}
+                      y={pt.y - 13.5}
+                      fill="rgba(255, 255, 255, 0.82)"
+                      fontSize="10"
+                      fontWeight="700"
+                      textAnchor="middle"
+                      fontFamily="var(--font-mono, monospace)"
+                    >
+                      {pt.item.rating}
+                    </text>
+                  </g>
+                ))}
+
+                {/* PERMANENT, GLOWING PRESENT RATING CALLOUT PINNED ON LATEST POINT */}
+                {latestPoint && (
+                  <g className="present-rating-callout-beacon">
+                    {/* Stem connecting badge to point */}
+                    <line
+                      x1={latestPoint.x}
+                      y1={latestPoint.y - 9}
+                      x2={latestPoint.x}
+                      y2={latestPoint.y - 25}
+                      stroke={activeData.accentColor}
+                      strokeWidth="1.8"
+                      strokeDasharray="2 2"
+                    />
+                    {/* Floating Callout Pill */}
+                    <g transform={`translate(${latestPoint.x - 52}, ${latestPoint.y - 48})`}>
+                      <rect
+                        x="0"
+                        y="0"
+                        width="104"
+                        height="26"
+                        rx="13"
+                        fill="#0c0d13"
+                        stroke={activeData.accentColor}
+                        strokeWidth="1.8"
+                        filter="url(#glow-filter)"
+                      />
+                      {/* Pulsing beacon dot */}
+                      <circle
+                        cx="14"
+                        cy="13"
+                        r="3.5"
+                        fill={activeData.accentColor}
+                      />
+                      {/* Present Rating Value */}
+                      <text
+                        x="24"
+                        y="17"
+                        fill="#ffffff"
+                        fontSize="12"
+                        fontWeight="800"
+                        fontFamily="var(--font-mono, monospace)"
+                        letterSpacing="0.2px"
+                      >
+                        {activeData.rating}
+                      </text>
+                      {/* NOW / CURRENT Label */}
+                      <text
+                        x="62"
+                        y="16.5"
+                        fill={activeData.accentColor}
+                        fontSize="9"
+                        fontWeight="800"
+                        fontFamily="var(--font-mono, monospace)"
+                        letterSpacing="0.6px"
+                      >
+                        PRESENT
+                      </text>
+                    </g>
+                  </g>
                 )}
 
                 {/* DATA POINTS WITH HALO */}
                 {points.map((pt, idx) => {
                   const isSelected = activePoint && activePoint.idx === idx;
+                  const isLatest = idx === points.length - 1;
                   return (
                     <g key={idx} className="graph-point-group">
-                      {/* Outer pulse aura */}
-                      {isSelected && (
+                      {/* Outer pulse aura for selected or latest point */}
+                      {(isSelected || isLatest) && (
                         <circle
                           cx={pt.x}
                           cy={pt.y}
-                          r="15"
+                          r={isSelected ? "16" : "11"}
                           fill={activeData.accentColor}
-                          fillOpacity="0.16"
+                          fillOpacity={isSelected ? "0.22" : "0.12"}
                         />
                       )}
 
@@ -620,10 +729,10 @@ export default function CodingStatsGraph() {
                       <circle
                         cx={pt.x}
                         cy={pt.y}
-                        r={isSelected ? "6.5" : "4"}
+                        r={isSelected ? "7" : isLatest ? "5.5" : "4.2"}
                         fill="#0c0d12"
                         stroke={activeData.accentColor}
-                        strokeWidth={isSelected ? "2.5" : "1.8"}
+                        strokeWidth={isSelected ? "2.6" : isLatest ? "2.2" : "1.8"}
                         style={{
                           transition: "r 0.18s ease, stroke-width 0.18s ease",
                         }}
@@ -633,19 +742,19 @@ export default function CodingStatsGraph() {
                       <circle
                         cx={pt.x}
                         cy={pt.y}
-                        r={isSelected ? "2.5" : "1.8"}
-                        fill={isSelected ? "#ffffff" : activeData.accentColor}
+                        r={isSelected ? "2.8" : "2"}
+                        fill={isSelected ? "#ffffff" : isLatest ? "#ffffff" : activeData.accentColor}
                       />
 
                       {/* Bottom X-Axis Label */}
                       <text
                         x={pt.x}
                         y={paddingTop + chartHeight + 22}
-                        fill={isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.45)"}
+                        fill={isSelected ? "#ffffff" : isLatest ? "#ffffff" : "rgba(255, 255, 255, 0.5)"}
                         fontSize="10"
                         textAnchor="middle"
                         fontFamily="var(--font-mono, monospace)"
-                        fontWeight={isSelected ? "700" : "500"}
+                        fontWeight={isSelected || isLatest ? "700" : "500"}
                       >
                         {pt.item.short}
                       </text>
@@ -654,19 +763,20 @@ export default function CodingStatsGraph() {
                 })}
               </svg>
 
-              {/* FLOATING HOVER TOOLTIP */}
+              {/* FLOATING HOVER TOOLTIP (APPEARS ON HOVER ONLY WITH SMART BOUNDARY OFFSET) */}
               <AnimatePresence>
                 {activePoint && (
                   <motion.div
                     className="graph-floating-tooltip"
                     key={activePoint.idx}
-                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                    initial={{ opacity: 0, scale: 0.94, y: -4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
+                    exit={{ opacity: 0, scale: 0.94 }}
                     transition={{ duration: 0.15 }}
                     style={{
                       left: `${(activePoint.x / svgWidth) * 100}%`,
                       top: `${(activePoint.y / svgHeight) * 100}%`,
+                      transform: getTooltipTransform(activePoint),
                     }}
                   >
                     <div
@@ -707,20 +817,23 @@ export default function CodingStatsGraph() {
             <div className="contest-timeline-bar">
               <span className="timeline-label">RATED TIMELINE:</span>
               <div className="timeline-chips">
-                {history.map((h, i) => (
-                  <button
-                    type="button"
-                    key={i}
-                    className={`timeline-chip ${
-                      activePoint && activePoint.idx === i ? "active-chip" : ""
-                    }`}
-                    onClick={() => setHoveredIndex(i)}
-                  >
-                    <span className="chip-name">{h.short}</span>
-                    <span className="chip-rating">{h.rating}</span>
-                    {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
-                  </button>
-                ))}
+                {history.map((h, i) => {
+                  const isCurrent = i === history.length - 1;
+                  const isSelected = activePoint && activePoint.idx === i;
+                  return (
+                    <button
+                      type="button"
+                      key={i}
+                      className={`timeline-chip ${isSelected ? "active-chip" : ""} ${isCurrent ? "current-chip" : ""}`}
+                      onClick={() => setHoveredIndex(i)}
+                    >
+                      <span className="chip-name">{h.short}</span>
+                      <strong className="chip-rating">{h.rating}</strong>
+                      {isCurrent && <span className="chip-current-badge">CURRENT</span>}
+                      {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
