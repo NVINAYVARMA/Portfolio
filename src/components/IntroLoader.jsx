@@ -221,7 +221,7 @@ function RubiksCube({ cube, activeMoveRef, solving, solved }) {
     const group = cubeRef.current;
     if (!group) return;
 
-    const time = state.clock.getElapsedTime();
+    const time = performance.now() * 0.001;
 
     // Natural breathing float
     group.position.x = 0;
@@ -288,38 +288,6 @@ function RubiksCanvas({ cube, activeMoveRef, solving, solved }) {
       camera={{ position: [9, 8.2, 9.5], fov: 40, near: 0.1, far: 80 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
-      onCreated={({ camera, gl }) => {
-        const canvas = gl.domElement;
-        const parent = canvas.parentElement;
-
-        const updateCanvasSize = () => {
-          const width = parent?.clientWidth || window.innerWidth;
-          const height = parent?.clientHeight || window.innerHeight;
-
-          camera.aspect = width / Math.max(height, 1);
-          camera.lookAt(0, 0, 0);
-          camera.updateProjectionMatrix();
-
-          gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-          gl.setSize(width, height, false);
-        };
-
-        updateCanvasSize();
-
-        const observer = parent ? new ResizeObserver(updateCanvasSize) : null;
-        observer?.observe(parent);
-        window.addEventListener("resize", updateCanvasSize);
-        requestAnimationFrame(updateCanvasSize);
-
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.display = "block";
-
-        return () => {
-          observer?.disconnect();
-          window.removeEventListener("resize", updateCanvasSize);
-        };
-      }}
     >
       <CubeScene
         cube={cube}
