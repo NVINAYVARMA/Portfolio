@@ -8,11 +8,10 @@ import {
   Zap,
   CheckCircle2,
   Code2,
-  Sparkles,
 } from "lucide-react";
 import "./CodingStatsGraph.css";
 
-// Real, verified data from user's live accounts
+// Real, verified contest data from live accounts
 const LEETCODE_DATA = {
   platform: "LeetCode",
   username: "nvssvinay2348",
@@ -30,8 +29,7 @@ const LEETCODE_DATA = {
     { label: "Hard", count: 2, color: "#ff375f" },
   ],
   accentColor: "#FFA116",
-  gradientStart: "rgba(255, 161, 22, 0.35)",
-  gradientEnd: "rgba(255, 161, 22, 0.0)",
+  accentGlow: "rgba(255, 161, 22, 0.45)",
   minY: 1450,
   maxY: 1750,
   history: [
@@ -85,8 +83,7 @@ const CODECHEF_DATA = {
   totalContests: 6,
   totalSolved: 60,
   accentColor: "#60A5FA",
-  gradientStart: "rgba(96, 165, 250, 0.35)",
-  gradientEnd: "rgba(96, 165, 250, 0.0)",
+  accentGlow: "rgba(96, 165, 250, 0.45)",
   minY: 1000,
   maxY: 1550,
   history: [
@@ -147,29 +144,30 @@ const CODECHEF_DATA = {
   ],
 };
 
-function getSmoothSvgPath(points) {
+// Generates a continuous, organic cubic Bézier spline with natural tension
+function getSmoothSvgPath(points, tension = 0.25) {
   if (!points || points.length === 0) return "";
-  if (points.length === 1) return `M ${points[0].x},${points[0].y}`;
+  if (points.length === 1) return `M ${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`;
 
-  let d = `M ${points[0].x},${points[0].y}`;
+  let d = `M ${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`;
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i === 0 ? 0 : i - 1];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+    const pPrev = points[i === 0 ? 0 : i - 1];
+    const pCurr = points[i];
+    const pNext = points[i + 1];
+    const pAfter = points[i + 2 < points.length ? i + 2 : i + 1];
 
-    const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
-    const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    const cp1x = pCurr.x + (pNext.x - pPrev.x) * tension;
+    const cp1y = pCurr.y + (pNext.y - pPrev.y) * tension;
+    const cp2x = pNext.x - (pAfter.x - pCurr.x) * tension;
+    const cp2y = pNext.y - (pAfter.y - pCurr.y) * tension;
 
-    d += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
+    d += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${pNext.x.toFixed(2)},${pNext.y.toFixed(2)}`;
   }
   return d;
 }
 
 export default function CodingStatsGraph() {
-  const [activePlatform, setActivePlatform] = useState("leetcode"); // "leetcode" | "codechef" | "overview"
+  const [activePlatform, setActivePlatform] = useState("leetcode"); // "leetcode" | "codechef"
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const svgWrapRef = useRef(null);
 
@@ -200,7 +198,7 @@ export default function CodingStatsGraph() {
   const pathD = getSmoothSvgPath(points);
   const areaD =
     points.length > 0
-      ? `${pathD} L ${points[points.length - 1].x},${paddingTop + chartHeight} L ${points[0].x},${paddingTop + chartHeight} Z`
+      ? `${pathD} L ${points[points.length - 1].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} L ${points[0].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} Z`
       : "";
 
   const activePoint =
@@ -208,7 +206,7 @@ export default function CodingStatsGraph() {
       ? points[hoveredIndex]
       : points[points.length - 1];
 
-  // Fluid scrubber across the entire SVG canvas
+  // Fluid scrubber across the SVG canvas
   const handlePointerMove = useCallback(
     (e) => {
       if (!svgWrapRef.current) return;
@@ -251,8 +249,14 @@ export default function CodingStatsGraph() {
   });
 
   return (
-    <div className="coding-stats-section-wrap">
-      {/* SECTION HEADER MATCHING HOME / PORTFOLIO STYLE */}
+    <div
+      className="coding-stats-section-wrap"
+      style={{
+        "--platform-accent": activeData.accentColor,
+        "--platform-glow": activeData.accentGlow,
+      }}
+    >
+      {/* SECTION HEADER MATCHING V2-PORTFOLIO DESIGN */}
       <div className="coding-stats-header">
         <div className="coding-header-text">
           <div className="badge badge-status">
@@ -265,7 +269,7 @@ export default function CodingStatsGraph() {
           </p>
         </div>
 
-        {/* LIQUID TABS SWITCHER */}
+        {/* LIQUID TABS SWITCHER (LEETCODE & CODECHEF ONLY) */}
         <div className="coding-tabs-control" role="tablist">
           <button
             type="button"
@@ -316,564 +320,411 @@ export default function CodingStatsGraph() {
             <span className="tab-label">CodeChef</span>
             <span className="tab-score-badge">1493</span>
           </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activePlatform === "overview"}
-            className={`coding-tab-btn ${activePlatform === "overview" ? "active" : ""}`}
-            onClick={() => {
-              setActivePlatform("overview");
-              setHoveredIndex(null);
-            }}
-          >
-            {activePlatform === "overview" && (
-              <motion.div
-                layoutId="activeTabGlow"
-                className="tab-active-glow tab-glow-all"
-                transition={{ type: "spring", stiffness: 450, damping: 35 }}
-              />
-            )}
-            <span className="tab-icon-wrap all-icon-wrap" aria-hidden="true">
-              <Sparkles className="w-3.5 h-3.5" />
-            </span>
-            <span className="tab-label">Dual Overview</span>
-          </button>
         </div>
       </div>
 
-      {/* DUAL OVERVIEW COMPARISON MODE */}
+      {/* GRAPH & METRICS PRESENTATION */}
       <AnimatePresence mode="wait">
-        {activePlatform === "overview" ? (
-          <motion.div
-            key="overview-panel"
-            className="coding-dual-overview-grid"
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {/* LEETCODE SUMMARY CARD */}
-            <div className="overview-platform-card lc-overview-border">
-              <div className="overview-card-header">
-                <div className="overview-brand">
-                  <div className="platform-avatar lc-avatar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="overview-title">LeetCode</h3>
-                    <span className="overview-handle">@nvssvinay2348</span>
-                  </div>
-                </div>
-
-                <a
-                  href={LEETCODE_DATA.profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="overview-visit-link"
-                >
-                  <span>Profile</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              <div className="overview-rating-spotlight">
-                <span className="overview-rating-label">CONTEST RATING</span>
-                <div className="overview-rating-number">
-                  <strong>1706</strong>
-                  <span className="overview-badge-tag tag-amber">Top 13.6%</span>
-                </div>
-              </div>
-
-              <div className="overview-stats-columns">
-                <div className="overview-stat-cell">
-                  <span>Problems Solved</span>
-                  <strong>176 Total</strong>
-                </div>
-                <div className="overview-stat-cell">
-                  <span>Global Rank</span>
-                  <strong>#118,161</strong>
-                </div>
-                <div className="overview-stat-cell">
-                  <span>Rated Sprints</span>
-                  <strong>4 Active</strong>
-                </div>
-              </div>
-
-              <div className="leetcode-breakdown-bar">
-                <div
-                  className="bar-segment easy"
-                  style={{ width: `${(123 / 176) * 100}%` }}
-                  title="123 Easy"
-                />
-                <div
-                  className="bar-segment medium"
-                  style={{ width: `${(51 / 176) * 100}%` }}
-                  title="51 Medium"
-                />
-                <div
-                  className="bar-segment hard"
-                  style={{ width: `${(2 / 176) * 100}%` }}
-                  title="2 Hard"
+        <motion.div
+          key={activePlatform}
+          className="coding-graph-wrapper"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        >
+          {/* THREE METRICS SPOTLIGHT ROW */}
+          <div className="coding-metrics-row">
+            {/* PRIMARY RATING CARD */}
+            <div className="coding-metric-card primary-rating-card">
+              <div className="metric-header">
+                <span className="metric-eyebrow">CURRENT CONTEST RATING</span>
+                <TrendingUp
+                  className="metric-icon"
+                  style={{ color: activeData.accentColor }}
                 />
               </div>
-              <div className="leetcode-breakdown-labels">
-                <span className="text-teal-400">123 Easy</span>
-                <span className="text-amber-400">51 Med</span>
-                <span className="text-rose-400">2 Hard</span>
+              <div className="metric-main-value">
+                <strong>{activeData.rating}</strong>
+                <span className="metric-peak-badge">
+                  <Zap className="w-3 h-3" />
+                  <span>Peak: {activeData.peakRating}</span>
+                </span>
               </div>
-
-              <button
-                type="button"
-                className="overview-switch-btn"
-                onClick={() => setActivePlatform("leetcode")}
-              >
-                <span>View Full LeetCode Trajectory Graph →</span>
-              </button>
+              <div className="metric-sub-detail">
+                <span className="metric-highlight">{activeData.badge}</span>
+                <span className="metric-dot">•</span>
+                <span className="metric-handle">@{activeData.username}</span>
+              </div>
             </div>
 
-            {/* CODECHEF SUMMARY CARD */}
-            <div className="overview-platform-card cc-overview-border">
-              <div className="overview-card-header">
-                <div className="overview-brand">
-                  <div className="platform-avatar cc-avatar">
-                    <Code2 className="w-5 h-5 text-blue-400" />
+            {activePlatform === "leetcode" ? (
+              <>
+                <div className="coding-metric-card">
+                  <div className="metric-header">
+                    <span className="metric-eyebrow">PROBLEMS SOLVED</span>
+                    <CheckCircle2 className="metric-icon text-emerald-400" />
                   </div>
-                  <div>
-                    <h3 className="overview-title">CodeChef</h3>
-                    <span className="overview-handle">@ideal_voice_80</span>
+                  <div className="metric-main-value">
+                    <strong>{activeData.totalSolved}</strong>
+                    <span className="metric-unit">Verified Solved</span>
+                  </div>
+                  <div className="leetcode-breakdown-bar">
+                    <div
+                      className="bar-segment easy"
+                      style={{ width: `${(123 / 176) * 100}%` }}
+                      title="123 Easy"
+                    />
+                    <div
+                      className="bar-segment medium"
+                      style={{ width: `${(51 / 176) * 100}%` }}
+                      title="51 Medium"
+                    />
+                    <div
+                      className="bar-segment hard"
+                      style={{ width: `${(2 / 176) * 100}%` }}
+                      title="2 Hard"
+                    />
+                  </div>
+                  <div className="leetcode-breakdown-labels">
+                    <span className="text-teal-400">123 Easy</span>
+                    <span className="text-amber-400">51 Med</span>
+                    <span className="text-rose-400">2 Hard</span>
                   </div>
                 </div>
 
-                <a
-                  href={CODECHEF_DATA.profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="overview-visit-link"
-                >
-                  <span>Profile</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+                <div className="coding-metric-card">
+                  <div className="metric-header">
+                    <span className="metric-eyebrow">GLOBAL STANDING</span>
+                    <Trophy className="metric-icon text-yellow-400" />
+                  </div>
+                  <div className="metric-main-value">
+                    <strong>Top 13.6%</strong>
+                  </div>
+                  <div className="metric-sub-detail">
+                    <span>Rank #{activeData.globalRank}</span>
+                    <span className="metric-dot">•</span>
+                    <span>Top Tier Contender</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="coding-metric-card">
+                  <div className="metric-header">
+                    <span className="metric-eyebrow">BEST CONTEST RANK</span>
+                    <Trophy className="metric-icon text-yellow-400" />
+                  </div>
+                  <div className="metric-main-value">
+                    <strong>#797</strong>
+                    <span className="metric-unit">Worldwide Rank</span>
+                  </div>
+                  <div className="metric-sub-detail">
+                    <span>Starters 256</span>
+                    <span className="metric-dot">•</span>
+                    <span className="text-emerald-400">+38 Rating Gain</span>
+                  </div>
+                </div>
+
+                <div className="coding-metric-card">
+                  <div className="metric-header">
+                    <span className="metric-eyebrow">DIVISION &amp; STARS</span>
+                    <Award className="metric-icon text-blue-400" />
+                  </div>
+                  <div className="metric-main-value">
+                    <strong>Division 3</strong>
+                    <span className="metric-stars">★★</span>
+                  </div>
+                  <div className="metric-sub-detail">
+                    <span>6 Rated Sprints</span>
+                    <span className="metric-dot">•</span>
+                    <span className="text-emerald-400">1065 → 1493 (+428)</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* INTERACTIVE GRAPH CANVAS CARD */}
+          <div className="coding-graph-card">
+            {/* Ambient Background Radial Glow */}
+            <div
+              className="graph-ambient-glow"
+              style={{
+                background: `radial-gradient(ellipse 65% 55% at 50% 10%, ${activeData.accentColor}18, transparent 75%)`,
+              }}
+            />
+
+            <div className="graph-card-top">
+              <div className="graph-info">
+                <span className="graph-badge">INTERACTIVE RATING CURVE</span>
+                <span className="graph-hint">Hover or swipe along curve to inspect contest results</span>
               </div>
 
-              <div className="overview-rating-spotlight">
-                <span className="overview-rating-label">CONTEST RATING</span>
-                <div className="overview-rating-number">
-                  <strong>1493</strong>
-                  <span className="overview-badge-tag tag-blue">Div 3 • 2★</span>
-                </div>
-              </div>
-
-              <div className="overview-stats-columns">
-                <div className="overview-stat-cell">
-                  <span>Best Contest Rank</span>
-                  <strong>#797 Worldwide</strong>
-                </div>
-                <div className="overview-stat-cell">
-                  <span>Recent Gain</span>
-                  <strong className="text-emerald-400">+428 Pts</strong>
-                </div>
-                <div className="overview-stat-cell">
-                  <span>Rated Contests</span>
-                  <strong>6 Consecutive</strong>
-                </div>
-              </div>
-
-              <div className="cc-milestone-box">
-                <span className="cc-milestone-title">RECENT CONTEST MILESTONE</span>
-                <div className="cc-milestone-body">
-                  <span>Starters 256: Placed <strong>#797</strong> with 4 solved problems, boosting rating to peak <strong>1493</strong>.</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="overview-switch-btn"
-                onClick={() => setActivePlatform("codechef")}
+              <a
+                href={activeData.profileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="graph-external-link"
+                title={`View official ${activeData.platform} profile`}
               >
-                <span>View Full CodeChef Trajectory Graph →</span>
-              </button>
+                <span>Visit {activeData.platform} Profile</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key={activePlatform}
-            className="coding-graph-wrapper"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {/* THREE METRICS SPOTLIGHT ROW */}
-            <div className="coding-metrics-row">
-              {/* PRIMARY RATING CARD */}
-              <div className="coding-metric-card primary-rating-card">
-                <div className="metric-header">
-                  <span className="metric-eyebrow">CURRENT CONTEST RATING</span>
-                  <TrendingUp
-                    className="metric-icon"
-                    style={{ color: activeData.accentColor }}
+
+            {/* SVG CANVAS WITH SMOOTH POINTER SCRUBBER */}
+            <div
+              ref={svgWrapRef}
+              className="svg-canvas-wrap"
+              onPointerMove={handlePointerMove}
+              onPointerLeave={handlePointerLeave}
+              onTouchMove={handlePointerMove}
+            >
+              <svg
+                viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                className="coding-svg"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  {/* Smooth Area Gradient */}
+                  <linearGradient
+                    id={`graph-gradient-${activePlatform}`}
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor={activeData.accentColor}
+                      stopOpacity="0.28"
+                    />
+                    <stop
+                      offset="50%"
+                      stopColor={activeData.accentColor}
+                      stopOpacity="0.08"
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={activeData.accentColor}
+                      stopOpacity="0.0"
+                    />
+                  </linearGradient>
+
+                  {/* Laser Guideline Gradient */}
+                  <linearGradient id="laser-guideline" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={activeData.accentColor} stopOpacity="0.0" />
+                    <stop offset="30%" stopColor={activeData.accentColor} stopOpacity="0.65" />
+                    <stop offset="70%" stopColor={activeData.accentColor} stopOpacity="0.85" />
+                    <stop offset="100%" stopColor={activeData.accentColor} stopOpacity="0.0" />
+                  </linearGradient>
+
+                  {/* Soft Drop Glow */}
+                  <filter
+                    id="glow-filter"
+                    x="-20%"
+                    y="-20%"
+                    width="140%"
+                    height="140%"
+                  >
+                    <feDropShadow
+                      dx="0"
+                      dy="2"
+                      stdDeviation="4"
+                      floodColor={activeData.accentColor}
+                      floodOpacity="0.45"
+                    />
+                  </filter>
+                </defs>
+
+                {/* HORIZONTAL GRID LINES & RATINGS */}
+                {gridLines.map((line, i) => (
+                  <g key={i}>
+                    <line
+                      x1={paddingLeft}
+                      y1={line.y}
+                      x2={svgWidth - paddingRight}
+                      y2={line.y}
+                      stroke="rgba(255, 255, 255, 0.04)"
+                      strokeDasharray="4 6"
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={paddingLeft - 14}
+                      y={line.y + 3.5}
+                      fill="rgba(255, 255, 255, 0.35)"
+                      fontSize="10"
+                      textAnchor="end"
+                      fontFamily="var(--font-mono, monospace)"
+                    >
+                      {line.val}
+                    </text>
+                  </g>
+                ))}
+
+                {/* AREA UNDER CURVE */}
+                <motion.path
+                  d={areaD}
+                  fill={`url(#graph-gradient-${activePlatform})`}
+                  className="chart-area-path"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.6 }}
+                />
+
+                {/* MAIN SMOOTH CURVE PATH */}
+                <motion.path
+                  d={pathD}
+                  fill="none"
+                  stroke={activeData.accentColor}
+                  strokeWidth="2.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  filter="url(#glow-filter)"
+                  className="chart-curve-path"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                />
+
+                {/* LUMINOUS VERTICAL LASER GUIDELINE ON HOVER */}
+                {activePoint && (
+                  <line
+                    x1={activePoint.x}
+                    y1={paddingTop - 8}
+                    x2={activePoint.x}
+                    y2={paddingTop + chartHeight + 8}
+                    stroke="url(#laser-guideline)"
+                    strokeWidth="1.5"
                   />
-                </div>
-                <div className="metric-main-value">
-                  <strong>{activeData.rating}</strong>
-                  <span className="metric-peak-badge">
-                    <Zap className="w-3 h-3" />
-                    <span>Peak: {activeData.peakRating}</span>
-                  </span>
-                </div>
-                <div className="metric-sub-detail">
-                  <span className="metric-highlight">{activeData.badge}</span>
-                  <span className="metric-dot">•</span>
-                  <span className="metric-handle">@{activeData.username}</span>
-                </div>
-              </div>
+                )}
 
-              {activePlatform === "leetcode" ? (
-                <>
-                  <div className="coding-metric-card">
-                    <div className="metric-header">
-                      <span className="metric-eyebrow">PROBLEMS SOLVED</span>
-                      <CheckCircle2 className="metric-icon text-emerald-400" />
-                    </div>
-                    <div className="metric-main-value">
-                      <strong>{activeData.totalSolved}</strong>
-                      <span className="metric-unit">Verified Solved</span>
-                    </div>
-                    <div className="leetcode-breakdown-bar">
-                      <div
-                        className="bar-segment easy"
-                        style={{ width: `${(123 / 176) * 100}%` }}
-                        title="123 Easy"
+                {/* DATA POINTS WITH HALO */}
+                {points.map((pt, idx) => {
+                  const isSelected = activePoint && activePoint.idx === idx;
+                  return (
+                    <g key={idx} className="graph-point-group">
+                      {/* Outer pulse aura */}
+                      {isSelected && (
+                        <circle
+                          cx={pt.x}
+                          cy={pt.y}
+                          r="15"
+                          fill={activeData.accentColor}
+                          fillOpacity="0.16"
+                        />
+                      )}
+
+                      {/* Point Outer Ring */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={isSelected ? "6.5" : "4"}
+                        fill="#0c0d12"
+                        stroke={activeData.accentColor}
+                        strokeWidth={isSelected ? "2.5" : "1.8"}
+                        style={{
+                          transition: "r 0.18s ease, stroke-width 0.18s ease",
+                        }}
                       />
-                      <div
-                        className="bar-segment medium"
-                        style={{ width: `${(51 / 176) * 100}%` }}
-                        title="51 Medium"
+
+                      {/* Center Bright Dot */}
+                      <circle
+                        cx={pt.x}
+                        cy={pt.y}
+                        r={isSelected ? "2.5" : "1.8"}
+                        fill={isSelected ? "#ffffff" : activeData.accentColor}
                       />
-                      <div
-                        className="bar-segment hard"
-                        style={{ width: `${(2 / 176) * 100}%` }}
-                        title="2 Hard"
-                      />
-                    </div>
-                    <div className="leetcode-breakdown-labels">
-                      <span className="text-teal-400">123 Easy</span>
-                      <span className="text-amber-400">51 Med</span>
-                      <span className="text-rose-400">2 Hard</span>
-                    </div>
-                  </div>
 
-                  <div className="coding-metric-card">
-                    <div className="metric-header">
-                      <span className="metric-eyebrow">GLOBAL STANDING</span>
-                      <Trophy className="metric-icon text-yellow-400" />
-                    </div>
-                    <div className="metric-main-value">
-                      <strong>Top 13.6%</strong>
-                    </div>
-                    <div className="metric-sub-detail">
-                      <span>Global Rank #{activeData.globalRank}</span>
-                      <span className="metric-dot">•</span>
-                      <span>Active Contender</span>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="coding-metric-card">
-                    <div className="metric-header">
-                      <span className="metric-eyebrow">BEST CONTEST RANK</span>
-                      <Trophy className="metric-icon text-yellow-400" />
-                    </div>
-                    <div className="metric-main-value">
-                      <strong>#797</strong>
-                      <span className="metric-unit">Worldwide Rank</span>
-                    </div>
-                    <div className="metric-sub-detail">
-                      <span>Starters 256</span>
-                      <span className="metric-dot">•</span>
-                      <span className="text-emerald-400">+38 Rating Gain</span>
-                    </div>
-                  </div>
-
-                  <div className="coding-metric-card">
-                    <div className="metric-header">
-                      <span className="metric-eyebrow">DIVISION &amp; STARS</span>
-                      <Award className="metric-icon text-blue-400" />
-                    </div>
-                    <div className="metric-main-value">
-                      <strong>Division 3</strong>
-                      <span className="metric-stars">★★</span>
-                    </div>
-                    <div className="metric-sub-detail">
-                      <span>6 Rated Sprints</span>
-                      <span className="metric-dot">•</span>
-                      <span className="text-emerald-400">1065 → 1493 (+428)</span>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* INTERACTIVE GRAPH CANVAS CARD */}
-            <div className="coding-graph-card">
-              <div className="graph-card-top">
-                <div className="graph-info">
-                  <span className="graph-badge">INTERACTIVE RATING CURVE</span>
-                  <span className="graph-hint">Move cursor over chart to inspect contest stats</span>
-                </div>
-
-                <a
-                  href={activeData.profileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="graph-external-link"
-                  title={`View official ${activeData.platform} profile`}
-                >
-                  <span>Visit {activeData.platform} Profile</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
-
-              {/* SVG CANVAS WITH SMOOTH POINTER SCRUBBER */}
-              <div
-                ref={svgWrapRef}
-                className="svg-canvas-wrap"
-                onPointerMove={handlePointerMove}
-                onPointerLeave={handlePointerLeave}
-                onTouchMove={handlePointerMove}
-              >
-                <svg
-                  viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-                  className="coding-svg"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    <linearGradient
-                      id={`graph-gradient-${activePlatform}`}
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor={activeData.accentColor}
-                        stopOpacity="0.32"
-                      />
-                      <stop
-                        offset="60%"
-                        stopColor={activeData.accentColor}
-                        stopOpacity="0.06"
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor={activeData.accentColor}
-                        stopOpacity="0.0"
-                      />
-                    </linearGradient>
-
-                    <filter
-                      id="glow-filter"
-                      x="-20%"
-                      y="-20%"
-                      width="140%"
-                      height="140%"
-                    >
-                      <feGaussianBlur stdDeviation="3.5" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
-                  </defs>
-
-                  {/* HORIZONTAL GRID LINES & LABELS */}
-                  {gridLines.map((line, i) => (
-                    <g key={i}>
-                      <line
-                        x1={paddingLeft}
-                        y1={line.y}
-                        x2={svgWidth - paddingRight}
-                        y2={line.y}
-                        stroke="rgba(255, 255, 255, 0.07)"
-                        strokeDasharray="3 4"
-                      />
+                      {/* Bottom X-Axis Label */}
                       <text
-                        x={paddingLeft - 12}
-                        y={line.y + 4}
-                        fill="rgba(255, 255, 255, 0.4)"
+                        x={pt.x}
+                        y={paddingTop + chartHeight + 22}
+                        fill={isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.45)"}
                         fontSize="10"
-                        textAnchor="end"
+                        textAnchor="middle"
                         fontFamily="var(--font-mono, monospace)"
+                        fontWeight={isSelected ? "700" : "500"}
                       >
-                        {line.val}
+                        {pt.item.short}
                       </text>
                     </g>
-                  ))}
+                  );
+                })}
+              </svg>
 
-                  {/* AREA UNDER CURVE */}
-                  <motion.path
-                    d={areaD}
-                    fill={`url(#graph-gradient-${activePlatform})`}
-                    className="chart-area-path"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.6 }}
-                  />
-
-                  {/* MAIN CURVE PATH (ANIMATED STROKE) */}
-                  <motion.path
-                    d={pathD}
-                    fill="none"
-                    stroke={activeData.accentColor}
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    filter="url(#glow-filter)"
-                    className="chart-curve-path"
-                    initial={{ pathLength: 0, opacity: 0 }}
-                    animate={{ pathLength: 1, opacity: 1 }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  />
-
-                  {/* VERTICAL GUIDELINE ON HOVER */}
-                  {activePoint && (
-                    <line
-                      x1={activePoint.x}
-                      y1={paddingTop}
-                      x2={activePoint.x}
-                      y2={paddingTop + chartHeight}
-                      stroke="rgba(255, 255, 255, 0.3)"
-                      strokeDasharray="4 4"
-                      strokeWidth="1.2"
-                    />
-                  )}
-
-                  {/* DATA POINTS */}
-                  {points.map((pt, idx) => {
-                    const isSelected = activePoint && activePoint.idx === idx;
-                    return (
-                      <g key={idx} className="graph-point-group">
-                        {/* Outer glow ring when selected */}
-                        {isSelected && (
-                          <circle
-                            cx={pt.x}
-                            cy={pt.y}
-                            r="13"
-                            fill={activeData.accentColor}
-                            fillOpacity="0.22"
-                          />
-                        )}
-
-                        {/* Point Outer Ring */}
-                        <circle
-                          cx={pt.x}
-                          cy={pt.y}
-                          r={isSelected ? "6.5" : "4.5"}
-                          fill="#121316"
-                          stroke={activeData.accentColor}
-                          strokeWidth={isSelected ? "2.5" : "2"}
-                          style={{
-                            transition: "r 0.15s ease, stroke-width 0.15s ease",
-                          }}
-                        />
-
-                        {/* Center Dot */}
-                        <circle
-                          cx={pt.x}
-                          cy={pt.y}
-                          r="2.2"
-                          fill={isSelected ? activeData.accentColor : "#ffffff"}
-                        />
-
-                        {/* Bottom X-Axis Label */}
-                        <text
-                          x={pt.x}
-                          y={paddingTop + chartHeight + 22}
-                          fill={isSelected ? "#ffffff" : "rgba(255, 255, 255, 0.45)"}
-                          fontSize="10"
-                          textAnchor="middle"
-                          fontFamily="var(--font-mono, monospace)"
-                          fontWeight={isSelected ? "700" : "500"}
-                        >
-                          {pt.item.short}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </svg>
-
-                {/* FLOATING HOVER TOOLTIP */}
-                <AnimatePresence>
-                  {activePoint && (
-                    <motion.div
-                      className="graph-floating-tooltip"
-                      key={activePoint.idx}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
+              {/* FLOATING HOVER TOOLTIP */}
+              <AnimatePresence>
+                {activePoint && (
+                  <motion.div
+                    className="graph-floating-tooltip"
+                    key={activePoint.idx}
+                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    style={{
+                      left: `${(activePoint.x / svgWidth) * 100}%`,
+                      top: `${(activePoint.y / svgHeight) * 100}%`,
+                    }}
+                  >
+                    <div
+                      className="tooltip-inner"
                       style={{
-                        left: `${(activePoint.x / svgWidth) * 100}%`,
-                        top: `${(activePoint.y / svgHeight) * 100}%`,
+                        borderTopColor: activeData.accentColor,
                       }}
                     >
-                      <div className="tooltip-inner">
-                        <div className="tooltip-top">
-                          <strong>{activePoint.item.contest}</strong>
-                          <span className="tooltip-date">{activePoint.item.date}</span>
+                      <div className="tooltip-top">
+                        <strong>{activePoint.item.contest}</strong>
+                        <span className="tooltip-date">{activePoint.item.date}</span>
+                      </div>
+                      <div className="tooltip-rating-row">
+                        <span className="tooltip-rating-val">{activePoint.item.rating}</span>
+                        {activePoint.item.delta > 0 && (
+                          <span className="tooltip-gain-badge">
+                            +{activePoint.item.delta}
+                          </span>
+                        )}
+                      </div>
+                      <div className="tooltip-stats-grid">
+                        <div>
+                          <span>Rank</span>
+                          <strong>{activePoint.item.rank}</strong>
                         </div>
-                        <div className="tooltip-rating-row">
-                          <span className="tooltip-rating-val">{activePoint.item.rating}</span>
-                          {activePoint.item.delta > 0 && (
-                            <span className="tooltip-gain-badge">
-                              +{activePoint.item.delta}
-                            </span>
-                          )}
-                        </div>
-                        <div className="tooltip-stats-grid">
-                          <div>
-                            <span>Rank</span>
-                            <strong>{activePoint.item.rank}</strong>
-                          </div>
-                          <div>
-                            <span>Solved</span>
-                            <strong>{activePoint.item.solved}</strong>
-                          </div>
+                        <div>
+                          <span>Solved</span>
+                          <strong>{activePoint.item.solved}</strong>
                         </div>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
-              {/* CONTEST RECAP CHIPS / TIMELINE */}
-              <div className="contest-timeline-bar">
-                <span className="timeline-label">RATED TIMELINE:</span>
-                <div className="timeline-chips">
-                  {history.map((h, i) => (
-                    <button
-                      type="button"
-                      key={i}
-                      className={`timeline-chip ${
-                        activePoint && activePoint.idx === i ? "active-chip" : ""
-                      }`}
-                      onClick={() => setHoveredIndex(i)}
-                    >
-                      <span className="chip-name">{h.short}</span>
-                      <span className="chip-rating">{h.rating}</span>
-                      {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
-                    </button>
-                  ))}
-                </div>
+            {/* CONTEST RECAP CHIPS / TIMELINE */}
+            <div className="contest-timeline-bar">
+              <span className="timeline-label">RATED TIMELINE:</span>
+              <div className="timeline-chips">
+                {history.map((h, i) => (
+                  <button
+                    type="button"
+                    key={i}
+                    className={`timeline-chip ${
+                      activePoint && activePoint.idx === i ? "active-chip" : ""
+                    }`}
+                    onClick={() => setHoveredIndex(i)}
+                  >
+                    <span className="chip-name">{h.short}</span>
+                    <span className="chip-rating">{h.rating}</span>
+                    {h.delta > 0 && <span className="chip-delta">+{h.delta}</span>}
+                  </button>
+                ))}
               </div>
             </div>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
       </AnimatePresence>
     </div>
   );

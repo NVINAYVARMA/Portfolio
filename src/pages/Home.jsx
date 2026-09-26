@@ -5,33 +5,6 @@ import PortraitMorph from "../components/PortraitMorph";
 import CodingStatsGraph from "../components/CodingStatsGraph";
 import "./Home.css";
 
-const featuredProjects = [
-  {
-    id: "01",
-    title: "Asteroid Impact Simulator",
-    subtitle: "Interactive 3D Celestial Observatory & Impact Physics",
-    category: "INTERACTIVE / 3D",
-    image: "/images/simulation.png",
-    tags: ["Three.js", "WebGL", "React", "Physics Engine"],
-  },
-  {
-    id: "02",
-    title: "Varma Creations",
-    subtitle: "Architectural Mosquito Mesh & Window Systems",
-    category: "WEB DEVELOPMENT",
-    image: "/images/varma-creations.png",
-    tags: ["React", "JavaScript", "Tailwind CSS", "Local SEO"],
-  },
-  {
-    id: "03",
-    title: "RADIX",
-    subtitle: "AI-Powered Clinical Triage Suite & Hospital Diagnostic Portal",
-    category: "AI / ML",
-    image: "/images/radix.png",
-    tags: ["Deep Learning", "Python / FastAPI", "React", "DICOM"],
-  },
-];
-
 const containerVariants = {
   hidden: { opacity: 0 },
   show: {
@@ -451,69 +424,6 @@ export default function Home() {
             <p>Strong core fundamentals in Data Structures, Algorithms, object-oriented design, and database modeling.</p>
           </motion.div>
         </motion.div>
-      </motion.section>
-
-      {/* FEATURED PROJECTS SHOWCASE (DRIBBBLE-STYLE MOCKUP CARDS) */}
-      <motion.section
-        className="home-projects-section"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="home-section-header">
-          <div className="badge badge-status">
-            <span className="status-dot" />
-            <span>SELECTED WORK</span>
-          </div>
-          <h2 className="home-section-title">Featured Projects</h2>
-          <p className="home-section-sub">
-            Engineering high-concurrency systems, physics simulations, and commercial web platforms.
-          </p>
-        </div>
-
-        <div className="home-projects-grid">
-          {featuredProjects.map((p) => (
-            <motion.div
-              key={p.id}
-              className="home-project-card card"
-              whileHover={{ y: -6 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="home-project-img-wrap">
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  className="home-project-img"
-                  loading="lazy"
-                />
-                <div className="home-project-badge">{p.category}</div>
-              </div>
-
-              <div className="home-project-content">
-                <div className="home-project-header">
-                  <span className="home-project-num">{p.id}</span>
-                  <h3 className="home-project-title">{p.title}</h3>
-                </div>
-
-                <p className="home-project-sub">{p.subtitle}</p>
-
-                <div className="home-project-tags">
-                  {p.tags.map((t) => (
-                    <span key={t} className="home-project-tag">
-                      {t}
-                    </span>
-                  ))}
-                </div>
-
-                <Link to="/projects" className="home-project-link">
-                  <span>VIEW CASE STUDY</span>
-                  <span aria-hidden="true">↗</span>
-                </Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </motion.section>
 
       {/* COMPETITIVE PROGRAMMING & DSA RATING SECTION */}
