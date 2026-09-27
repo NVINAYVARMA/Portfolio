@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -189,32 +189,66 @@ function ProjectPreview({ project, onOpen }) {
 export default function Projects() {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [selectedProject, setSelectedProject] = useState(null);
+  const modalContentRef = useRef(null);
 
-  // Close modal on Escape key and prevent layout shift during scroll lock
+  // Handle modal interactions: pause Lenis smooth scroll, prevent body bounce, enable keyboard navigation
   useEffect(() => {
+    if (!selectedProject) return;
+
+    // Pause Lenis smooth scroll so wheel events aren't captured globally
+    if (typeof window !== "undefined" && window.__lenis) {
+      window.__lenis.stop();
+    }
+
+    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const prevOverflow = document.body.style.overflow;
+    const prevPaddingRight = document.body.style.paddingRight;
+
+    document.body.style.overflow = "hidden";
+    if (scrollBarWidth > 0) {
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    }
+
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setSelectedProject(null);
+        return;
+      }
+
+      if (!modalContentRef.current) return;
+
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        modalContentRef.current.scrollBy({ top: 80, behavior: "smooth" });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        modalContentRef.current.scrollBy({ top: -80, behavior: "smooth" });
+      } else if (e.key === "PageDown" || (e.key === " " && !e.shiftKey)) {
+        e.preventDefault();
+        modalContentRef.current.scrollBy({ top: 320, behavior: "smooth" });
+      } else if (e.key === "PageUp" || (e.key === " " && e.shiftKey)) {
+        e.preventDefault();
+        modalContentRef.current.scrollBy({ top: -320, behavior: "smooth" });
+      } else if (e.key === "Home") {
+        e.preventDefault();
+        modalContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      } else if (e.key === "End") {
+        e.preventDefault();
+        modalContentRef.current.scrollTo({ top: modalContentRef.current.scrollHeight, behavior: "smooth" });
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
 
-  useEffect(() => {
-    if (selectedProject) {
-      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.body.style.overflow = "hidden";
-      if (scrollBarWidth > 0) {
-        document.body.style.paddingRight = `${scrollBarWidth}px`;
-      }
-    } else {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    }
+    window.addEventListener("keydown", handleKeyDown);
+
     return () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
+      window.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPaddingRight;
+
+      // Resume Lenis smooth scroll
+      if (typeof window !== "undefined" && window.__lenis) {
+        window.__lenis.start();
+      }
     };
   }, [selectedProject]);
 
@@ -540,8 +574,15 @@ export default function Projects() {
         {selectedProject && (
           <motion.div
             className="project-modal-backdrop"
+            data-lenis-prevent="true"
             onClick={(e) => {
               if (e.target === e.currentTarget) setSelectedProject(null);
+            }}
+            onWheel={(e) => {
+              e.stopPropagation();
+              if (modalContentRef.current) {
+                modalContentRef.current.scrollTop += e.deltaY;
+              }
             }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -552,8 +593,13 @@ export default function Projects() {
             aria-labelledby="modal-project-title"
           >
             <motion.div
+              ref={modalContentRef}
               className="project-modal-content"
+              data-lenis-prevent="true"
               onClick={(e) => e.stopPropagation()}
+              onWheel={(e) => {
+                e.stopPropagation();
+              }}
               initial={{ opacity: 0, scale: 0.94, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 16 }}
