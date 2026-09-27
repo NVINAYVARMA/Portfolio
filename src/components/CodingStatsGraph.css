@@ -1,331 +1,624 @@
 /* =========================================================
-   COMPETITIVE PROGRAMMING & GITHUB BENCHMARK GRAPH
-   Design System: Professional Monochromatic Studio
-   Conforms strictly to portfolio design tokens & layout
+   STUDIO COMPETITIVE PROGRAMMING & BENCHMARK GRAPH
+   Matched precisely to the user reference structure
+   Dark minimal canvas, glowing accents, 4 separate metric cards,
+   smooth Bézier curve, rating badges, HUD card & connected timeline
    ========================================================= */
 
-/* Main Card Shell (Matches .home-hero-portrait-card & .home-metrics-bar) */
-.coding-card {
+/* Main Card Container */
+.studio-coding-card {
   position: relative;
   width: 100%;
   max-width: var(--container-max);
   margin: 0 auto;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-rim), 0 20px 48px rgba(0, 0, 0, 0.5);
+  background: #0f1014;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
   padding: 24px 28px;
   display: flex;
   flex-direction: column;
   gap: 20px;
   overflow: hidden;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.coding-card:hover {
-  border-color: var(--border-strong);
-  box-shadow: var(--shadow-rim), 0 24px 60px rgba(0, 0, 0, 0.65);
+.studio-coding-card:hover {
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* =========================================================
-   1. CARD HEADER BAR: BRAND IDENTITY + PILL SWITCHER
+   1. TOP HEADER BAR
    ========================================================= */
 
-.coding-card-header {
+.studio-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--border-subtle);
 }
 
-.coding-brand-lockup {
+.studio-brand-group {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.coding-brand-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
+/* Squircle Logo Box */
+.studio-brand-icon-box {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #14151a;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all var(--transition-fast);
+  transition: all 0.2s ease;
 }
 
-.coding-brand-icon-box.github-box {
-  color: #10b981;
-  border-color: rgba(16, 185, 129, 0.25);
-  background: rgba(16, 185, 129, 0.08);
+.studio-brand-icon-box.leetcode-accent {
+  border: 1px solid rgba(255, 122, 0, 0.45);
+  color: #ff7a00;
+  box-shadow: 0 0 16px rgba(255, 122, 0, 0.15);
 }
 
-.coding-brand-icon-box.leetcode-box {
-  color: #FFA116;
-  border-color: rgba(255, 161, 22, 0.25);
-  background: rgba(255, 161, 22, 0.08);
-}
-
-.coding-brand-icon-box.codechef-box {
+.studio-brand-icon-box.codechef-accent {
+  border: 1px solid rgba(96, 165, 250, 0.45);
   color: #60A5FA;
-  border-color: rgba(96, 165, 250, 0.25);
-  background: rgba(96, 165, 250, 0.08);
+  box-shadow: 0 0 16px rgba(96, 165, 250, 0.15);
 }
 
-.coding-brand-meta {
+.studio-brand-meta {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  text-align: left;
 }
 
-.coding-brand-title-row {
+.studio-brand-title-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
-.coding-brand-title {
+.studio-brand-title {
+  margin: 0;
   font-family: var(--font-sans);
-  font-size: var(--text-base);
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  line-height: 1.2;
 }
 
-.coding-profile-link {
+.studio-handle-pill {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--text-muted);
+  font-weight: 500;
+  color: #a1a1aa;
   text-decoration: none;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
-  padding: 2px 7px;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 3px 9px;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
 }
 
-.coding-profile-link:hover {
+.studio-handle-pill:hover {
   color: #ffffff;
-  border-color: var(--border-strong);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.09);
 }
 
-.coding-profile-arrow {
-  width: 11px;
-  height: 11px;
+.studio-handle-pill .handle-arrow {
   opacity: 0.7;
-  transition: transform var(--transition-fast);
+  transition: transform 0.2s ease;
 }
 
-.coding-profile-link:hover .coding-profile-arrow {
-  transform: translate(1.5px, -1.5px);
+.studio-handle-pill:hover .handle-arrow {
+  transform: translate(1px, -1px);
   opacity: 1;
 }
 
-.coding-brand-subtitle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--text-dim);
-}
-
-.coding-standing-tag {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.coding-dot-sep {
-  color: var(--text-dim);
-}
-
-.coding-rank-tag {
-  color: var(--text-muted);
-}
-
-/* Platform Switcher Pill (Matching PillNav design language) */
-.coding-tabs-pill-wrap {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 3px;
-  gap: 2px;
-}
-
-.coding-tab-btn {
-  position: relative;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
+.studio-brand-sub {
+  margin: 0;
   font-family: var(--font-sans);
   font-size: 12.5px;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: color var(--transition-fast);
-  user-select: none;
+  color: #8a8f98;
+}
+
+/* 3-Pill Segmented Switcher */
+.studio-pill-nav {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  z-index: 1;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.coding-tab-btn:hover {
-  color: var(--text-primary);
-}
-
-.coding-tab-btn.active {
-  color: var(--text-primary);
+.studio-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #8a8f98;
+  font-family: var(--font-sans);
+  font-size: 12px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
 }
 
-.coding-tab-active-bg {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: var(--radius-full);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-  z-index: -1;
+.studio-pill-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.coding-tab-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+.studio-pill-btn.active {
+  background: rgba(255, 122, 0, 0.08);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(255, 122, 0, 0.18);
 }
 
-.coding-tab-indicator {
-  width: 6px;
-  height: 6px;
+.studio-pill-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   box-shadow: 0 0 6px currentColor;
+  flex-shrink: 0;
 }
 
 /* =========================================================
-   2. STATS BAR (MIRRORS .home-metrics-bar)
+   2. 4 SEPARATE METRIC CARDS
    ========================================================= */
 
-.coding-metrics-bar {
+.studio-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-radius: var(--radius-lg);
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-rim), 0 4px 16px rgba(0, 0, 0, 0.35);
-  gap: 16px;
 }
 
-.coding-metric-item {
-  flex: 1;
+.studio-metric-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #14151a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+
+.studio-metric-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #17181f;
+}
+
+/* Card 1 Highlight State (Orange Border & Ambient Glow) */
+.studio-metric-card.is-highlight {
+  border: 1px solid #ff7a00;
+  box-shadow: 0 0 20px rgba(255, 122, 0, 0.16), inset 0 0 16px rgba(255, 122, 0, 0.06);
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.06) 0%, #14151a 100%);
+}
+
+.studio-card-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.studio-card-data {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 2px;
   text-align: left;
-  gap: 3px;
 }
 
-.coding-metric-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.studio-metric-label {
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 600;
-  color: var(--text-dim);
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: #8a8f98;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
 }
 
-.metric-status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
-  animation: pulseDot 2s ease-in-out infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.85); }
-}
-
-.metric-header-icon {
-  width: 11px;
-  height: 11px;
-  color: var(--text-muted);
-}
-
-.coding-rating-num-wrap {
+.studio-metric-val-row {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
 
-.coding-rating-number {
+.studio-metric-number {
   font-family: var(--font-sans);
-  font-size: var(--text-2xl);
+  font-size: 22px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
   color: #ffffff;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
-.coding-delta-badge {
+.studio-metric-delta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: #ff7a00;
+}
+
+.studio-metric-sub {
   font-family: var(--font-mono);
   font-size: 10px;
-  font-weight: 700;
-  color: #34d399;
-  background: rgba(16, 185, 129, 0.12);
-  padding: 2px 6px;
-  border-radius: var(--radius-xs);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.coding-metric-val {
-  font-family: var(--font-sans);
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  line-height: 1.2;
-}
-
-.coding-metric-sub {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.coding-metric-divider {
-  display: block;
-  width: 1px;
-  height: 34px;
-  background: var(--border-subtle);
-  flex-shrink: 0;
+  color: #71717a;
 }
 
 /* =========================================================
-   3. LEETCODE SUBMISSION ACTIVITY GRID (PAST 1 YEAR)
+   3. CHART SECTION HEADER & TIME FILTER
+   ========================================================= */
+
+.studio-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.studio-chart-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.studio-chart-trend-icon {
+  flex-shrink: 0;
+}
+
+.studio-chart-title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.studio-chart-sub {
+  margin: 2px 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: #8a8f98;
+}
+
+/* Time Range Filters */
+.studio-range-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.range-filter-btn {
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #a1a1aa;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.range-filter-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.range-filter-btn.selected {
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 122, 0, 0.4);
+}
+
+/* Submissions Chips */
+.studio-submissions-diff-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.studio-chip {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+}
+
+.studio-chip.easy {
+  color: #00b8a3;
+  background: rgba(0, 184, 163, 0.12);
+  border: 1px solid rgba(0, 184, 163, 0.28);
+}
+.studio-chip.medium {
+  color: #ffc01e;
+  background: rgba(255, 192, 30, 0.12);
+  border: 1px solid rgba(255, 192, 30, 0.28);
+}
+.studio-chip.hard {
+  color: #ff375f;
+  background: rgba(255, 55, 95, 0.12);
+  border: 1px solid rgba(255, 55, 95, 0.28);
+}
+
+/* =========================================================
+   4. SVG CHART CANVAS
+   ========================================================= */
+
+.studio-chart-stage {
+  position: relative;
+  width: 100%;
+  height: 290px;
+  user-select: none;
+  cursor: crosshair;
+}
+
+.studio-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.studio-point-badge rect {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.65));
+}
+
+.sonar-ripple-wave {
+  animation: radarPulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  transform-origin: center;
+}
+
+@keyframes radarPulse {
+  0% {
+    r: 6;
+    opacity: 0.6;
+  }
+  75% {
+    r: 18;
+    opacity: 0;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+  }
+}
+
+/* Floating HUD Card */
+.studio-hud-card {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+  background: rgba(18, 19, 24, 0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #ff7a00;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 185px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 16px rgba(255, 122, 0, 0.18);
+}
+
+.hud-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 6px;
+}
+
+.hud-cal-icon {
+  font-size: 13px;
+}
+
+.hud-rating-row,
+.hud-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: #8a8f98;
+}
+
+.hud-val-group {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.hud-val {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.hud-delta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.hud-meta-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* =========================================================
+   5. BOTTOM CONTEST TIMELINE SCRUBBER
+   ========================================================= */
+
+.studio-timeline-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.studio-timeline-footer::-webkit-scrollbar {
+  display: none;
+}
+
+.studio-timeline-label-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.timeline-clock-icon-wrap {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.studio-timeline-title {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.studio-timeline-track {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 0;
+}
+
+.studio-timeline-node {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.studio-timeline-dotted-line {
+  width: 28px;
+  border-top: 2px dotted #ff7a00;
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.studio-timeline-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #14151a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.studio-timeline-card:hover {
+  background: #181920;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.studio-timeline-card.selected {
+  background: rgba(255, 122, 0, 0.08);
+  box-shadow: 0 0 16px rgba(255, 122, 0, 0.25), inset 0 0 10px rgba(255, 122, 0, 0.12);
+}
+
+.studio-timeline-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.studio-timeline-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+}
+
+.timeline-item-short {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #8a8f98;
+}
+
+.timeline-item-val-group {
+  display: flex;
+  align-items: baseline;
+}
+
+.timeline-item-val {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.timeline-item-gain {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  margin-left: 5px;
+}
+
+/* =========================================================
+   6. SUBMISSIONS CALENDAR (EMERALD PALETTE)
    ========================================================= */
 
 .activity-calendar-wrapper {
@@ -336,7 +629,6 @@
   padding-top: 4px;
 }
 
-/* Controlled horizontal scroll area (never causes page overflow on mobile) */
 .activity-calendar-scroll-area {
   width: 100%;
   overflow-x: auto;
@@ -351,17 +643,9 @@
   height: 4px;
 }
 
-.activity-calendar-scroll-area::-webkit-scrollbar-track {
-  background: transparent;
-}
-
 .activity-calendar-scroll-area::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
-}
-
-.activity-calendar-scroll-area::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.24);
 }
 
 .activity-calendar-grid-wrap {
@@ -371,7 +655,6 @@
   min-width: 780px;
 }
 
-/* Months labels header */
 .activity-months-row {
   display: flex;
   align-items: center;
@@ -395,12 +678,11 @@
   top: 0;
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-dim);
+  color: #8a8f98;
   user-select: none;
   white-space: nowrap;
 }
 
-/* Calendar body: days labels + 52 weeks matrix */
 .activity-calendar-body {
   display: flex;
   align-items: flex-start;
@@ -421,7 +703,7 @@
   line-height: 11px;
   font-family: var(--font-mono);
   font-size: 9px;
-  color: var(--text-dim);
+  color: #525866;
   opacity: 0;
 }
 
@@ -429,7 +711,6 @@
   opacity: 1;
 }
 
-/* 52 Week Columns */
 .activity-weeks-track {
   display: flex;
   gap: 3px;
@@ -441,7 +722,6 @@
   gap: 3px;
 }
 
-/* Individual Day Cell */
 .activity-cell {
   width: 11px;
   height: 11px;
@@ -451,7 +731,6 @@
   will-change: transform;
 }
 
-/* Activity Levels (Vercel / Linear inspired Emerald Palette) */
 .activity-cell.level-0 {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -478,7 +757,6 @@
   box-shadow: 0 0 6px rgba(57, 211, 83, 0.45);
 }
 
-/* Tasteful cell hover state */
 .activity-cell:hover {
   transform: scale(1.3);
   z-index: 10;
@@ -488,10 +766,8 @@
 .activity-cell.level-0:hover {
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
 }
 
-/* Compact Glass Tooltip (Fixed position to avoid container clipping) */
 .activity-cell-tooltip {
   pointer-events: none;
   z-index: 9999;
@@ -499,13 +775,13 @@
   background: rgba(14, 15, 21, 0.96);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-medium);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-sm);
   padding: 6px 10px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  box-shadow: var(--shadow-lg), 0 0 1px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
   white-space: nowrap;
 }
 
@@ -526,22 +802,20 @@
   font-size: 11.5px;
   font-weight: 700;
   color: #ffffff;
-  letter-spacing: -0.01em;
 }
 
 .tooltip-contrib-date {
   font-family: var(--font-mono);
   font-size: 9.5px;
-  color: var(--text-dim);
+  color: #8a8f98;
 }
 
-/* Footer: Status, Difficulty Chips & Legend */
 .activity-calendar-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding-top: 10px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -571,65 +845,13 @@
 }
 
 .sync-status-dot.cached {
-  background: #FFA116;
+  background: #ff7a00;
 }
 
 .sync-status-text {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--text-dim);
-}
-
-/* LeetCode Difficulty Solved Chips */
-.leetcode-difficulty-chips {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.diff-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: var(--radius-xs);
-  line-height: 1.2;
-}
-
-.diff-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-}
-
-.diff-chip.easy {
-  color: #00b8a3;
-  background: rgba(0, 184, 163, 0.12);
-  border: 1px solid rgba(0, 184, 163, 0.28);
-}
-.diff-dot.easy {
-  background: #00b8a3;
-}
-
-.diff-chip.medium {
-  color: #ffc01e;
-  background: rgba(255, 192, 30, 0.12);
-  border: 1px solid rgba(255, 192, 30, 0.28);
-}
-.diff-dot.medium {
-  background: #ffc01e;
-}
-
-.diff-chip.hard {
-  color: #ff375f;
-  background: rgba(255, 55, 95, 0.12);
-  border: 1px solid rgba(255, 55, 95, 0.28);
-}
-.diff-dot.hard {
-  background: #ff375f;
+  color: #8a8f98;
 }
 
 .activity-legend-group {
@@ -642,7 +864,7 @@
 .legend-label {
   font-family: var(--font-mono);
   font-size: 9.5px;
-  color: var(--text-dim);
+  color: #8a8f98;
 }
 
 .legend-cells {
@@ -661,298 +883,58 @@
 }
 
 /* =========================================================
-   4. CONTEST TRAJECTORY CANVAS (LEETCODE & CODECHEF)
+   7. RESPONSIVE DESIGN
    ========================================================= */
 
-.coding-chart-stage {
-  position: relative;
-  width: 100%;
-  height: 250px;
-  cursor: crosshair;
-  touch-action: none;
-  user-select: none;
-}
-
-.coding-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-  overflow: visible;
-}
-
-.sonar-ripple-wave {
-  animation: radarRipple 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
-  transform-origin: center;
-}
-
-@keyframes radarRipple {
-  0% {
-    r: 6;
-    opacity: 0.6;
-  }
-  75% {
-    r: 18;
-    opacity: 0;
-  }
-  100% {
-    r: 18;
-    opacity: 0;
-  }
-}
-
-.peak-pin-marker {
-  pointer-events: none;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
-}
-
-.coding-chart-tooltip {
-  position: absolute;
-  pointer-events: none;
-  z-index: 50;
-  transform: translate(-50%, -125%);
-  background: rgba(17, 17, 22, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--radius-md);
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 165px;
-  box-shadow: var(--shadow-lg), 0 0 1px rgba(255, 255, 255, 0.2);
-  transition: border-color var(--transition-fast);
-}
-
-.coding-chart-tooltip::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 5px;
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  background: rgba(17, 17, 22, 0.95);
-}
-
-.tooltip-top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.tooltip-title-wrap {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.tooltip-accent-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-
-.tooltip-top-row strong {
-  font-family: var(--font-sans);
-  font-size: 11.5px;
-  color: var(--text-primary);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.tooltip-date-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-dim);
-}
-
-.tooltip-rating-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.tooltip-val {
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 800;
-  color: #ffffff;
-  line-height: 1;
-}
-
-.tooltip-gain-pill {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  color: #34d399;
-}
-
-.tooltip-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.tooltip-rank-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.tooltip-note-tag {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.05);
-  padding: 1px 4px;
-  border-radius: var(--radius-xs);
-}
-
-/* =========================================================
-   5. BOTTOM CONTEST TIMELINE SCRUBBER
-   ========================================================= */
-
-.coding-card-timeline {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--border-subtle);
-  flex-wrap: wrap;
-}
-
-.timeline-header-label {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.timeline-pills-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  flex: 1;
-}
-
-.timeline-contest-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 4px 8px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  user-select: none;
-}
-
-.timeline-contest-pill:hover {
-  background: var(--bg-surface-hover);
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-}
-
-.timeline-contest-pill.selected {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--border-strong);
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.pill-contest-title {
-  font-weight: 500;
-}
-
-.pill-contest-rating {
-  font-weight: 700;
-}
-
-.pill-contest-gain {
-  font-size: 9px;
-  color: #34d399;
-  font-weight: 700;
-  background: rgba(16, 185, 129, 0.12);
-  padding: 1px 3px;
-  border-radius: 2px;
-}
-
-/* =========================================================
-   6. RESPONSIVE DESIGN
-   ========================================================= */
-
-@media (max-width: 900px) {
-  .coding-card {
+@media (max-width: 960px) {
+  .studio-coding-card {
     padding: 20px 18px;
   }
 
-  .coding-metrics-bar {
-    display: grid;
+  .studio-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    padding: 14px 16px;
-  }
-
-  .coding-metric-divider {
-    display: none;
+    gap: 12px;
   }
 }
 
-@media (max-width: 640px) {
-  .coding-card-header {
+@media (max-width: 680px) {
+  .studio-card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 14px;
   }
 
-  .coding-tabs-pill-wrap {
+  .studio-pill-nav {
     width: 100%;
+    overflow-x: auto;
   }
 
-  .coding-tab-btn {
+  .studio-pill-btn {
     flex: 1;
-    padding: 6px 10px;
-    font-size: 11.5px;
+    padding: 6px 12px;
+    font-size: 11px;
+    white-space: nowrap;
+    justify-content: center;
   }
 
-  .coding-metrics-bar {
+  .studio-metrics-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .studio-chart-stage {
+    height: 250px;
+  }
+
+  .studio-timeline-footer {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 12px;
   }
 
-  .coding-chart-stage {
-    height: 210px;
-  }
-
-  .timeline-pills-row {
+  .studio-timeline-track {
+    width: 100%;
     overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
-  }
-
-  .timeline-contest-pill {
-    flex-shrink: 0;
-  }
-
-  .activity-calendar-footer {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    padding-bottom: 6px;
   }
 }
-

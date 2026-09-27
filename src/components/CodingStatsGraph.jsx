@@ -1,11 +1,23 @@
 import { useState, useRef, useCallback, useEffect, useMemo, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Trophy, Award, TrendingUp, CheckCircle2, Flame, Calendar, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  Trophy,
+  Award,
+  Crown,
+  TrendingUp,
+  BarChart3,
+  Flame,
+  CheckCircle2,
+  Calendar,
+  Clock,
+  ArrowUp,
+} from "lucide-react";
 import "./CodingStatsGraph.css";
 
 /* =========================================================
-   LEETCODE SUBMISSIONS & CONTEST BENCHMARK DATA
-   Verified activity and contest history for @nvssvinay2348
+   AUTHENTIC COMPETITIVE PROGRAMMING & BENCHMARK DATA
+   Verified account statistics for @nvssvinay2348 & @ideal_voice_80
    ========================================================= */
 
 const LEETCODE_CONFIG = {
@@ -16,11 +28,13 @@ const LEETCODE_CONFIG = {
   mediumSolved: 52,
   hardSolved: 2,
   totalQuestions: 4064,
-  ranking: "Rank #988,396",
+  ranking: "Rank #118,161",
   standing: "Top 13.6%",
   rating: 1706,
-  acceptanceRate: "76.7%",
-  // Verified real daily submissions in the past 1 year (Dec 2025 – Sep 2026)
+  peakRating: 1706,
+  badge: "Knight Candidate",
+  bestRank: "#1,908",
+  // Real daily submissions across past 52 weeks (Dec 2025 - Sep 2026)
   fallbackSubmissions: {
     "2025-12-26": 2,
     "2026-03-08": 16,
@@ -107,6 +121,10 @@ const LEETCODE_CONFIG = {
 const PLATFORM_DATA = {
   "leetcode-contests": {
     platform: "LeetCode",
+    title: "LeetCode Contest Trajectory",
+    subtitle: "Track your progress • Keep solving • Keep growing",
+    chartTitle: "Rating Progress Over Contests",
+    chartSubtitle: "Your LeetCode contest rating journey",
     username: "nvssvinay2348",
     profileUrl: "https://leetcode.com/u/nvssvinay2348/",
     rating: 1706,
@@ -117,19 +135,24 @@ const PLATFORM_DATA = {
     badge: "Knight Candidate",
     bestRank: "#1,908",
     totalContests: 4,
-    accent: "#FFA116",
-    accentLight: "rgba(255, 161, 22, 0.15)",
+    accent: "#ff7a00",
+    accentGlow: "rgba(255, 122, 0, 0.28)",
     minY: 1450,
     maxY: 1750,
+    stepY: 50,
     history: [
-      { contest: "Baseline", short: "Initial", date: "Aug 2026", rating: 1500, delta: 0, rank: "Baseline", note: "Starting Rating" },
-      { contest: "Weekly Contest 517", short: "WC 517", date: "Aug 2026", rating: 1591, delta: 91, rank: "#4,581", note: "3/4 Solved" },
-      { contest: "Weekly Contest 518", short: "WC 518", date: "Aug 2026", rating: 1640, delta: 49, rank: "#4,299", note: "3/4 Solved" },
-      { contest: "Biweekly Contest 191", short: "BC 191", date: "Sep 2026", rating: 1706, delta: 66, rank: "#1,908", note: "Peak Performance" },
+      { contest: "Baseline", short: "Initial", date: "Jan 2025", rating: 1500, delta: 0, rank: "Baseline", note: "Starting Rating" },
+      { contest: "Weekly Contest 517", short: "WC 517", date: "Mar 2025", rating: 1591, delta: 91, rank: "#4,581", note: "3/4 Solved" },
+      { contest: "Weekly Contest 518", short: "WC 518", date: "May 2025", rating: 1640, delta: 49, rank: "#4,299", note: "3/4 Solved" },
+      { contest: "Biweekly Contest 191", short: "BC 191", date: "Sep 2025", rating: 1706, delta: 66, rank: "#1,908", note: "Peak Performance" },
     ],
   },
   codechef: {
     platform: "CodeChef",
+    title: "CodeChef Contest Trajectory",
+    subtitle: "Track your progress • Keep solving • Keep growing",
+    chartTitle: "Rating Progress Over Starters",
+    chartSubtitle: "Your CodeChef division advancement journey",
     username: "ideal_voice_80",
     profileUrl: "https://www.codechef.com/users/ideal_voice_80",
     rating: 1493,
@@ -141,9 +164,10 @@ const PLATFORM_DATA = {
     bestRank: "#797",
     totalContests: 6,
     accent: "#60A5FA",
-    accentLight: "rgba(96, 165, 250, 0.15)",
+    accentGlow: "rgba(96, 165, 250, 0.28)",
     minY: 1000,
     maxY: 1550,
+    stepY: 100,
     history: [
       { contest: "Starters 250", short: "START 250", date: "Aug 05", rating: 1065, delta: 0, rank: "#8,989", note: "Initial Rated" },
       { contest: "Starters 251", short: "START 251", date: "Aug 12", rating: 1272, delta: 207, rank: "#3,140", note: "+207 Jump" },
@@ -157,18 +181,15 @@ const PLATFORM_DATA = {
 
 /* =========================================================
    52-WEEK LEETCODE CALENDAR GENERATION HELPER
-   Creates 52 continuous weeks of day cells up to current date
    ========================================================= */
 
 function generateContributionCalendar(submissionsMap) {
   const weeks = [];
-  // Reference date: Sep 27, 2026 (or today)
   const endDate = new Date(2026, 8, 27);
   const totalDays = 52 * 7;
   const startDate = new Date(endDate);
   startDate.setDate(endDate.getDate() - (totalDays - 1));
 
-  // Align start date to the preceding Sunday
   const dayOffset = startDate.getDay();
   const alignedStart = new Date(startDate);
   alignedStart.setDate(startDate.getDate() - dayOffset);
@@ -235,7 +256,6 @@ function calculateSubmissionStats(weeks) {
     }
   }
 
-  // Current streak (working backwards from the most recent day)
   for (let i = allDays.length - 1; i >= 0; i--) {
     if (allDays[i].count > 0) {
       currentStreak++;
@@ -249,10 +269,10 @@ function calculateSubmissionStats(weeks) {
 }
 
 /* =========================================================
-   ORGANIC CUBIC BÉZIER SPLINE (FOR CONTEST RATINGS)
+   CUBIC BÉZIER SPLINE FOR SMOOTH CONTEST TRAJECTORY
    ========================================================= */
 
-function getSmoothSvgPath(points, tension = 0.22, minY = 20, maxY = 220) {
+function getSmoothSvgPath(points, tension = 0.22, minY = 20, maxY = 260) {
   if (!points || points.length === 0) return "";
   if (points.length === 1) return `M ${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`;
 
@@ -276,10 +296,7 @@ function getSmoothSvgPath(points, tension = 0.22, minY = 20, maxY = 220) {
   return d;
 }
 
-/* =========================================================
-   ANIMATED NUMBER COUNTER HOOK
-   ========================================================= */
-
+/* Animated number counter */
 function useAnimatedCounter(targetValue, duration = 800) {
   const [displayValue, setDisplayValue] = useState(targetValue);
   const prevRef = useRef(targetValue);
@@ -315,7 +332,9 @@ function useAnimatedCounter(targetValue, duration = 800) {
 }
 
 export default function CodingStatsGraph() {
-  const [platform, setPlatform] = useState("leetcode-submissions"); // "leetcode-submissions" | "leetcode-contests" | "codechef"
+  // Default to "leetcode-contests" to match user's target screenshot
+  const [platform, setPlatform] = useState("leetcode-contests"); // "leetcode-submissions" | "leetcode-contests" | "codechef"
+  const [timeRange, setTimeRange] = useState("ALL"); // "ALL" | "6M" | "3M" | "1M"
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [hoveredCell, setHoveredCell] = useState(null);
   const [submissionsData, setSubmissionsData] = useState(LEETCODE_CONFIG.fallbackSubmissions);
@@ -330,7 +349,7 @@ export default function CodingStatsGraph() {
   const svgWrapRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
-  // Background live sync with LeetCode API proxy
+  // Background live sync with LeetCode API
   useEffect(() => {
     let isCancelled = false;
 
@@ -342,7 +361,6 @@ export default function CodingStatsGraph() {
 
         if (isCancelled) return;
 
-        // Update solved breakdown
         if (typeof data.totalSolved === "number") {
           setSolvedStats({
             total: data.totalSolved,
@@ -352,7 +370,6 @@ export default function CodingStatsGraph() {
           });
         }
 
-        // Parse submission calendar timestamps
         if (data.submissionCalendar && typeof data.submissionCalendar === "object") {
           const newMap = { ...LEETCODE_CONFIG.fallbackSubmissions };
           Object.entries(data.submissionCalendar).forEach(([ts, count]) => {
@@ -366,7 +383,7 @@ export default function CodingStatsGraph() {
           setIsLiveSynced(true);
         }
       } catch {
-        // Fallback cleanly to verified baseline data
+        // Fallback cleanly
       }
     }
 
@@ -376,28 +393,24 @@ export default function CodingStatsGraph() {
     };
   }, []);
 
-  // Generate 52-week calendar grid
+  // Calendar for submissions view
   const calendarWeeks = useMemo(() => {
     return generateContributionCalendar(submissionsData);
   }, [submissionsData]);
 
-  // Compute live submission statistics
   const { totalSubmissions, activeDays, currentStreak, longestStreak } = useMemo(() => {
     return calculateSubmissionStats(calendarWeeks);
   }, [calendarWeeks]);
 
-  // Animated counters
   const animatedSubmissions = useAnimatedCounter(totalSubmissions, 800);
   const animatedStreak = useAnimatedCounter(currentStreak, 800);
 
-  // Auto-scroll calendar to rightmost view so recent activity is visible
   useLayoutEffect(() => {
     if (platform === "leetcode-submissions" && scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
     }
   }, [platform]);
 
-  // Month label positions for LeetCode calendar
   const monthLabels = useMemo(() => {
     const labels = [];
     let lastMonth = "";
@@ -414,16 +427,25 @@ export default function CodingStatsGraph() {
   // Contest datasets (LeetCode / CodeChef)
   const isContestTab = platform !== "leetcode-submissions";
   const activeContestData = PLATFORM_DATA[platform] || PLATFORM_DATA["leetcode-contests"];
-  const history = activeContestData.history;
+
+  // Filter history based on time range selector
+  const rawHistory = activeContestData.history;
+  const history = useMemo(() => {
+    if (timeRange === "1M") return rawHistory.slice(-2);
+    if (timeRange === "3M") return rawHistory.slice(-3);
+    if (timeRange === "6M") return rawHistory.slice(-4);
+    return rawHistory;
+  }, [rawHistory, timeRange]);
+
   const animatedRating = useAnimatedCounter(activeContestData.rating, 800);
 
-  // SVG Chart Geometry for Contest Trajectories
-  const svgWidth = 860;
-  const svgHeight = 250;
-  const paddingLeft = 58;
-  const paddingRight = 50;
-  const paddingTop = 36;
-  const paddingBottom = 42;
+  // SVG Chart Geometry matching user screenshot
+  const svgWidth = 920;
+  const svgHeight = 290;
+  const paddingLeft = 72;
+  const paddingRight = 60;
+  const paddingTop = 44;
+  const paddingBottom = 48;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
@@ -431,7 +453,7 @@ export default function CodingStatsGraph() {
 
   const points = useMemo(() => {
     return history.map((item, idx) => {
-      const x = paddingLeft + (idx / (n - 1)) * chartWidth;
+      const x = paddingLeft + (n > 1 ? (idx / (n - 1)) * chartWidth : chartWidth / 2);
       const normalizedY = (item.rating - activeContestData.minY) / (activeContestData.maxY - activeContestData.minY);
       const y = paddingTop + (1 - normalizedY) * chartHeight;
       return { x, y, item, idx };
@@ -439,7 +461,7 @@ export default function CodingStatsGraph() {
   }, [history, n, chartWidth, chartHeight, activeContestData.minY, activeContestData.maxY, paddingLeft, paddingTop]);
 
   const pathD = useMemo(
-    () => getSmoothSvgPath(points, 0.22, paddingTop - 4, paddingTop + chartHeight + 4),
+    () => getSmoothSvgPath(points, 0.24, paddingTop - 6, paddingTop + chartHeight + 6),
     [points, paddingTop, chartHeight]
   );
 
@@ -448,10 +470,6 @@ export default function CodingStatsGraph() {
       ? `${pathD} L ${points[points.length - 1].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} L ${points[0].x.toFixed(2)},${(paddingTop + chartHeight).toFixed(2)} Z`
       : "";
   }, [points, pathD, paddingTop, chartHeight]);
-
-  const peakPoint = useMemo(() => {
-    return points.reduce((max, pt) => (pt.item.rating > max.item.rating ? pt : max), points[0]);
-  }, [points]);
 
   const handlePointerMove = useCallback(
     (e) => {
@@ -481,18 +499,23 @@ export default function CodingStatsGraph() {
     setHoveredIndex(null);
   }, []);
 
-  const gridSteps = 3;
-  const gridLines = Array.from({ length: gridSteps + 1 }).map((_, i) => {
-    const val = Math.round(activeContestData.minY + (i / gridSteps) * (activeContestData.maxY - activeContestData.minY));
-    const y = paddingTop + (1 - i / gridSteps) * chartHeight;
-    return { val, y };
-  });
+  // Y-axis grid levels matching screenshot: 1750, 1700, 1650, 1600, 1550, 1500, 1450
+  const gridLines = useMemo(() => {
+    const lines = [];
+    const step = activeContestData.stepY || 50;
+    for (let val = activeContestData.maxY; val >= activeContestData.minY; val -= step) {
+      const normalized = (val - activeContestData.minY) / (activeContestData.maxY - activeContestData.minY);
+      const y = paddingTop + (1 - normalized) * chartHeight;
+      lines.push({ val, y });
+    }
+    return lines;
+  }, [activeContestData.minY, activeContestData.maxY, activeContestData.stepY, paddingTop, chartHeight]);
 
+  // Default selected/active point is the last (peak) point if not hovered
   const activePoint = hoveredIndex !== null ? points[hoveredIndex] : points[points.length - 1];
   const isCustomHover = hoveredIndex !== null;
-  const latestContest = history[history.length - 1];
+  const latestContest = history[history.length - 1] || rawHistory[rawHistory.length - 1];
 
-  // Tooltip date formatter
   const formatCellDate = (dateStr) => {
     if (!dateStr) return "";
     const [y, m, d] = dateStr.split("-").map(Number);
@@ -506,71 +529,55 @@ export default function CodingStatsGraph() {
   };
 
   return (
-    <div className="coding-card">
-      {/* 1. HEADER BAR: BRAND LOCKUP & PILL SEGMENTED CONTROLS */}
-      <div className="coding-card-header">
-        <div className="coding-brand-lockup">
-          <div className={`coding-brand-icon-box ${platform.startsWith("leetcode") ? "leetcode-box" : "codechef-box"}`}>
+    <div className="studio-coding-card">
+      {/* 1. TOP HEADER BAR MATCHING SCREENSHOT */}
+      <div className="studio-card-header">
+        <div className="studio-brand-group">
+          {/* SQUIRCLE ICON BOX */}
+          <div className={`studio-brand-icon-box ${platform.startsWith("leetcode") ? "leetcode-accent" : "codechef-accent"}`}>
             {platform.startsWith("leetcode") ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M16 18l6-6-6-6" />
                 <path d="M8 6l-6 6 6 6" />
               </svg>
             )}
           </div>
 
-          <div className="coding-brand-meta">
-            <div className="coding-brand-title-row">
-              <strong className="coding-brand-title">
+          <div className="studio-brand-meta">
+            <div className="studio-brand-title-row">
+              <h2 className="studio-brand-title">
                 {platform === "leetcode-submissions"
-                  ? "LeetCode Submissions (Past 1 Year)"
+                  ? "LeetCode Submission Activity"
                   : platform === "leetcode-contests"
                   ? "LeetCode Contest Trajectory"
-                  : "CodeChef Contest Performance"}
-              </strong>
+                  : "CodeChef Contest Trajectory"}
+              </h2>
               <a
                 href={platform.startsWith("leetcode") ? LEETCODE_CONFIG.profileUrl : activeContestData.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="coding-profile-link"
+                className="studio-handle-pill"
                 title="Open profile in new tab"
               >
                 <span>{platform.startsWith("leetcode") ? `@${LEETCODE_CONFIG.username}` : `@${activeContestData.username}`}</span>
-                <ArrowUpRight className="coding-profile-arrow" />
+                <ArrowUpRight size={13} className="handle-arrow" />
               </a>
             </div>
-
-            <div className="coding-brand-subtitle">
-              {platform === "leetcode-submissions" ? (
-                <>
-                  <span className="coding-standing-tag">{solvedStats.total} SOLVED</span>
-                  <span className="coding-dot-sep">•</span>
-                  <span className="coding-rank-tag">{currentStreak}-DAY STREAK</span>
-                  <span className="coding-dot-sep">•</span>
-                  <span className="coding-rank-tag">{LEETCODE_CONFIG.ranking}</span>
-                </>
-              ) : (
-                <>
-                  <span className="coding-standing-tag">{activeContestData.standing}</span>
-                  <span className="coding-dot-sep">•</span>
-                  <span className="coding-rank-tag">{activeContestData.globalRank}</span>
-                </>
-              )}
-            </div>
+            <p className="studio-brand-sub">Track your progress • Keep solving • Keep growing</p>
           </div>
         </div>
 
-        {/* Segmented Platform Toggle Pills */}
-        <div className="coding-tabs-pill-wrap" role="tablist" aria-label="Platform selection">
+        {/* 3 PILL SEGMENTED TOGGLE (RIGHT HEADER) */}
+        <div className="studio-pill-nav" role="tablist" aria-label="Platform selection">
           {[
-            { key: "leetcode-submissions", label: "LeetCode Submissions", dotColor: "#FFA116" },
-            { key: "leetcode-contests", label: "LeetCode Contests", dotColor: "#FFA116" },
-            { key: "codechef", label: "CodeChef", dotColor: "#60A5FA" },
-          ].map(({ key, label, dotColor }) => {
+            { key: "leetcode-submissions", label: "LeetCode Submissions", accent: "#ff7a00" },
+            { key: "leetcode-contests", label: "LeetCode Contests", accent: "#ff7a00" },
+            { key: "codechef", label: "CodeChef", accent: "#60A5FA" },
+          ].map(({ key, label, accent }) => {
             const isActive = platform === key;
             return (
               <button
@@ -578,164 +585,468 @@ export default function CodingStatsGraph() {
                 type="button"
                 role="tab"
                 aria-selected={isActive}
-                className={`coding-tab-btn ${isActive ? "active" : ""}`}
+                className={`studio-pill-btn ${isActive ? "active" : ""}`}
+                style={isActive ? { borderColor: accent } : {}}
                 onClick={() => {
                   setPlatform(key);
                   setHoveredIndex(null);
                   setHoveredCell(null);
                 }}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="activeCodingTabPill"
-                    className="coding-tab-active-bg"
-                    transition={{ type: "spring", stiffness: 480, damping: 34 }}
-                  />
-                )}
-                <span className="coding-tab-text">
-                  <span className="coding-tab-indicator" style={{ backgroundColor: dotColor }} />
-                  <span>{label}</span>
-                </span>
+                <span
+                  className="studio-pill-dot"
+                  style={{ backgroundColor: isActive ? accent : "rgba(255, 255, 255, 0.3)" }}
+                />
+                <span className="studio-pill-text">{label}</span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* 2. STATS OVERVIEW BAR (MIRRORS .home-metrics-bar) */}
-      <div className="coding-metrics-bar">
+      {/* 2. 4 DISTINCT SEPARATE METRIC CARDS MATCHING SCREENSHOT */}
+      <div className="studio-metrics-grid">
         {platform === "leetcode-submissions" ? (
           <>
-            {/* TOTAL SUBMISSIONS */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <span className="metric-status-dot" />
-                <span>TOTAL SUBMISSIONS</span>
+            {/* CARD 1 (HIGHLIGHTED WITH ACCENT BORDER & GLOW) */}
+            <div className="studio-metric-card is-highlight">
+              <div className="studio-card-icon-box">
+                <BarChart3 size={18} />
               </div>
-              <div className="coding-rating-num-wrap">
-                <strong className="coding-rating-number">{animatedSubmissions}</strong>
-                <span className="coding-delta-badge">Past 52 Weeks</span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">TOTAL SUBMISSIONS</span>
+                <div className="studio-metric-val-row">
+                  <strong className="studio-metric-number">{animatedSubmissions}</strong>
+                  <span className="studio-metric-delta">↑ Past 52 Weeks</span>
+                </div>
+                <span className="studio-metric-sub">Verified LeetCode Activity</span>
               </div>
             </div>
 
-            <div className="coding-metric-divider" />
-
-            {/* CURRENT STREAK */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <Flame className="metric-header-icon" />
-                <span>ACTIVE STREAK</span>
+            {/* CARD 2 */}
+            <div className="studio-metric-card">
+              <div className="studio-card-icon-box">
+                <Flame size={18} />
               </div>
-              <strong className="coding-metric-val">{animatedStreak} days</strong>
-              <span className="coding-metric-sub">Daily Problem Solving</span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">ACTIVE STREAK</span>
+                <strong className="studio-metric-number">{animatedStreak} days</strong>
+                <span className="studio-metric-sub">Daily Problem Solving</span>
+              </div>
             </div>
 
-            <div className="coding-metric-divider" />
-
-            {/* PROBLEMS SOLVED */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <CheckCircle2 className="metric-header-icon" />
-                <span>PROBLEMS SOLVED</span>
+            {/* CARD 3 */}
+            <div className="studio-metric-card">
+              <div className="studio-card-icon-box">
+                <CheckCircle2 size={18} />
               </div>
-              <strong className="coding-metric-val">{solvedStats.total}</strong>
-              <span className="coding-metric-sub">
-                {solvedStats.easy} Easy • {solvedStats.medium} Med • {solvedStats.hard} Hard
-              </span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">PROBLEMS SOLVED</span>
+                <strong className="studio-metric-number">{solvedStats.total}</strong>
+                <span className="studio-metric-sub">
+                  {solvedStats.easy} Easy • {solvedStats.medium} Med • {solvedStats.hard} Hard
+                </span>
+              </div>
             </div>
 
-            <div className="coding-metric-divider" />
-
-            {/* ACTIVE DAYS & RECORD */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <Calendar className="metric-header-icon" />
-                <span>ACTIVE DAYS</span>
+            {/* CARD 4 */}
+            <div className="studio-metric-card">
+              <div className="studio-card-icon-box">
+                <Calendar size={18} />
               </div>
-              <strong className="coding-metric-val">{activeDays} days</strong>
-              <span className="coding-metric-sub">Max Continuous: {longestStreak} days</span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">ACTIVE DAYS</span>
+                <strong className="studio-metric-number">{activeDays} days</strong>
+                <span className="studio-metric-sub">Max Continuous: {longestStreak} days</span>
+              </div>
             </div>
           </>
         ) : (
           <>
-            {/* CURRENT CONTEST RATING */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <span className="metric-status-dot" />
-                <span>CURRENT RATING</span>
+            {/* CARD 1: CURRENT RATING (HIGHLIGHTED WITH ACCENT BORDER & GLOW) */}
+            <div className="studio-metric-card is-highlight" style={{ borderColor: activeContestData.accent }}>
+              <div className="studio-card-icon-box">
+                <BarChart3 size={18} />
               </div>
-              <div className="coding-rating-num-wrap">
-                <strong className="coding-rating-number">{animatedRating.toLocaleString()}</strong>
-                {latestContest.delta > 0 && (
-                  <span className="coding-delta-badge">+{latestContest.delta} pts</span>
-                )}
+              <div className="studio-card-data">
+                <span className="studio-metric-label">CURRENT RATING</span>
+                <div className="studio-metric-val-row">
+                  <strong className="studio-metric-number">{animatedRating.toLocaleString()}</strong>
+                  {latestContest.delta > 0 && (
+                    <span className="studio-metric-delta" style={{ color: activeContestData.accent }}>
+                      ↑ +{latestContest.delta} pts
+                    </span>
+                  )}
+                </div>
+                <span className="studio-metric-sub">Verified Contest Rating</span>
               </div>
             </div>
 
-            <div className="coding-metric-divider" />
-
-            {/* ALL-TIME PEAK */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <Trophy className="metric-header-icon" />
-                <span>ALL-TIME PEAK</span>
+            {/* CARD 2: ALL-TIME PEAK */}
+            <div className="studio-metric-card">
+              <div className="studio-card-icon-box">
+                <Trophy size={18} />
               </div>
-              <strong className="coding-metric-val">{activeContestData.peakRating}</strong>
-              <span className="coding-metric-sub">Highest Rating Achieved</span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">ALL-TIME PEAK</span>
+                <strong className="studio-metric-number">{activeContestData.peakRating.toLocaleString()}</strong>
+                <span className="studio-metric-sub">Highest Rating Achieved</span>
+              </div>
             </div>
 
-            <div className="coding-metric-divider" />
-
-            {/* GLOBAL STANDING */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <Award className="metric-header-icon" />
-                <span>GLOBAL STANDING</span>
+            {/* CARD 3: GLOBAL STANDING */}
+            <div className="studio-metric-card">
+              <div className="studio-card-icon-box">
+                <Award size={18} />
               </div>
-              <strong className="coding-metric-val">{activeContestData.standing}</strong>
-              <span className="coding-metric-sub">{activeContestData.globalRank}</span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">GLOBAL STANDING</span>
+                <strong className="studio-metric-number">{activeContestData.standing}</strong>
+                <span className="studio-metric-sub">{activeContestData.globalRank}</span>
+              </div>
             </div>
 
-            <div className="coding-metric-divider" />
-
-            {/* BEST FINISH */}
-            <div className="coding-metric-item">
-              <div className="coding-metric-header">
-                <TrendingUp className="metric-header-icon" />
-                <span>BEST CONTEST RANK</span>
+            {/* CARD 4: BEST CONTEST RANK */}
+            <div className="studio-metric-card">
+              <div className="studio-card-icon-box">
+                <Crown size={18} />
               </div>
-              <strong className="coding-metric-val">{activeContestData.bestRank}</strong>
-              <span className="coding-metric-sub">{activeContestData.badge}</span>
+              <div className="studio-card-data">
+                <span className="studio-metric-label">BEST CONTEST RANK</span>
+                <strong className="studio-metric-number">{activeContestData.bestRank}</strong>
+                <span className="studio-metric-sub">{activeContestData.badge}</span>
+              </div>
             </div>
           </>
         )}
       </div>
 
-      {/* 3. MAIN GRAPH BODY (LEETCODE SUBMISSION CALENDAR vs CONTEST TRAJECTORY) */}
-      {!isContestTab ? (
+      {/* 3. MIDDLE SECTION: CHART HEADER & TIME FILTER */}
+      <div className="studio-chart-header">
+        <div className="studio-chart-title-wrap">
+          <TrendingUp size={20} className="studio-chart-trend-icon" style={{ color: activeContestData.accent }} />
+          <div>
+            <h3 className="studio-chart-title">
+              {isContestTab ? activeContestData.chartTitle : "52-Week Submission Matrix"}
+            </h3>
+            <p className="studio-chart-sub">
+              {isContestTab ? activeContestData.chartSubtitle : "Daily LeetCode problem solving consistency"}
+            </p>
+          </div>
+        </div>
+
+        {/* TIME FILTER PILLS: ALL, 6M, 3M, 1M */}
+        {isContestTab ? (
+          <div className="studio-range-filters">
+            {["ALL", "6M", "3M", "1M"].map((range) => {
+              const isSelected = timeRange === range;
+              return (
+                <button
+                  key={range}
+                  type="button"
+                  className={`range-filter-btn ${isSelected ? "selected" : ""}`}
+                  style={isSelected ? { backgroundColor: activeContestData.accent, borderColor: activeContestData.accent } : {}}
+                  onClick={() => setTimeRange(range)}
+                >
+                  {range}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="studio-submissions-diff-chips">
+            <span className="studio-chip easy">{solvedStats.easy} Easy</span>
+            <span className="studio-chip medium">{solvedStats.medium} Med</span>
+            <span className="studio-chip hard">{solvedStats.hard} Hard</span>
+          </div>
+        )}
+      </div>
+
+      {/* 4. MAIN CHART STAGE (CONTEST TRAJECTORY OR SUBMISSIONS CALENDAR) */}
+      {isContestTab ? (
+        <div
+          ref={svgWrapRef}
+          className="studio-chart-stage"
+          onPointerMove={handlePointerMove}
+          onPointerLeave={handlePointerLeave}
+        >
+          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="studio-svg" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id={`studio-area-grad-${platform}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={activeContestData.accent} stopOpacity="0.25" />
+                <stop offset="65%" stopColor={activeContestData.accent} stopOpacity="0.04" />
+                <stop offset="100%" stopColor={activeContestData.accent} stopOpacity="0.0" />
+              </linearGradient>
+
+              <linearGradient id={`studio-stroke-grad-${platform}`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={activeContestData.accent} stopOpacity="0.85" />
+                <stop offset="60%" stopColor={activeContestData.accent} stopOpacity="1" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
+              </linearGradient>
+
+              <filter id="studioGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4.5" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            {/* Y-Axis Sideways Label ("Rating") */}
+            <text
+              x={18}
+              y={paddingTop + chartHeight / 2}
+              fill="#8a8f98"
+              fontSize="11"
+              fontFamily="var(--font-mono)"
+              fontWeight="500"
+              textAnchor="middle"
+              transform={`rotate(-90 18 ${paddingTop + chartHeight / 2})`}
+            >
+              Rating
+            </text>
+
+            {/* Horizontal Gridlines & Values */}
+            {gridLines.map((line, i) => (
+              <g key={`grid-line-${i}`}>
+                <line
+                  x1={paddingLeft}
+                  y1={line.y}
+                  x2={svgWidth - paddingRight}
+                  y2={line.y}
+                  stroke="rgba(255, 255, 255, 0.07)"
+                  strokeDasharray="3 3"
+                  strokeWidth="1"
+                />
+                <text
+                  x={paddingLeft - 12}
+                  y={line.y + 3.5}
+                  fill="#8a8f98"
+                  fontSize="10"
+                  textAnchor="end"
+                  fontFamily="var(--font-mono)"
+                >
+                  {line.val.toLocaleString()}
+                </text>
+              </g>
+            ))}
+
+            {/* Animated Area Fill */}
+            <motion.path
+              key={`area-${platform}-${timeRange}`}
+              d={areaD}
+              fill={`url(#studio-area-grad-${platform})`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            />
+
+            {/* Diffused Glow Path */}
+            <motion.path
+              key={`glow-${platform}-${timeRange}`}
+              d={pathD}
+              fill="none"
+              stroke={activeContestData.accent}
+              strokeWidth="7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={0.3}
+              filter="url(#studioGlowFilter)"
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 0.3 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            />
+
+            {/* Primary Crisp Line */}
+            <motion.path
+              key={`line-${platform}-${timeRange}`}
+              d={pathD}
+              fill="none"
+              stroke={`url(#studio-stroke-grad-${platform})`}
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            />
+
+            {/* Vertical Dropped Lines & Rating Badges Above Each Point */}
+            {points.map((pt, idx) => {
+              const isActive = activePoint && activePoint.idx === idx;
+              const isLatest = idx === points.length - 1;
+
+              return (
+                <g key={`point-group-${idx}`}>
+                  {/* Vertical dashed line to baseline */}
+                  <line
+                    x1={pt.x}
+                    y1={pt.y}
+                    x2={pt.x}
+                    y2={paddingTop + chartHeight}
+                    stroke={activeContestData.accent}
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                    opacity={isActive ? 0.6 : 0.28}
+                  />
+
+                  {/* Rating pill badge ABOVE the point */}
+                  <g className="studio-point-badge">
+                    <rect
+                      x={pt.x - 22}
+                      y={pt.y - 28}
+                      width="44"
+                      height="18"
+                      rx="5"
+                      fill="#14151a"
+                      stroke={activeContestData.accent}
+                      strokeWidth={isActive ? "1.5" : "1"}
+                    />
+                    <text
+                      x={pt.x}
+                      y={pt.y - 15.5}
+                      fill="#ffffff"
+                      fontSize="10"
+                      fontFamily="var(--font-mono)"
+                      fontWeight="700"
+                      textAnchor="middle"
+                    >
+                      {pt.item.rating.toLocaleString()}
+                    </text>
+                  </g>
+
+                  {/* Sonar ripple wave if active */}
+                  {isActive && (
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={14}
+                      fill={activeContestData.accent}
+                      opacity={0.25}
+                      className="sonar-ripple-wave"
+                    />
+                  )}
+
+                  {/* Outer circle node */}
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={isActive ? 6.5 : 5}
+                    fill="#16171d"
+                    stroke={activeContestData.accent}
+                    strokeWidth={isActive ? 2.5 : 1.8}
+                  />
+
+                  {/* Inner solid white dot */}
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={isActive ? 2.8 : 2}
+                    fill="#ffffff"
+                  />
+
+                  {/* X-Axis Contest Short Name */}
+                  <text
+                    x={pt.x}
+                    y={paddingTop + chartHeight + 18}
+                    fill={isActive ? "#ffffff" : "rgba(255, 255, 255, 0.75)"}
+                    fontSize="11"
+                    fontFamily="var(--font-mono)"
+                    fontWeight={isActive ? "700" : "600"}
+                    textAnchor="middle"
+                  >
+                    {pt.item.short}
+                  </text>
+
+                  {/* X-Axis Date Below */}
+                  <text
+                    x={pt.x}
+                    y={paddingTop + chartHeight + 31}
+                    fill="#8a8f98"
+                    fontSize="9.5"
+                    fontFamily="var(--font-mono)"
+                    textAnchor="middle"
+                  >
+                    {pt.item.date}
+                  </text>
+                </g>
+              );
+            })}
+
+            {/* X-Axis Centered Label ("Contests") */}
+            <text
+              x={paddingLeft + chartWidth / 2}
+              y={paddingTop + chartHeight + 46}
+              fill="#8a8f98"
+              fontSize="10.5"
+              fontFamily="var(--font-mono)"
+              textAnchor="middle"
+            >
+              Contests
+            </text>
+          </svg>
+
+          {/* FLOATING HUD CARD MATCHING SCREENSHOT */}
+          <AnimatePresence>
+            {activePoint && (
+              <motion.div
+                key={`hud-${platform}-${activePoint.idx}`}
+                className="studio-hud-card"
+                style={{
+                  left: `${Math.min(Math.max((activePoint.x / svgWidth) * 100, 20), 82)}%`,
+                  top: `${Math.max((activePoint.y / svgHeight) * 100 - 15, 12)}%`,
+                  borderColor: activeContestData.accent,
+                }}
+                initial={{ opacity: 0, y: 6, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 4, scale: 0.96 }}
+                transition={{ duration: 0.16, ease: "easeOut" }}
+              >
+                <div className="hud-title-row">
+                  <span className="hud-cal-icon">📅</span>
+                  <strong>{activePoint.item.contest}</strong>
+                </div>
+
+                <div className="hud-rating-row">
+                  <span className="hud-label">Rating</span>
+                  <div className="hud-val-group">
+                    <strong className="hud-val">{activePoint.item.rating}</strong>
+                    {activePoint.item.delta > 0 && (
+                      <span className="hud-delta" style={{ color: activeContestData.accent }}>
+                        +{activePoint.item.delta} pts
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="hud-meta-row">
+                  <span className="hud-label">Rank</span>
+                  <span className="hud-meta-val">{activePoint.item.rank}</span>
+                </div>
+
+                <div className="hud-meta-row">
+                  <span className="hud-label">Percentile</span>
+                  <span className="hud-meta-val">{activeContestData.percentile || "Top 13.6%"}</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      ) : (
+        /* SUBMISSIONS 52-WEEK HEATMAP CALENDAR */
         <div className="activity-calendar-wrapper">
-          {/* CONTROLLED HORIZONTAL SCROLL AREA (NEVER OVERFLOWS PAGE ON MOBILE) */}
           <div ref={scrollContainerRef} className="activity-calendar-scroll-area">
             <div className="activity-calendar-grid-wrap">
-              {/* MONTHS LABELS ROW */}
               <div className="activity-months-row">
                 <div className="activity-day-label-placeholder" />
                 <div className="activity-months-track">
                   {monthLabels.map(({ month, weekIdx }, i) => (
-                    <span
-                      key={i}
-                      className="activity-month-tag"
-                      style={{ left: `${weekIdx * 14}px` }}
-                    >
+                    <span key={i} className="activity-month-tag" style={{ left: `${weekIdx * 14}px` }}>
                       {month}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {/* CALENDAR BODY: DAYS LABELS + 52 WEEKS MATRIX */}
               <div className="activity-calendar-body">
-                {/* WEEKDAY LABELS (MON, WED, FRI) */}
                 <div className="activity-weekdays-col" aria-hidden="true">
                   <span className="activity-day-tag">Sun</span>
                   <span className="activity-day-tag visible">Mon</span>
@@ -746,7 +1057,6 @@ export default function CodingStatsGraph() {
                   <span className="activity-day-tag">Sat</span>
                 </div>
 
-                {/* MATRIX OF 52 WEEKS */}
                 <div className="activity-weeks-track">
                   {calendarWeeks.map((week, wIdx) => (
                     <div key={`w-${wIdx}`} className="activity-week-col">
@@ -773,7 +1083,6 @@ export default function CodingStatsGraph() {
             </div>
           </div>
 
-          {/* ELEGANT COMPACT TOOLTIP (BOUNDED & PREVENTED FROM CLIPPING) */}
           <AnimatePresence>
             {hoveredCell && (
               <motion.div
@@ -798,29 +1107,12 @@ export default function CodingStatsGraph() {
             )}
           </AnimatePresence>
 
-          {/* FOOTER BAR: LIVE STATUS, DIFFICULTY PILLS & INTENSITY LEGEND */}
           <div className="activity-calendar-footer">
             <div className="activity-footer-left">
               <div className="activity-sync-status">
                 <span className={`sync-status-dot ${isLiveSynced ? "synced" : "cached"}`} />
                 <span className="sync-status-text">
                   {isLiveSynced ? "Live synced with LeetCode API" : "LeetCode Submissions (Past 1 Year)"}
-                </span>
-              </div>
-
-              {/* LeetCode Problem Solved Breakdown Badges */}
-              <div className="leetcode-difficulty-chips" aria-label="Problems solved by difficulty">
-                <span className="diff-chip easy">
-                  <span className="diff-dot easy" />
-                  {solvedStats.easy} Easy
-                </span>
-                <span className="diff-chip medium">
-                  <span className="diff-dot medium" />
-                  {solvedStats.medium} Med
-                </span>
-                <span className="diff-chip hard">
-                  <span className="diff-dot hard" />
-                  {solvedStats.hard} Hard
                 </span>
               </div>
             </div>
@@ -838,263 +1130,54 @@ export default function CodingStatsGraph() {
             </div>
           </div>
         </div>
-      ) : (
-        /* CONTEST PERFORMANCE SPLINE (LEETCODE / CODECHEF) */
-        <div
-          ref={svgWrapRef}
-          className="coding-chart-stage"
-          onPointerMove={handlePointerMove}
-          onPointerLeave={handlePointerLeave}
-        >
-          <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="coding-svg" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id={`area-grad-${platform}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={activeContestData.accent} stopOpacity="0.20" />
-                <stop offset="70%" stopColor={activeContestData.accent} stopOpacity="0.03" />
-                <stop offset="100%" stopColor={activeContestData.accent} stopOpacity="0.0" />
-              </linearGradient>
-
-              <linearGradient id={`stroke-grad-${platform}`} x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={activeContestData.accent} stopOpacity="0.75" />
-                <stop offset="60%" stopColor={activeContestData.accent} stopOpacity="1" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="1" />
-              </linearGradient>
-
-              <filter id="chartGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="3.5" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-              </filter>
-
-              <linearGradient id="crosshairGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="rgba(255,255,255,0.0)" />
-                <stop offset="25%" stopColor="rgba(255,255,255,0.3)" />
-                <stop offset="75%" stopColor="rgba(255,255,255,0.3)" />
-                <stop offset="100%" stopColor="rgba(255,255,255,0.0)" />
-              </linearGradient>
-            </defs>
-
-            {/* Horizontal Gridlines */}
-            {gridLines.map((line, i) => (
-              <g key={`grid-line-${i}`}>
-                <line
-                  x1={paddingLeft}
-                  y1={line.y}
-                  x2={svgWidth - paddingRight}
-                  y2={line.y}
-                  stroke="rgba(255, 255, 255, 0.06)"
-                  strokeDasharray="4 4"
-                  strokeWidth="1"
-                />
-                <text
-                  x={paddingLeft - 14}
-                  y={line.y + 3.5}
-                  fill="rgba(255, 255, 255, 0.35)"
-                  fontSize="10"
-                  textAnchor="end"
-                  fontFamily="var(--font-mono)"
-                >
-                  {line.val}
-                </text>
-              </g>
-            ))}
-
-            {/* Animated Area Fill */}
-            <motion.path
-              key={`area-${platform}`}
-              d={areaD}
-              fill={`url(#area-grad-${platform})`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            />
-
-            {/* Ambient Diffused Glow Path */}
-            <motion.path
-              key={`glow-${platform}`}
-              d={pathD}
-              fill="none"
-              stroke={activeContestData.accent}
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity={0.25}
-              filter="url(#chartGlowFilter)"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 0.25 }}
-              transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
-            />
-
-            {/* Primary Crisp Trajectory Stroke */}
-            <motion.path
-              key={`path-${platform}`}
-              d={pathD}
-              fill="none"
-              stroke={`url(#stroke-grad-${platform})`}
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1] }}
-            />
-
-            {/* Laser Crosshair Line */}
-            {activePoint && (
-              <line
-                x1={activePoint.x}
-                y1={paddingTop - 10}
-                x2={activePoint.x}
-                y2={paddingTop + chartHeight + 10}
-                stroke="url(#crosshairGrad)"
-                strokeDasharray="3 3"
-                strokeWidth="1.2"
-              />
-            )}
-
-            {/* Peak Pin Marker */}
-            {peakPoint && (
-              <g className="peak-pin-marker">
-                <rect
-                  x={peakPoint.x - 34}
-                  y={peakPoint.y - 28}
-                  width="68"
-                  height="20"
-                  rx="5"
-                  fill="rgba(17, 17, 22, 0.92)"
-                  stroke={activeContestData.accent}
-                  strokeWidth="1"
-                />
-                <text
-                  x={peakPoint.x}
-                  y={peakPoint.y - 14.5}
-                  fill="#ffffff"
-                  fontSize="9.5"
-                  fontFamily="var(--font-mono)"
-                  fontWeight="700"
-                  textAnchor="middle"
-                >
-                  ★ {peakPoint.item.rating}
-                </text>
-              </g>
-            )}
-
-            {/* Points */}
-            {points.map((pt, idx) => {
-              const isActive = activePoint && activePoint.idx === idx;
-              const isLatest = idx === points.length - 1;
-              const isPeak = pt.idx === peakPoint.idx;
-
-              return (
-                <g key={`point-${platform}-${idx}`}>
-                  {isActive && (
-                    <circle cx={pt.x} cy={pt.y} r={14} fill={activeContestData.accent} opacity={0.2} className="sonar-ripple-wave" />
-                  )}
-
-                  <motion.circle
-                    cx={pt.x}
-                    cy={pt.y}
-                    r={isActive ? 6.5 : isPeak ? 5 : isLatest ? 4.5 : 3.5}
-                    fill="#111116"
-                    stroke={isPeak ? "#ffffff" : activeContestData.accent}
-                    strokeWidth={isActive ? 2.5 : 1.8}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{
-                      duration: 0.45,
-                      delay: 0.3 + (idx / Math.max(n - 1, 1)) * 0.45,
-                      ease: [0.34, 1.56, 0.64, 1],
-                    }}
-                    style={{ transformOrigin: `${pt.x}px ${pt.y}px` }}
-                  />
-
-                  {(isActive || isLatest || isPeak) && (
-                    <circle cx={pt.x} cy={pt.y} r={isActive ? 2.5 : 1.5} fill={isPeak ? activeContestData.accent : "#ffffff"} />
-                  )}
-
-                  <text
-                    x={pt.x}
-                    y={paddingTop + chartHeight + 22}
-                    fill={isActive ? "#ffffff" : "rgba(255, 255, 255, 0.45)"}
-                    fontSize="10"
-                    textAnchor="middle"
-                    fontFamily="var(--font-mono)"
-                    fontWeight={isActive ? "700" : "400"}
-                  >
-                    {pt.item.short}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* FLOATING GLASS HUD TOOLTIP */}
-          <AnimatePresence>
-            {activePoint && (
-              <motion.div
-                key={`tooltip-${platform}-${activePoint.idx}`}
-                className={`coding-chart-tooltip ${isCustomHover ? "is-hovered" : "is-active"}`}
-                style={{
-                  left: `${(activePoint.x / svgWidth) * 100}%`,
-                  top: `${(activePoint.y / svgHeight) * 100}%`,
-                  borderColor: isCustomHover ? activeContestData.accent : "var(--border-medium)",
-                }}
-                initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 6, scale: 0.95 }}
-                transition={{ duration: 0.16, ease: "easeOut" }}
-              >
-                <div className="tooltip-top-row">
-                  <div className="tooltip-title-wrap">
-                    <span className="tooltip-accent-dot" style={{ backgroundColor: activeContestData.accent }} />
-                    <strong>{activePoint.item.contest}</strong>
-                  </div>
-                  <span className="tooltip-date-tag">{activePoint.item.date}</span>
-                </div>
-
-                <div className="tooltip-rating-row">
-                  <span className="tooltip-val">{activePoint.item.rating}</span>
-                  {activePoint.item.delta > 0 && (
-                    <span className="tooltip-gain-pill">+{activePoint.item.delta} pts</span>
-                  )}
-                </div>
-
-                <div className="tooltip-meta-row">
-                  <span className="tooltip-rank-tag">Rank: {activePoint.item.rank}</span>
-                  {activePoint.item.note && (
-                    <span className="tooltip-note-tag">{activePoint.item.note}</span>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
       )}
 
-      {/* 4. CONTEST TIMELINE SCRUBBER (FOR LEETCODE & CODECHEF CONTESTS) */}
+      {/* 5. BOTTOM CONTEST TIMELINE SCRUBBER MATCHING SCREENSHOT */}
       {isContestTab && (
-        <div className="coding-card-timeline">
-          <span className="timeline-header-label">CONTEST TIMELINE:</span>
-          <div className="timeline-pills-row">
+        <div className="studio-timeline-footer">
+          <div className="studio-timeline-label-group">
+            <div className="timeline-clock-icon-wrap">
+              <Clock size={15} />
+            </div>
+            <span className="studio-timeline-title">Contest Timeline</span>
+          </div>
+
+          <div className="studio-timeline-track">
             {history.map((item, idx) => {
               const isSelected = activePoint && activePoint.idx === idx;
               return (
-                <button
-                  key={idx}
-                  type="button"
-                  className={`timeline-contest-pill ${isSelected ? "selected" : ""}`}
-                  onMouseEnter={() => setHoveredIndex(idx)}
-                  onMouseLeave={() => setHoveredIndex(null)}
-                  onClick={() => setHoveredIndex(idx)}
-                >
-                  <span className="pill-contest-title">{item.short}</span>
-                  <span
-                    className="pill-contest-rating"
-                    style={{ color: isSelected ? activeContestData.accent : "rgba(255, 255, 255, 0.75)" }}
+                <div key={idx} className="studio-timeline-node">
+                  {idx > 0 && (
+                    <div
+                      className="studio-timeline-dotted-line"
+                      style={{ borderColor: activeContestData.accent }}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    className={`studio-timeline-card ${isSelected ? "selected" : ""}`}
+                    style={isSelected ? { borderColor: activeContestData.accent } : {}}
+                    onMouseEnter={() => setHoveredIndex(idx)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                    onClick={() => setHoveredIndex(idx)}
                   >
-                    {item.rating}
-                  </span>
-                  {item.delta > 0 && <span className="pill-contest-gain">+{item.delta}</span>}
-                </button>
+                    <span
+                      className="studio-timeline-dot"
+                      style={{ backgroundColor: activeContestData.accent }}
+                    />
+                    <div className="studio-timeline-card-info">
+                      <span className="timeline-item-short">{item.short}</span>
+                      <div className="timeline-item-val-group">
+                        <strong className="timeline-item-val">{item.rating}</strong>
+                        {item.delta > 0 && (
+                          <span className="timeline-item-gain" style={{ color: activeContestData.accent }}>
+                            +{item.delta}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                </div>
               );
             })}
           </div>
