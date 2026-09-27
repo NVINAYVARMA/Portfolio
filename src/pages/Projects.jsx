@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -188,69 +188,36 @@ function ProjectPreview({ project, onOpen }) {
 
 export default function Projects() {
   const [activeCategory, setActiveCategory] = useState("ALL");
-  const [selectedProject, setSelectedProject] = useState(null);
-  const modalContentRef = useRef(null);
+  const [expandedProjectId, setExpandedProjectId] = useState(null);
 
-  // Handle modal interactions: pause Lenis smooth scroll, prevent body bounce, enable keyboard navigation
+  // Close open case study on Escape key
   useEffect(() => {
-    if (!selectedProject) return;
-
-    // Pause Lenis smooth scroll so wheel events aren't captured globally
-    if (typeof window !== "undefined" && window.__lenis) {
-      window.__lenis.stop();
-    }
-
-    const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-    const prevOverflow = document.body.style.overflow;
-    const prevPaddingRight = document.body.style.paddingRight;
-
-    document.body.style.overflow = "hidden";
-    if (scrollBarWidth > 0) {
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
-    }
-
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
-        setSelectedProject(null);
-        return;
-      }
-
-      if (!modalContentRef.current) return;
-
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        modalContentRef.current.scrollBy({ top: 80, behavior: "smooth" });
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        modalContentRef.current.scrollBy({ top: -80, behavior: "smooth" });
-      } else if (e.key === "PageDown" || (e.key === " " && !e.shiftKey)) {
-        e.preventDefault();
-        modalContentRef.current.scrollBy({ top: 320, behavior: "smooth" });
-      } else if (e.key === "PageUp" || (e.key === " " && e.shiftKey)) {
-        e.preventDefault();
-        modalContentRef.current.scrollBy({ top: -320, behavior: "smooth" });
-      } else if (e.key === "Home") {
-        e.preventDefault();
-        modalContentRef.current.scrollTo({ top: 0, behavior: "smooth" });
-      } else if (e.key === "End") {
-        e.preventDefault();
-        modalContentRef.current.scrollTo({ top: modalContentRef.current.scrollHeight, behavior: "smooth" });
+        setExpandedProjectId(null);
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = prevOverflow;
-      document.body.style.paddingRight = prevPaddingRight;
-
-      // Resume Lenis smooth scroll
-      if (typeof window !== "undefined" && window.__lenis) {
-        window.__lenis.start();
-      }
-    };
-  }, [selectedProject]);
+  const handleToggleCaseStudy = (projectId) => {
+    if (expandedProjectId === projectId) {
+      setExpandedProjectId(null);
+    } else {
+      setExpandedProjectId(projectId);
+      setTimeout(() => {
+        const el = document.getElementById(`case-study-${projectId}`);
+        if (el) {
+          if (typeof window !== "undefined" && window.__lenis) {
+            window.__lenis.scrollTo(el, { offset: -90, duration: 0.8 });
+          } else {
+            el.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        }
+      }, 120);
+    }
+  };
 
   // Filter projects by category
   const filteredProjects =
@@ -299,7 +266,10 @@ export default function Projects() {
             key={cat}
             type="button"
             className={`filter-btn ${activeCategory === cat ? "is-active" : ""}`}
-            onClick={() => setActiveCategory(cat)}
+            onClick={() => {
+              setActiveCategory(cat);
+              setExpandedProjectId(null);
+            }}
           >
             {activeCategory === cat && (
               <motion.div
@@ -316,115 +286,327 @@ export default function Projects() {
       {/* PROJECT SHOWCASE LIST */}
       <section className="projects-list">
         <AnimatePresence mode="popLayout">
-          {filteredProjects.map((project, index) => (
-            <motion.article
-              key={project.id}
-              className="project-showcase"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.08 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.45, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
-              whileHover={{ y: -4 }}
-            >
-              {/* LEFT NUMBER */}
-              <div className="project-number">{project.id}</div>
+          {filteredProjects.map((project, index) => {
+            const isExpanded = expandedProjectId === project.id;
 
-              {/* BROWSER PREVIEW */}
-              <ProjectPreview project={project} onOpen={() => setSelectedProject(project)} />
-
-              {/* PROJECT INFORMATION */}
-              <div className="project-information">
-                <div className="project-meta">
-                  <span>{project.category}</span>
-                  <span>{project.year}</span>
-                </div>
-
-                <div
-                  className="project-heading clickable"
-                  onClick={() => setSelectedProject(project)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedProject(project);
-                    }
-                  }}
-                  title={`Open Case Study for ${project.title}`}
+            return (
+              <div key={project.id} className="project-item-group">
+                <motion.article
+                  className={`project-showcase ${isExpanded ? "is-active" : ""}`}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.08 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.45, delay: index * 0.04, ease: [0.16, 1, 0.3, 1] }}
+                  whileHover={{ y: isExpanded ? 0 : -4 }}
                 >
-                  <h2>{project.title}</h2>
-                  <span>{project.subtitle}</span>
-                </div>
+                  {/* LEFT NUMBER */}
+                  <div className="project-number">{project.id}</div>
 
-                <p className="project-description">{project.description}</p>
+                  {/* BROWSER PREVIEW */}
+                  <ProjectPreview project={project} onOpen={() => handleToggleCaseStudy(project.id)} />
 
-                {/* ROLE */}
-                <div className="project-role">
-                  <span>ROLE</span>
-                  <strong>{project.role}</strong>
-                </div>
+                  {/* PROJECT INFORMATION */}
+                  <div className="project-information">
+                    <div className="project-meta">
+                      <span>{project.category}</span>
+                      <span>{project.year}</span>
+                    </div>
 
-                {/* TECHNOLOGIES */}
-                <div className="project-tags">
-                  {project.technologies.map((tech) => (
-                    <span key={tech}>{tech}</span>
-                  ))}
-                </div>
-
-                {/* FOOTER */}
-                <div className="project-card-footer">
-                  <div className="project-status">
-                    <i />
-                    <span>{project.status}</span>
-                  </div>
-
-                  <div className="project-card-actions">
-                    {project.liveUrl && project.liveUrl !== "#" && !project.liveUrl.includes("github.com") && (
-                      <a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="project-live-link"
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={`Open live site for ${project.title}`}
-                      >
-                        <ExternalLink size={12} />
-                        <span>LIVE SITE</span>
-                      </a>
-                    )}
-
-                    {project.githubUrl && (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="project-github-link"
-                        onClick={(e) => e.stopPropagation()}
-                        aria-label={`View GitHub repository for ${project.title}`}
-                      >
-                        <GitHubIcon size={12} />
-                        <span>GITHUB</span>
-                      </a>
-                    )}
-
-                    <motion.button
-                      type="button"
-                      className="project-view"
-                      onClick={() => setSelectedProject(project)}
-                      whileHover={{ scale: 1.03, x: 2 }}
-                      whileTap={{ scale: 0.97 }}
-                      aria-label={`View Case Study for ${project.title}`}
+                    <div
+                      className="project-heading clickable"
+                      onClick={() => handleToggleCaseStudy(project.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleToggleCaseStudy(project.id);
+                        }
+                      }}
+                      title={`${isExpanded ? "Close" : "Open"} Case Study for ${project.title}`}
                     >
-                      <FileText size={13} />
-                      <span>VIEW CASE STUDY</span>
-                      <ArrowUpRight size={13} className="btn-arrow" />
-                    </motion.button>
+                      <h2>{project.title}</h2>
+                      <span>{project.subtitle}</span>
+                    </div>
+
+                    <p className="project-description">{project.description}</p>
+
+                    {/* ROLE */}
+                    <div className="project-role">
+                      <span>ROLE</span>
+                      <strong>{project.role}</strong>
+                    </div>
+
+                    {/* TECHNOLOGIES */}
+                    <div className="project-tags">
+                      {project.technologies.map((tech) => (
+                        <span key={tech}>{tech}</span>
+                      ))}
+                    </div>
+
+                    {/* FOOTER */}
+                    <div className="project-card-footer">
+                      <div className="project-status">
+                        <i />
+                        <span>{project.status}</span>
+                      </div>
+
+                      <div className="project-card-actions">
+                        {project.liveUrl && project.liveUrl !== "#" && !project.liveUrl.includes("github.com") && (
+                          <a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="project-live-link"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Open live site for ${project.title}`}
+                          >
+                            <ExternalLink size={12} />
+                            <span>LIVE SITE</span>
+                          </a>
+                        )}
+
+                        {project.githubUrl && (
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="project-github-link"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`View GitHub repository for ${project.title}`}
+                          >
+                            <GitHubIcon size={12} />
+                            <span>GITHUB</span>
+                          </a>
+                        )}
+
+                        <motion.button
+                          type="button"
+                          className={`project-view ${isExpanded ? "is-expanded" : ""}`}
+                          onClick={() => handleToggleCaseStudy(project.id)}
+                          whileHover={{ scale: 1.03, x: 2 }}
+                          whileTap={{ scale: 0.97 }}
+                          aria-expanded={isExpanded}
+                          aria-label={`${isExpanded ? "Close" : "View"} Case Study for ${project.title}`}
+                        >
+                          <FileText size={13} />
+                          <span>{isExpanded ? "CLOSE CASE STUDY" : "VIEW CASE STUDY"}</span>
+                          <ArrowUpRight size={13} className={`btn-arrow ${isExpanded ? "arrow-expanded" : ""}`} />
+                        </motion.button>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </motion.article>
+
+                {/* INLINE CASE STUDY ACCORDION EXPANSION (DISPLAYS RIGHT WHERE PRESSED) */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      id={`case-study-${project.id}`}
+                      className="inline-case-study"
+                      initial={{ opacity: 0, height: 0, y: -8 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -8 }}
+                      transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <div className="case-study-card">
+                        {/* Header */}
+                        <div className="case-study-header">
+                          <div className="modal-header-text">
+                            <div className="modal-eyebrow">
+                              <span className="modal-cat-tag">{project.category}</span>
+                              <span className="modal-dot-sep">•</span>
+                              <span className="modal-year-tag">{project.year}</span>
+                              <span className="modal-dot-sep">•</span>
+                              <span className={`modal-status-pill ${project.status.toLowerCase()}`}>
+                                <span className="status-dot" />
+                                <span>{project.status}</span>
+                              </span>
+                            </div>
+                            <h2 className="modal-title">{project.title}</h2>
+                            <p className="modal-subtitle">{project.subtitle}</p>
+                          </div>
+
+                          <div className="modal-close-group">
+                            <button
+                              type="button"
+                              className="modal-close-btn"
+                              onClick={() => handleToggleCaseStudy(project.id)}
+                              aria-label={`Close case study for ${project.title}`}
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Body */}
+                        <div className="case-study-body">
+                          {/* Hero Browser Mockup Preview */}
+                          {project.image && (
+                            <div className="modal-image-preview">
+                              <div className="modal-browser-bar">
+                                <div className="modal-browser-dots">
+                                  <span />
+                                  <span />
+                                  <span />
+                                </div>
+                                <div className="modal-browser-url">
+                                  {project.liveUrl && project.liveUrl !== "#"
+                                    ? project.liveUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                                    : `${project.title.toLowerCase().replace(/ /g, "-")}.dev`}
+                                </div>
+                              </div>
+                              <img
+                                src={project.image}
+                                alt={project.title}
+                                style={{ objectPosition: project.imagePosition || "center" }}
+                              />
+                            </div>
+                          )}
+
+                          {/* Key Metrics / Highlights Grid */}
+                          {project.highlights && (
+                            <div className="modal-metrics-grid">
+                              {project.highlights.map((h, i) => (
+                                <div key={i} className="modal-metric-card">
+                                  <span className="metric-card-label">{h.label}</span>
+                                  <strong className="metric-card-value">{h.value}</strong>
+                                  <span className="metric-card-sub">{h.sub}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Overview */}
+                          <div className="modal-section">
+                            <div className="modal-section-header">
+                              <Sparkles size={14} className="modal-section-icon" />
+                              <h3>PROJECT BRIEF &amp; OVERVIEW</h3>
+                            </div>
+                            <p>{project.longDescription}</p>
+                          </div>
+
+                          {/* Key Features */}
+                          {project.features && (
+                            <div className="modal-section">
+                              <div className="modal-section-header">
+                                <Layers size={14} className="modal-section-icon" />
+                                <h3>KEY ARCHITECTURAL HIGHLIGHTS</h3>
+                              </div>
+                              <div className="modal-features-grid">
+                                {project.features.map((feat, i) => (
+                                  <div key={i} className="modal-feature-item">
+                                    <CheckCircle2 size={16} className="feat-check-icon" />
+                                    <span>{feat}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Role */}
+                          <div className="modal-section">
+                            <div className="modal-section-header">
+                              <Terminal size={14} className="modal-section-icon" />
+                              <h3>ROLE &amp; RESPONSIBILITIES</h3>
+                            </div>
+                            <div className="modal-role-card">
+                              <strong className="modal-role-title">{project.role}</strong>
+                              <span className="modal-role-sub">
+                                End-to-end design, implementation, component engineering, performance tuning, and deployment.
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Technology Stack */}
+                          <div className="modal-section">
+                            <div className="modal-section-header">
+                              <Code2 size={14} className="modal-section-icon" />
+                              <h3>TECHNOLOGY STACK</h3>
+                            </div>
+                            <div className="modal-tech-pills">
+                              {project.technologies.map((t) => (
+                                <span key={t} className="modal-pill">
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="case-study-footer">
+                          <div className="modal-footer-brand">
+                            <span className="modal-id-tag">PROJECT {project.id} / 03</span>
+                            <span className="modal-dot-sep">•</span>
+                            <span className="modal-title-tag">{project.title}</span>
+                          </div>
+
+                          <div className="modal-actions">
+                            {project.liveUrl && project.liveUrl !== "#" && (
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="modal-action-btn primary"
+                              >
+                                <ExternalLink size={14} />
+                                <span>Launch Live App</span>
+                                <ArrowUpRight size={14} />
+                              </a>
+                            )}
+
+                            {project.githubUrl && (
+                              <a
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="modal-action-btn secondary"
+                              >
+                                <GitHubIcon size={14} />
+                                <span>View GitHub</span>
+                                <ArrowUpRight size={14} />
+                              </a>
+                            )}
+
+                            {project.contactUrl && (
+                              <a
+                                href={project.contactUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="modal-action-btn whatsapp"
+                              >
+                                <MessageCircle size={14} />
+                                <span>Client Inquiry</span>
+                                <ArrowUpRight size={14} />
+                              </a>
+                            )}
+
+                            {project.status === "BUILDING" && !project.liveUrl && (
+                              <div className="modal-building-indicator">
+                                <span className="building-pulse" />
+                                <span>Release &amp; Live Demo in Progress (2026)</span>
+                              </div>
+                            )}
+
+                            <button
+                              type="button"
+                              className="modal-action-btn secondary close-study-btn"
+                              onClick={() => handleToggleCaseStudy(project.id)}
+                            >
+                              <X size={14} />
+                              <span>Close Case Study</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </motion.article>
-          ))}
+            );
+          })}
         </AnimatePresence>
       </section>
 
@@ -566,230 +748,6 @@ export default function Projects() {
           </a>
         </div>
       </motion.footer>
-
-      {/* =====================================================
-          CASE STUDY MODAL (Framer Motion)
-      ===================================================== */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            className="project-modal-backdrop"
-            data-lenis-prevent="true"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setSelectedProject(null);
-            }}
-            onWheel={(e) => {
-              e.stopPropagation();
-              if (modalContentRef.current) {
-                modalContentRef.current.scrollTop += e.deltaY;
-              }
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-project-title"
-          >
-            <motion.div
-              ref={modalContentRef}
-              className="project-modal-content"
-              data-lenis-prevent="true"
-              onClick={(e) => e.stopPropagation()}
-              onWheel={(e) => {
-                e.stopPropagation();
-              }}
-              initial={{ opacity: 0, scale: 0.94, y: 16 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 16 }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            >
-              {/* Modal Sticky Header */}
-              <div className="modal-header">
-                <div className="modal-header-text">
-                  <div className="modal-eyebrow">
-                    <span className="modal-cat-tag">{selectedProject.category}</span>
-                    <span className="modal-dot-sep">•</span>
-                    <span className="modal-year-tag">{selectedProject.year}</span>
-                    <span className="modal-dot-sep">•</span>
-                    <span className={`modal-status-pill ${selectedProject.status.toLowerCase()}`}>
-                      <span className="status-dot" />
-                      <span>{selectedProject.status}</span>
-                    </span>
-                  </div>
-                  <h2 id="modal-project-title" className="modal-title">{selectedProject.title}</h2>
-                  <p className="modal-subtitle">{selectedProject.subtitle}</p>
-                </div>
-
-                <div className="modal-close-group">
-                  <span className="modal-esc-hint" aria-hidden="true">ESC</span>
-                  <button
-                    type="button"
-                    className="modal-close-btn"
-                    onClick={() => setSelectedProject(null)}
-                    aria-label="Close case study modal"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Body */}
-              <div className="modal-body">
-                {/* Hero Browser Mockup Preview */}
-                {selectedProject.image && (
-                  <div className="modal-image-preview">
-                    <div className="modal-browser-bar">
-                      <div className="modal-browser-dots">
-                        <span />
-                        <span />
-                        <span />
-                      </div>
-                      <div className="modal-browser-url">
-                        {selectedProject.liveUrl && selectedProject.liveUrl !== "#"
-                          ? selectedProject.liveUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
-                          : `${selectedProject.title.toLowerCase().replace(/ /g, "-")}.dev`}
-                      </div>
-                    </div>
-                    <img
-                      src={selectedProject.image}
-                      alt={selectedProject.title}
-                      style={{ objectPosition: selectedProject.imagePosition || "center" }}
-                    />
-                  </div>
-                )}
-
-                {/* Key Metrics / Highlights Grid */}
-                {selectedProject.highlights && (
-                  <div className="modal-metrics-grid">
-                    {selectedProject.highlights.map((h, i) => (
-                      <div key={i} className="modal-metric-card">
-                        <span className="metric-card-label">{h.label}</span>
-                        <strong className="metric-card-value">{h.value}</strong>
-                        <span className="metric-card-sub">{h.sub}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Overview */}
-                <div className="modal-section">
-                  <div className="modal-section-header">
-                    <Sparkles size={14} className="modal-section-icon" />
-                    <h3>PROJECT BRIEF &amp; OVERVIEW</h3>
-                  </div>
-                  <p>{selectedProject.longDescription}</p>
-                </div>
-
-                {/* Key Features */}
-                {selectedProject.features && (
-                  <div className="modal-section">
-                    <div className="modal-section-header">
-                      <Layers size={14} className="modal-section-icon" />
-                      <h3>KEY ARCHITECTURAL HIGHLIGHTS</h3>
-                    </div>
-                    <div className="modal-features-grid">
-                      {selectedProject.features.map((feat, i) => (
-                        <div key={i} className="modal-feature-item">
-                          <CheckCircle2 size={16} className="feat-check-icon" />
-                          <span>{feat}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Role */}
-                <div className="modal-section">
-                  <div className="modal-section-header">
-                    <Terminal size={14} className="modal-section-icon" />
-                    <h3>ROLE &amp; RESPONSIBILITIES</h3>
-                  </div>
-                  <div className="modal-role-card">
-                    <strong className="modal-role-title">{selectedProject.role}</strong>
-                    <span className="modal-role-sub">
-                      End-to-end design, implementation, component engineering, performance tuning, and deployment.
-                    </span>
-                  </div>
-                </div>
-
-                {/* Technology Stack */}
-                <div className="modal-section">
-                  <div className="modal-section-header">
-                    <Code2 size={14} className="modal-section-icon" />
-                    <h3>TECHNOLOGY STACK</h3>
-                  </div>
-                  <div className="modal-tech-pills">
-                    {selectedProject.technologies.map((t) => (
-                      <span key={t} className="modal-pill">
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Footer */}
-              <div className="modal-footer">
-                <div className="modal-footer-brand">
-                  <span className="modal-id-tag">PROJECT {selectedProject.id} / 03</span>
-                  <span className="modal-dot-sep">•</span>
-                  <span className="modal-title-tag">{selectedProject.title}</span>
-                </div>
-
-                <div className="modal-actions">
-                  {selectedProject.liveUrl && selectedProject.liveUrl !== "#" && (
-                    <a
-                      href={selectedProject.liveUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="modal-action-btn primary"
-                    >
-                      <ExternalLink size={14} />
-                      <span>Launch Live App</span>
-                      <ArrowUpRight size={14} />
-                    </a>
-                  )}
-
-                  {selectedProject.githubUrl && (
-                    <a
-                      href={selectedProject.githubUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="modal-action-btn secondary"
-                    >
-                      <GitHubIcon size={14} />
-                      <span>View GitHub</span>
-                      <ArrowUpRight size={14} />
-                    </a>
-                  )}
-
-                  {selectedProject.contactUrl && (
-                    <a
-                      href={selectedProject.contactUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="modal-action-btn whatsapp"
-                    >
-                      <MessageCircle size={14} />
-                      <span>Client Inquiry</span>
-                      <ArrowUpRight size={14} />
-                    </a>
-                  )}
-
-                  {selectedProject.status === "BUILDING" && !selectedProject.liveUrl && (
-                    <div className="modal-building-indicator">
-                      <span className="building-pulse" />
-                      <span>Release &amp; Live Demo in Progress (2026)</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </main>
   );
 }

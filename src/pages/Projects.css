@@ -138,6 +138,13 @@
   gap: 24px;
 }
 
+.project-item-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
 .project-showcase {
   position: relative;
   display: grid;
@@ -157,6 +164,11 @@
 .project-showcase:hover {
   border-color: var(--border-hover);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.project-showcase.is-active {
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.16);
 }
 
 /* Index Number Column */
@@ -548,6 +560,16 @@
 
 .project-view:hover .btn-arrow {
   transform: translate(1.5px, -1.5px);
+}
+
+.project-view.is-expanded {
+  background: #f4f4f5;
+  color: #000000;
+  box-shadow: 0 4px 18px rgba(255, 255, 255, 0.35);
+}
+
+.project-view .btn-arrow.arrow-expanded {
+  transform: rotate(90deg);
 }
 
 /* =========================================================
@@ -1318,5 +1340,69 @@
   .projects-contact-button {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* =========================================================
+   INLINE CASE STUDY SHOWCASE (DISPLAYS DIRECTLY IN-PLACE)
+   ========================================================= */
+
+.inline-case-study {
+  width: 100%;
+  overflow: hidden;
+}
+
+.case-study-card {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, #15161c 0%, #0d0e12 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 24px 60px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.case-study-header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 32px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(21, 22, 28, 0.94);
+}
+
+.case-study-body {
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+.case-study-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 32px;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(13, 14, 18, 0.9);
+  flex-wrap: wrap;
+}
+
+.close-study-btn {
+  cursor: pointer;
+}
+
+@media (max-width: 680px) {
+  .case-study-header,
+  .case-study-body,
+  .case-study-footer {
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
