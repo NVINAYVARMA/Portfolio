@@ -443,11 +443,11 @@ export default function Home() {
         >
           <div className="badge badge-status">
             <span className="status-dot" />
-            <span>ACTIVITY &amp; BENCHMARKS</span>
+            <span>ALGORITHMS &amp; BENCHMARKS</span>
           </div>
           <h2 className="home-section-title">Activity &amp; Performance</h2>
           <p className="home-section-sub">
-            Verified GitHub contribution matrix, competitive programming ratings, and algorithmic contest trajectory
+            Verified LeetCode submission matrix, competitive programming ratings, and algorithmic contest trajectory
           </p>
         </motion.div>
         <CodingStatsGraph />

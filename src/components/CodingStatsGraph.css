@@ -325,10 +325,10 @@
 }
 
 /* =========================================================
-   3. GITHUB CONTRIBUTION ACTIVITY GRID
+   3. LEETCODE SUBMISSION ACTIVITY GRID (PAST 1 YEAR)
    ========================================================= */
 
-.github-activity-wrapper {
+.activity-calendar-wrapper {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -337,7 +337,7 @@
 }
 
 /* Controlled horizontal scroll area (never causes page overflow on mobile) */
-.github-calendar-scroll-area {
+.activity-calendar-scroll-area {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
@@ -347,24 +347,24 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.github-calendar-scroll-area::-webkit-scrollbar {
+.activity-calendar-scroll-area::-webkit-scrollbar {
   height: 4px;
 }
 
-.github-calendar-scroll-area::-webkit-scrollbar-track {
+.activity-calendar-scroll-area::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.github-calendar-scroll-area::-webkit-scrollbar-thumb {
+.activity-calendar-scroll-area::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 4px;
 }
 
-.github-calendar-scroll-area::-webkit-scrollbar-thumb:hover {
+.activity-calendar-scroll-area::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.24);
 }
 
-.github-calendar-grid-wrap {
+.activity-calendar-grid-wrap {
   display: inline-flex;
   flex-direction: column;
   gap: 6px;
@@ -372,25 +372,25 @@
 }
 
 /* Months labels header */
-.github-months-row {
+.activity-months-row {
   display: flex;
   align-items: center;
   height: 16px;
   position: relative;
 }
 
-.github-day-label-placeholder {
+.activity-day-label-placeholder {
   width: 28px;
   flex-shrink: 0;
 }
 
-.github-months-track {
+.activity-months-track {
   position: relative;
   flex: 1;
   height: 100%;
 }
 
-.github-month-tag {
+.activity-month-tag {
   position: absolute;
   top: 0;
   font-family: var(--font-mono);
@@ -401,13 +401,13 @@
 }
 
 /* Calendar body: days labels + 52 weeks matrix */
-.github-calendar-body {
+.activity-calendar-body {
   display: flex;
   align-items: flex-start;
   gap: 4px;
 }
 
-.github-weekdays-col {
+.activity-weekdays-col {
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -416,7 +416,7 @@
   user-select: none;
 }
 
-.github-day-tag {
+.activity-day-tag {
   height: 11px;
   line-height: 11px;
   font-family: var(--font-mono);
@@ -425,24 +425,24 @@
   opacity: 0;
 }
 
-.github-day-tag.visible {
+.activity-day-tag.visible {
   opacity: 1;
 }
 
 /* 52 Week Columns */
-.github-weeks-track {
+.activity-weeks-track {
   display: flex;
   gap: 3px;
 }
 
-.github-week-col {
+.activity-week-col {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
 
 /* Individual Day Cell */
-.github-cell {
+.activity-cell {
   width: 11px;
   height: 11px;
   border-radius: 2.5px;
@@ -452,47 +452,47 @@
 }
 
 /* Activity Levels (Vercel / Linear inspired Emerald Palette) */
-.github-cell.level-0 {
+.activity-cell.level-0 {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.github-cell.level-1 {
+.activity-cell.level-1 {
   background: #0e4429;
   border: 1px solid rgba(0, 230, 118, 0.22);
 }
 
-.github-cell.level-2 {
+.activity-cell.level-2 {
   background: #006d32;
   border: 1px solid rgba(0, 230, 118, 0.38);
 }
 
-.github-cell.level-3 {
+.activity-cell.level-3 {
   background: #26a641;
   border: 1px solid rgba(0, 230, 118, 0.55);
 }
 
-.github-cell.level-4 {
+.activity-cell.level-4 {
   background: #39d353;
   border: 1px solid #39d353;
   box-shadow: 0 0 6px rgba(57, 211, 83, 0.45);
 }
 
 /* Tasteful cell hover state */
-.github-cell:hover {
+.activity-cell:hover {
   transform: scale(1.3);
   z-index: 10;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
 }
 
-.github-cell.level-0:hover {
+.activity-cell.level-0:hover {
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
 }
 
 /* Compact Glass Tooltip (Fixed position to avoid container clipping) */
-.github-cell-tooltip {
+.activity-cell-tooltip {
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -100%);
@@ -509,7 +509,7 @@
   white-space: nowrap;
 }
 
-.github-cell-tooltip::after {
+.activity-cell-tooltip::after {
   content: "";
   position: absolute;
   bottom: -4px;
@@ -535,8 +535,8 @@
   color: var(--text-dim);
 }
 
-/* GitHub Footer: Sync Status + Legend */
-.github-activity-footer {
+/* Footer: Status, Difficulty Chips & Legend */
+.activity-calendar-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -546,7 +546,14 @@
   gap: 12px;
 }
 
-.github-sync-status {
+.activity-footer-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.activity-sync-status {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -564,7 +571,7 @@
 }
 
 .sync-status-dot.cached {
-  background: #71717a;
+  background: #FFA116;
 }
 
 .sync-status-text {
@@ -573,7 +580,59 @@
   color: var(--text-dim);
 }
 
-.github-legend-group {
+/* LeetCode Difficulty Solved Chips */
+.leetcode-difficulty-chips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diff-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  line-height: 1.2;
+}
+
+.diff-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.diff-chip.easy {
+  color: #00b8a3;
+  background: rgba(0, 184, 163, 0.12);
+  border: 1px solid rgba(0, 184, 163, 0.28);
+}
+.diff-dot.easy {
+  background: #00b8a3;
+}
+
+.diff-chip.medium {
+  color: #ffc01e;
+  background: rgba(255, 192, 30, 0.12);
+  border: 1px solid rgba(255, 192, 30, 0.28);
+}
+.diff-dot.medium {
+  background: #ffc01e;
+}
+
+.diff-chip.hard {
+  color: #ff375f;
+  background: rgba(255, 55, 95, 0.12);
+  border: 1px solid rgba(255, 55, 95, 0.28);
+}
+.diff-dot.hard {
+  background: #ff375f;
+}
+
+.activity-legend-group {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -592,11 +651,11 @@
   gap: 3px;
 }
 
-.legend-cells .github-cell {
+.legend-cells .activity-cell {
   cursor: default;
 }
 
-.legend-cells .github-cell:hover {
+.legend-cells .activity-cell:hover {
   transform: none;
   box-shadow: none;
 }
@@ -890,9 +949,10 @@
     flex-shrink: 0;
   }
 
-  .github-activity-footer {
+  .activity-calendar-footer {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 }
+

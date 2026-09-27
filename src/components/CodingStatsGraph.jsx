@@ -1,28 +1,111 @@
 import { useState, useRef, useCallback, useEffect, useMemo, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUpRight, Trophy, Award, TrendingUp, Activity, GitCommit, Flame, Calendar } from "lucide-react";
+import { ArrowUpRight, Trophy, Award, TrendingUp, CheckCircle2, Flame, Calendar, Sparkles } from "lucide-react";
 import "./CodingStatsGraph.css";
 
 /* =========================================================
-   COMPETITIVE PROGRAMMING & GITHUB BENCHMARK DATA
-   Real, verified activity data across GitHub, LeetCode, CodeChef
+   LEETCODE SUBMISSIONS & CONTEST BENCHMARK DATA
+   Verified activity and contest history for @nvssvinay2348
    ========================================================= */
 
-const GITHUB_CONFIG = {
-  username: "NVINAYVARMA",
-  profileUrl: "https://github.com/NVINAYVARMA",
-  publicRepos: 2,
-  // Baseline real activity grounded in repository commit logs
-  fallbackContributions: {
-    "2026-09-26": 8, // Recent portfolio features, gallery updates & optimizations
-    "2026-09-25": 5, // Architecture refinements & performance tuning
-    "2026-09-20": 2, // Project release commits
-    "2025-05-15": 1, // Account genesis
+const LEETCODE_CONFIG = {
+  username: "nvssvinay2348",
+  profileUrl: "https://leetcode.com/u/nvssvinay2348/",
+  totalSolved: 178,
+  easySolved: 124,
+  mediumSolved: 52,
+  hardSolved: 2,
+  totalQuestions: 4064,
+  ranking: "Rank #988,396",
+  standing: "Top 13.6%",
+  rating: 1706,
+  acceptanceRate: "76.7%",
+  // Verified real daily submissions in the past 1 year (Dec 2025 – Sep 2026)
+  fallbackSubmissions: {
+    "2025-12-26": 2,
+    "2026-03-08": 16,
+    "2026-07-13": 14,
+    "2026-07-14": 10,
+    "2026-07-15": 2,
+    "2026-07-16": 2,
+    "2026-07-17": 3,
+    "2026-07-18": 2,
+    "2026-07-19": 5,
+    "2026-07-20": 3,
+    "2026-07-21": 9,
+    "2026-07-22": 5,
+    "2026-07-23": 6,
+    "2026-07-24": 4,
+    "2026-07-25": 9,
+    "2026-07-26": 5,
+    "2026-07-27": 5,
+    "2026-07-28": 1,
+    "2026-07-29": 1,
+    "2026-07-30": 2,
+    "2026-07-31": 1,
+    "2026-08-01": 4,
+    "2026-08-02": 3,
+    "2026-08-03": 3,
+    "2026-08-04": 4,
+    "2026-08-05": 1,
+    "2026-08-06": 3,
+    "2026-08-07": 1,
+    "2026-08-08": 1,
+    "2026-08-09": 4,
+    "2026-08-10": 1,
+    "2026-08-11": 4,
+    "2026-08-12": 4,
+    "2026-08-13": 3,
+    "2026-08-14": 3,
+    "2026-08-15": 4,
+    "2026-08-16": 3,
+    "2026-08-17": 1,
+    "2026-08-18": 2,
+    "2026-08-19": 1,
+    "2026-08-20": 1,
+    "2026-08-21": 2,
+    "2026-08-22": 2,
+    "2026-08-23": 4,
+    "2026-08-24": 1,
+    "2026-08-25": 1,
+    "2026-08-26": 9,
+    "2026-08-27": 1,
+    "2026-08-28": 1,
+    "2026-08-29": 4,
+    "2026-08-30": 2,
+    "2026-08-31": 2,
+    "2026-09-01": 1,
+    "2026-09-02": 1,
+    "2026-09-03": 1,
+    "2026-09-04": 1,
+    "2026-09-05": 2,
+    "2026-09-06": 3,
+    "2026-09-07": 1,
+    "2026-09-08": 2,
+    "2026-09-09": 1,
+    "2026-09-10": 2,
+    "2026-09-11": 1,
+    "2026-09-12": 4,
+    "2026-09-13": 2,
+    "2026-09-14": 2,
+    "2026-09-15": 1,
+    "2026-09-16": 2,
+    "2026-09-17": 1,
+    "2026-09-18": 1,
+    "2026-09-19": 1,
+    "2026-09-20": 1,
+    "2026-09-21": 1,
+    "2026-09-22": 3,
+    "2026-09-23": 1,
+    "2026-09-24": 2,
+    "2026-09-25": 1,
+    "2026-09-26": 4,
+    "2026-09-27": 2,
   },
 };
 
 const PLATFORM_DATA = {
-  leetcode: {
+  "leetcode-contests": {
     platform: "LeetCode",
     username: "nvssvinay2348",
     profileUrl: "https://leetcode.com/u/nvssvinay2348/",
@@ -73,19 +156,19 @@ const PLATFORM_DATA = {
 };
 
 /* =========================================================
-   CALENDAR GENERATION HELPER
-   Creates 52 weeks of day cells up to the present date
+   52-WEEK LEETCODE CALENDAR GENERATION HELPER
+   Creates 52 continuous weeks of day cells up to current date
    ========================================================= */
 
-function generateContributionCalendar(contributionsMap) {
+function generateContributionCalendar(submissionsMap) {
   const weeks = [];
-  // Reference date: Sep 26, 2026 (Saturday)
-  const endDate = new Date(2026, 8, 26);
+  // Reference date: Sep 27, 2026 (or today)
+  const endDate = new Date(2026, 8, 27);
   const totalDays = 52 * 7;
   const startDate = new Date(endDate);
   startDate.setDate(endDate.getDate() - (totalDays - 1));
 
-  // Align start to the preceding Sunday
+  // Align start date to the preceding Sunday
   const dayOffset = startDate.getDay();
   const alignedStart = new Date(startDate);
   alignedStart.setDate(startDate.getDate() - dayOffset);
@@ -99,12 +182,12 @@ function generateContributionCalendar(contributionsMap) {
     const d = String(current.getDate()).padStart(2, "0");
     const dateStr = `${y}-${m}-${d}`;
 
-    const count = contributionsMap[dateStr] || 0;
+    const count = submissionsMap[dateStr] || 0;
     let level = 0;
     if (count > 0 && count <= 2) level = 1;
     else if (count >= 3 && count <= 5) level = 2;
-    else if (count >= 6 && count <= 8) level = 3;
-    else if (count >= 9) level = 4;
+    else if (count >= 6 && count <= 9) level = 3;
+    else if (count >= 10) level = 4;
 
     currentWeek.push({
       date: dateStr,
@@ -132,17 +215,19 @@ function generateContributionCalendar(contributionsMap) {
   return weeks;
 }
 
-function calculateContributionStats(weeks) {
+function calculateSubmissionStats(weeks) {
   const allDays = weeks.flat();
-  let totalContributions = 0;
+  let totalSubmissions = 0;
+  let activeDays = 0;
   let longestStreak = 0;
   let tempStreak = 0;
   let currentStreak = 0;
 
   for (let i = 0; i < allDays.length; i++) {
     const day = allDays[i];
-    totalContributions += day.count;
+    totalSubmissions += day.count;
     if (day.count > 0) {
+      activeDays++;
       tempStreak++;
       if (tempStreak > longestStreak) longestStreak = tempStreak;
     } else {
@@ -160,11 +245,11 @@ function calculateContributionStats(weeks) {
     }
   }
 
-  return { totalContributions, currentStreak, longestStreak };
+  return { totalSubmissions, activeDays, currentStreak, longestStreak };
 }
 
 /* =========================================================
-   ORGANIC CUBIC BÉZIER SPLINE (FOR LEETCODE & CODECHEF)
+   ORGANIC CUBIC BÉZIER SPLINE (FOR CONTEST RATINGS)
    ========================================================= */
 
 function getSmoothSvgPath(points, tension = 0.22, minY = 20, maxY = 220) {
@@ -230,57 +315,62 @@ function useAnimatedCounter(targetValue, duration = 800) {
 }
 
 export default function CodingStatsGraph() {
-  const [platform, setPlatform] = useState("github"); // "github" | "leetcode" | "codechef"
+  const [platform, setPlatform] = useState("leetcode-submissions"); // "leetcode-submissions" | "leetcode-contests" | "codechef"
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [hoveredCell, setHoveredCell] = useState(null);
-  const [githubData, setGithubData] = useState(GITHUB_CONFIG.fallbackContributions);
-  const [publicRepos, setPublicRepos] = useState(GITHUB_CONFIG.publicRepos);
+  const [submissionsData, setSubmissionsData] = useState(LEETCODE_CONFIG.fallbackSubmissions);
+  const [solvedStats, setSolvedStats] = useState({
+    total: LEETCODE_CONFIG.totalSolved,
+    easy: LEETCODE_CONFIG.easySolved,
+    medium: LEETCODE_CONFIG.mediumSolved,
+    hard: LEETCODE_CONFIG.hardSolved,
+  });
   const [isLiveSynced, setIsLiveSynced] = useState(false);
 
   const svgWrapRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
-  // Fetch live GitHub contributions and repo statistics
+  // Background live sync with LeetCode API proxy
   useEffect(() => {
     let isCancelled = false;
 
-    async function fetchGitHubData() {
+    async function fetchLeetCodeData() {
       try {
-        const [contribRes, userRes] = await Promise.allSettled([
-          fetch(`https://github-contributions-api.jogruber.de/v4/${GITHUB_CONFIG.username}`),
-          fetch(`https://api.github.com/users/${GITHUB_CONFIG.username}`),
-        ]);
+        const res = await fetch(`https://leetcode-api-faisalshohag.vercel.app/${LEETCODE_CONFIG.username}`);
+        if (!res.ok || isCancelled) return;
+        const data = await res.json();
 
         if (isCancelled) return;
 
-        // Parse user profile repo count
-        if (userRes.status === "fulfilled" && userRes.value.ok) {
-          const userData = await userRes.value.json();
-          if (typeof userData.public_repos === "number") {
-            setPublicRepos(userData.public_repos);
-          }
+        // Update solved breakdown
+        if (typeof data.totalSolved === "number") {
+          setSolvedStats({
+            total: data.totalSolved,
+            easy: data.easySolved ?? LEETCODE_CONFIG.easySolved,
+            medium: data.mediumSolved ?? LEETCODE_CONFIG.mediumSolved,
+            hard: data.hardSolved ?? LEETCODE_CONFIG.hardSolved,
+          });
         }
 
-        // Parse contributions calendar
-        if (contribRes.status === "fulfilled" && contribRes.value.ok) {
-          const contribData = await contribRes.value.json();
-          if (Array.isArray(contribData.contributions)) {
-            const map = { ...GITHUB_CONFIG.fallbackContributions };
-            contribData.contributions.forEach((item) => {
-              if (item.date && typeof item.count === "number") {
-                map[item.date] = Math.max(map[item.date] || 0, item.count);
-              }
-            });
-            setGithubData(map);
-            setIsLiveSynced(true);
-          }
+        // Parse submission calendar timestamps
+        if (data.submissionCalendar && typeof data.submissionCalendar === "object") {
+          const newMap = { ...LEETCODE_CONFIG.fallbackSubmissions };
+          Object.entries(data.submissionCalendar).forEach(([ts, count]) => {
+            const d = new Date(parseInt(ts) * 1000);
+            const y = d.getUTCFullYear();
+            const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+            const day = String(d.getUTCDate()).padStart(2, "0");
+            newMap[`${y}-${m}-${day}`] = Math.max(newMap[`${y}-${m}-${day}`] || 0, count);
+          });
+          setSubmissionsData(newMap);
+          setIsLiveSynced(true);
         }
       } catch {
-        // Fallback gracefully to baseline without showing broken UI
+        // Fallback cleanly to verified baseline data
       }
     }
 
-    fetchGitHubData();
+    fetchLeetCodeData();
     return () => {
       isCancelled = true;
     };
@@ -288,22 +378,26 @@ export default function CodingStatsGraph() {
 
   // Generate 52-week calendar grid
   const calendarWeeks = useMemo(() => {
-    return generateContributionCalendar(githubData);
-  }, [githubData]);
+    return generateContributionCalendar(submissionsData);
+  }, [submissionsData]);
 
-  // Compute live contribution statistics
-  const { totalContributions, currentStreak, longestStreak } = useMemo(() => {
-    return calculateContributionStats(calendarWeeks);
+  // Compute live submission statistics
+  const { totalSubmissions, activeDays, currentStreak, longestStreak } = useMemo(() => {
+    return calculateSubmissionStats(calendarWeeks);
   }, [calendarWeeks]);
 
-  // Auto-scroll calendar to the right on mobile so latest activity is in view
+  // Animated counters
+  const animatedSubmissions = useAnimatedCounter(totalSubmissions, 800);
+  const animatedStreak = useAnimatedCounter(currentStreak, 800);
+
+  // Auto-scroll calendar to rightmost view so recent activity is visible
   useLayoutEffect(() => {
-    if (platform === "github" && scrollContainerRef.current) {
+    if (platform === "leetcode-submissions" && scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
     }
   }, [platform]);
 
-  // Month label positions for GitHub calendar
+  // Month label positions for LeetCode calendar
   const monthLabels = useMemo(() => {
     const labels = [];
     let lastMonth = "";
@@ -317,12 +411,13 @@ export default function CodingStatsGraph() {
     return labels;
   }, [calendarWeeks]);
 
-  // LeetCode / CodeChef active dataset
-  const activeContestData = PLATFORM_DATA[platform] || PLATFORM_DATA.leetcode;
+  // Contest datasets (LeetCode / CodeChef)
+  const isContestTab = platform !== "leetcode-submissions";
+  const activeContestData = PLATFORM_DATA[platform] || PLATFORM_DATA["leetcode-contests"];
   const history = activeContestData.history;
   const animatedRating = useAnimatedCounter(activeContestData.rating, 800);
 
-  // SVG Geometry Constants for Contest Graphs
+  // SVG Chart Geometry for Contest Trajectories
   const svgWidth = 860;
   const svgHeight = 250;
   const paddingLeft = 58;
@@ -397,13 +492,13 @@ export default function CodingStatsGraph() {
   const isCustomHover = hoveredIndex !== null;
   const latestContest = history[history.length - 1];
 
-  // Format tooltip date nicely: "Wednesday, Sep 25, 2026"
+  // Tooltip date formatter
   const formatCellDate = (dateStr) => {
     if (!dateStr) return "";
     const [y, m, d] = dateStr.split("-").map(Number);
     const dt = new Date(y, m - 1, d);
     return dt.toLocaleDateString("en-US", {
-      weekday: "short",
+      weekday: "long",
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -415,12 +510,8 @@ export default function CodingStatsGraph() {
       {/* 1. HEADER BAR: BRAND LOCKUP & PILL SEGMENTED CONTROLS */}
       <div className="coding-card-header">
         <div className="coding-brand-lockup">
-          <div className={`coding-brand-icon-box ${platform}-box`}>
-            {platform === "github" ? (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-              </svg>
-            ) : platform === "leetcode" ? (
+          <div className={`coding-brand-icon-box ${platform.startsWith("leetcode") ? "leetcode-box" : "codechef-box"}`}>
+            {platform.startsWith("leetcode") ? (
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
               </svg>
@@ -435,26 +526,32 @@ export default function CodingStatsGraph() {
           <div className="coding-brand-meta">
             <div className="coding-brand-title-row">
               <strong className="coding-brand-title">
-                {platform === "github" ? "GitHub Contribution Activity" : `${activeContestData.platform} Performance`}
+                {platform === "leetcode-submissions"
+                  ? "LeetCode Submissions (Past 1 Year)"
+                  : platform === "leetcode-contests"
+                  ? "LeetCode Contest Trajectory"
+                  : "CodeChef Contest Performance"}
               </strong>
               <a
-                href={platform === "github" ? GITHUB_CONFIG.profileUrl : activeContestData.profileUrl}
+                href={platform.startsWith("leetcode") ? LEETCODE_CONFIG.profileUrl : activeContestData.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="coding-profile-link"
-                title={`Open profile in new tab`}
+                title="Open profile in new tab"
               >
-                <span>{platform === "github" ? "View GitHub →" : `@${activeContestData.username}`}</span>
-                {platform !== "github" && <ArrowUpRight className="coding-profile-arrow" />}
+                <span>{platform.startsWith("leetcode") ? `@${LEETCODE_CONFIG.username}` : `@${activeContestData.username}`}</span>
+                <ArrowUpRight className="coding-profile-arrow" />
               </a>
             </div>
 
             <div className="coding-brand-subtitle">
-              {platform === "github" ? (
+              {platform === "leetcode-submissions" ? (
                 <>
-                  <span className="coding-standing-tag">CODE ACTIVITY</span>
+                  <span className="coding-standing-tag">{solvedStats.total} SOLVED</span>
                   <span className="coding-dot-sep">•</span>
-                  <span className="coding-rank-tag">@{GITHUB_CONFIG.username}</span>
+                  <span className="coding-rank-tag">{currentStreak}-DAY STREAK</span>
+                  <span className="coding-dot-sep">•</span>
+                  <span className="coding-rank-tag">{LEETCODE_CONFIG.ranking}</span>
                 </>
               ) : (
                 <>
@@ -470,8 +567,8 @@ export default function CodingStatsGraph() {
         {/* Segmented Platform Toggle Pills */}
         <div className="coding-tabs-pill-wrap" role="tablist" aria-label="Platform selection">
           {[
-            { key: "github", label: "GitHub", dotColor: "#10b981" },
-            { key: "leetcode", label: "LeetCode", dotColor: "#FFA116" },
+            { key: "leetcode-submissions", label: "LeetCode Submissions", dotColor: "#FFA116" },
+            { key: "leetcode-contests", label: "LeetCode Contests", dotColor: "#FFA116" },
             { key: "codechef", label: "CodeChef", dotColor: "#60A5FA" },
           ].map(({ key, label, dotColor }) => {
             const isActive = platform === key;
@@ -507,17 +604,17 @@ export default function CodingStatsGraph() {
 
       {/* 2. STATS OVERVIEW BAR (MIRRORS .home-metrics-bar) */}
       <div className="coding-metrics-bar">
-        {platform === "github" ? (
+        {platform === "leetcode-submissions" ? (
           <>
-            {/* TOTAL CONTRIBUTIONS */}
+            {/* TOTAL SUBMISSIONS */}
             <div className="coding-metric-item">
               <div className="coding-metric-header">
                 <span className="metric-status-dot" />
-                <span>TOTAL CONTRIBUTIONS</span>
+                <span>TOTAL SUBMISSIONS</span>
               </div>
               <div className="coding-rating-num-wrap">
-                <strong className="coding-rating-number">{totalContributions}</strong>
-                <span className="coding-delta-badge">Last 52 Weeks</span>
+                <strong className="coding-rating-number">{animatedSubmissions}</strong>
+                <span className="coding-delta-badge">Past 52 Weeks</span>
               </div>
             </div>
 
@@ -527,34 +624,36 @@ export default function CodingStatsGraph() {
             <div className="coding-metric-item">
               <div className="coding-metric-header">
                 <Flame className="metric-header-icon" />
-                <span>CURRENT STREAK</span>
+                <span>ACTIVE STREAK</span>
               </div>
-              <strong className="coding-metric-val">{currentStreak} {currentStreak === 1 ? "day" : "days"}</strong>
-              <span className="coding-metric-sub">Active Shipping</span>
+              <strong className="coding-metric-val">{animatedStreak} days</strong>
+              <span className="coding-metric-sub">Daily Problem Solving</span>
             </div>
 
             <div className="coding-metric-divider" />
 
-            {/* REPOSITORIES */}
+            {/* PROBLEMS SOLVED */}
             <div className="coding-metric-item">
               <div className="coding-metric-header">
-                <GitCommit className="metric-header-icon" />
-                <span>REPOSITORIES</span>
+                <CheckCircle2 className="metric-header-icon" />
+                <span>PROBLEMS SOLVED</span>
               </div>
-              <strong className="coding-metric-val">{publicRepos}</strong>
-              <span className="coding-metric-sub">Public Repositories</span>
+              <strong className="coding-metric-val">{solvedStats.total}</strong>
+              <span className="coding-metric-sub">
+                {solvedStats.easy} Easy • {solvedStats.medium} Med • {solvedStats.hard} Hard
+              </span>
             </div>
 
             <div className="coding-metric-divider" />
 
-            {/* LONGEST STREAK */}
+            {/* ACTIVE DAYS & RECORD */}
             <div className="coding-metric-item">
               <div className="coding-metric-header">
                 <Calendar className="metric-header-icon" />
-                <span>LONGEST STREAK</span>
+                <span>ACTIVE DAYS</span>
               </div>
-              <strong className="coding-metric-val">{longestStreak} {longestStreak === 1 ? "day" : "days"}</strong>
-              <span className="coding-metric-sub">Maximum Continuous</span>
+              <strong className="coding-metric-val">{activeDays} days</strong>
+              <span className="coding-metric-sub">Max Continuous: {longestStreak} days</span>
             </div>
           </>
         ) : (
@@ -612,20 +711,20 @@ export default function CodingStatsGraph() {
         )}
       </div>
 
-      {/* 3. MAIN GRAPH BODY (GITHUB CALENDAR vs CONTEST TRAJECTORY) */}
-      {platform === "github" ? (
-        <div className="github-activity-wrapper">
+      {/* 3. MAIN GRAPH BODY (LEETCODE SUBMISSION CALENDAR vs CONTEST TRAJECTORY) */}
+      {!isContestTab ? (
+        <div className="activity-calendar-wrapper">
           {/* CONTROLLED HORIZONTAL SCROLL AREA (NEVER OVERFLOWS PAGE ON MOBILE) */}
-          <div ref={scrollContainerRef} className="github-calendar-scroll-area">
-            <div className="github-calendar-grid-wrap">
+          <div ref={scrollContainerRef} className="activity-calendar-scroll-area">
+            <div className="activity-calendar-grid-wrap">
               {/* MONTHS LABELS ROW */}
-              <div className="github-months-row">
-                <div className="github-day-label-placeholder" />
-                <div className="github-months-track">
+              <div className="activity-months-row">
+                <div className="activity-day-label-placeholder" />
+                <div className="activity-months-track">
                   {monthLabels.map(({ month, weekIdx }, i) => (
                     <span
                       key={i}
-                      className="github-month-tag"
+                      className="activity-month-tag"
                       style={{ left: `${weekIdx * 14}px` }}
                     >
                       {month}
@@ -635,26 +734,26 @@ export default function CodingStatsGraph() {
               </div>
 
               {/* CALENDAR BODY: DAYS LABELS + 52 WEEKS MATRIX */}
-              <div className="github-calendar-body">
+              <div className="activity-calendar-body">
                 {/* WEEKDAY LABELS (MON, WED, FRI) */}
-                <div className="github-weekdays-col" aria-hidden="true">
-                  <span className="github-day-tag">Sun</span>
-                  <span className="github-day-tag visible">Mon</span>
-                  <span className="github-day-tag">Tue</span>
-                  <span className="github-day-tag visible">Wed</span>
-                  <span className="github-day-tag">Thu</span>
-                  <span className="github-day-tag visible">Fri</span>
-                  <span className="github-day-tag">Sat</span>
+                <div className="activity-weekdays-col" aria-hidden="true">
+                  <span className="activity-day-tag">Sun</span>
+                  <span className="activity-day-tag visible">Mon</span>
+                  <span className="activity-day-tag">Tue</span>
+                  <span className="activity-day-tag visible">Wed</span>
+                  <span className="activity-day-tag">Thu</span>
+                  <span className="activity-day-tag visible">Fri</span>
+                  <span className="activity-day-tag">Sat</span>
                 </div>
 
                 {/* MATRIX OF 52 WEEKS */}
-                <div className="github-weeks-track">
+                <div className="activity-weeks-track">
                   {calendarWeeks.map((week, wIdx) => (
-                    <div key={`w-${wIdx}`} className="github-week-col">
+                    <div key={`w-${wIdx}`} className="activity-week-col">
                       {week.map((cell, dIdx) => (
                         <div
                           key={`c-${wIdx}-${dIdx}`}
-                          className={`github-cell level-${cell.level}`}
+                          className={`activity-cell level-${cell.level}`}
                           onMouseEnter={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect();
                             setHoveredCell({
@@ -664,7 +763,7 @@ export default function CodingStatsGraph() {
                             });
                           }}
                           onMouseLeave={() => setHoveredCell(null)}
-                          aria-label={`${cell.count} contributions on ${cell.date}`}
+                          aria-label={`${cell.count} submissions on ${cell.date}`}
                         />
                       ))}
                     </div>
@@ -678,7 +777,7 @@ export default function CodingStatsGraph() {
           <AnimatePresence>
             {hoveredCell && (
               <motion.div
-                className="github-cell-tooltip"
+                className="activity-cell-tooltip"
                 style={{
                   position: "fixed",
                   left: `${hoveredCell.rect.left + hoveredCell.rect.width / 2}px`,
@@ -691,31 +790,49 @@ export default function CodingStatsGraph() {
               >
                 <span className="tooltip-contrib-count">
                   {hoveredCell.count === 0
-                    ? "No contributions"
-                    : `${hoveredCell.count} ${hoveredCell.count === 1 ? "contribution" : "contributions"}`}
+                    ? "No submissions"
+                    : `${hoveredCell.count} ${hoveredCell.count === 1 ? "submission" : "submissions"}`}
                 </span>
                 <span className="tooltip-contrib-date">{formatCellDate(hoveredCell.date)}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* GITHUB FOOTER BAR: LIVE STATUS & ACTIVITY LEVEL LEGEND */}
-          <div className="github-activity-footer">
-            <div className="github-sync-status">
-              <span className={`sync-status-dot ${isLiveSynced ? "synced" : "cached"}`} />
-              <span className="sync-status-text">
-                {isLiveSynced ? "Live synced with GitHub API" : "GitHub Contribution Activity"}
-              </span>
+          {/* FOOTER BAR: LIVE STATUS, DIFFICULTY PILLS & INTENSITY LEGEND */}
+          <div className="activity-calendar-footer">
+            <div className="activity-footer-left">
+              <div className="activity-sync-status">
+                <span className={`sync-status-dot ${isLiveSynced ? "synced" : "cached"}`} />
+                <span className="sync-status-text">
+                  {isLiveSynced ? "Live synced with LeetCode API" : "LeetCode Submissions (Past 1 Year)"}
+                </span>
+              </div>
+
+              {/* LeetCode Problem Solved Breakdown Badges */}
+              <div className="leetcode-difficulty-chips" aria-label="Problems solved by difficulty">
+                <span className="diff-chip easy">
+                  <span className="diff-dot easy" />
+                  {solvedStats.easy} Easy
+                </span>
+                <span className="diff-chip medium">
+                  <span className="diff-dot medium" />
+                  {solvedStats.medium} Med
+                </span>
+                <span className="diff-chip hard">
+                  <span className="diff-dot hard" />
+                  {solvedStats.hard} Hard
+                </span>
+              </div>
             </div>
 
-            <div className="github-legend-group">
+            <div className="activity-legend-group">
               <span className="legend-label">Less</span>
               <div className="legend-cells">
-                <span className="github-cell level-0" />
-                <span className="github-cell level-1" />
-                <span className="github-cell level-2" />
-                <span className="github-cell level-3" />
-                <span className="github-cell level-4" />
+                <span className="activity-cell level-0" />
+                <span className="activity-cell level-1" />
+                <span className="activity-cell level-2" />
+                <span className="activity-cell level-3" />
+                <span className="activity-cell level-4" />
               </div>
               <span className="legend-label">More</span>
             </div>
@@ -953,8 +1070,8 @@ export default function CodingStatsGraph() {
         </div>
       )}
 
-      {/* 4. CONTEST TIMELINE SCRUBBER (FOR LEETCODE & CODECHEF) */}
-      {platform !== "github" && (
+      {/* 4. CONTEST TIMELINE SCRUBBER (FOR LEETCODE & CODECHEF CONTESTS) */}
+      {isContestTab && (
         <div className="coding-card-timeline">
           <span className="timeline-header-label">CONTEST TIMELINE:</span>
           <div className="timeline-pills-row">
