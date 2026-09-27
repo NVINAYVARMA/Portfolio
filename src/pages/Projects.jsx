@@ -1,7 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  X,
+  ExternalLink,
+  CheckCircle2,
+  Sparkles,
+  Layers,
+  Terminal,
+  ArrowUpRight,
+  MessageCircle,
+  FileText,
+  Code2,
+} from "lucide-react";
 import "./Projects.css";
+
+function GitHubIcon({ size = 14 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+    </svg>
+  );
+}
 
 const categories = ["ALL", "AI / ML", "INTERACTIVE", "WEB DEVELOPMENT"];
 
@@ -16,11 +36,17 @@ const projects = [
     longDescription:
       "Asteroid Impact Simulator is an interactive WebGL celestial observatory and computational physics platform engineered to visualize near-Earth objects (NEOs) and model planetary collision dynamics. Built with Three.js, React, and custom physics calculation engines, the simulator allows users to project orbital trajectories onto an interactive 3D Earth, configure asteroid properties (mass, velocity, trajectory angle, composition), and simulate impact events with scientific rigor. The application computes post-impact planetary consequences in real time, calculating kinetic energy yield (megatons TNT equivalent), crater diameter and depth, seismic Richter magnitude, atmospheric shockwave radius, and potential planetary defense mitigation strategies.",
     features: [
-      "Photorealistic 3D Earth & Celestial Sphere with dynamic atmospheric scattering, shaders, and orbit paths via Three.js",
-      "Data-driven trajectory simulation modeling near-Earth object orbital velocities and approach vectors",
-      "Interactive parameter studio: customize asteroid diameter, mass density, trajectory angle, and velocity",
-      "Scientific post-impact analysis: calculates crater dimensions, seismic shockwaves, thermal radiation, and TNT energy yield",
-      "Historical impact presets (Chicxulub, Tunguska, Chelyabinsk) and custom planetary collision targeting",
+      "Photorealistic 3D Earth & Celestial Sphere with dynamic atmospheric scattering, custom GLSL shaders, and orbital paths via Three.js",
+      "Data-driven trajectory simulation accurately modeling near-Earth object approach vectors and relative velocity equations",
+      "Interactive parameter studio: customize asteroid diameter (10m–10km), rock/iron mass density, trajectory angle, and entry velocity",
+      "Scientific post-impact analysis: calculates crater dimensions, seismic shockwaves, atmospheric overpressure, and megaton TNT yield",
+      "Historical impact presets (Chicxulub extinction event, Tunguska airburst, Chelyabinsk) and custom planetary collision targeting",
+    ],
+    highlights: [
+      { label: "GRAPHICS ENGINE", value: "Three.js / WebGL", sub: "Dynamic Atmospheric Shaders" },
+      { label: "PHYSICS ENGINE", value: "Real-Time Compute", sub: "Orbital Mechanics & Shocks" },
+      { label: "RIGOR", value: "Scientific Equations", sub: "NEO Trajectory Simulation" },
+      { label: "STATUS", value: "Under Active Build", sub: "Production Release 2026" },
     ],
     role: "3D GRAPHICS & SIMULATION ARCHITECT",
     year: "2026",
@@ -30,6 +56,7 @@ const projects = [
     image: "/images/simulation.png",
     imagePosition: "center center",
     liveUrl: "#",
+    githubUrl: null,
   },
   {
     id: "02",
@@ -42,10 +69,16 @@ const projects = [
       "Varma Creations is a high-performance commercial business website created for a premier mosquito mesh and architectural aluminium installation business serving homes, villas, and apartments across Hyderabad. Designed with an elegant emerald-and-charcoal visual identity, the website features custom-fitted sliding doors, pleated window systems, magnetic insect screens, and weatherproof aluminium framing. The platform incorporates an interactive instant quote calculator, direct WhatsApp inquiry integration (+91 90142 86908), localized SEO architecture, and optimized media delivery to drive customer inquiries and consultations.",
     features: [
       "Architectural product showcase featuring pleated mesh, sliding systems, roller screens, and stainless steel mesh",
-      "Interactive Instant Quote Estimator calculating custom frame dimensions, mesh types, and price ranges",
-      "One-tap direct WhatsApp inquiry and call booking integration (+91 90142 86908)",
-      "Localized Hyderabad SEO strategy with structured business schema and localized keyword landing pages",
-      "Responsive, high-conversion UI with 98+ Google PageSpeed score and sub-second asset loading",
+      "Interactive Instant Quote Estimator calculating custom frame dimensions, mesh types, and price ranges dynamically",
+      "One-tap direct WhatsApp inquiry and call booking integration (+91 90142 86908) with pre-filled quote parameters",
+      "Localized Hyderabad SEO strategy with structured LocalBusiness schema and localized keyword landing pages",
+      "Responsive, high-conversion UI with 98+ Google PageSpeed score and sub-second asset delivery",
+    ],
+    highlights: [
+      { label: "PERFORMANCE", value: "98+ PageSpeed", sub: "Sub-Second Asset Delivery" },
+      { label: "LEAD ENGINE", value: "Instant Estimator", sub: "Dynamic Pricing Calculation" },
+      { label: "CONVERSIONS", value: "Direct WhatsApp", sub: "1-Tap Pre-Filled Inquiries" },
+      { label: "SEO STRATEGY", value: "Local Hyderabad", sub: "Structured LocalBusiness Schema" },
     ],
     role: "FULL STACK DESIGN & DEVELOPMENT",
     year: "2025",
@@ -55,6 +88,8 @@ const projects = [
     image: "/images/varma-creations.png",
     imagePosition: "left center",
     liveUrl: "#",
+    githubUrl: null,
+    contactUrl: "https://wa.me/919014286908?text=Hello%20Vinay%2C%20I%20saw%20your%20portfolio%20and%20would%20like%20to%20inquire%20about%20Varma%20Creations%20services.",
   },
   {
     id: "03",
@@ -68,9 +103,15 @@ const projects = [
     features: [
       "Sub-second STAT triage (0.85s) prioritizing critical emergency trauma and time-sensitive radiological cases",
       "99.4% diagnostic concordance with deep-learning pathology localization & explainable heatmaps",
-      "End-to-end TLS 1.3 encrypted DICOM image pipeline with HIPAA-compliant audit trails",
-      "Enterprise Hospital Diagnostic Portal with automated study queues, radiologist reports, and sign-offs",
-      "Cloud deployment on Render with real-time study caching, secure auth, and zero-latency clinical viewing",
+      "End-to-end TLS 1.3 encrypted DICOM image pipeline with HIPAA-compliant clinical audit trails",
+      "Enterprise Hospital Diagnostic Portal with automated study queues, radiologist reports, and digital sign-offs",
+      "Cloud deployment on Render with real-time study caching, secure authentication, and zero-latency clinical viewing",
+    ],
+    highlights: [
+      { label: "STAT TRIAGE", value: "0.85 Seconds", sub: "Sub-Second Emergency Latency" },
+      { label: "DIAGNOSTIC ACCURACY", value: "99.4% Concordance", sub: "Deep-Learning Pathology Models" },
+      { label: "COMPLIANCE", value: "TLS 1.3 / HIPAA", sub: "Encrypted DICOM Medical Pipeline" },
+      { label: "DEPLOYMENT", value: "Render Production", sub: "Live Active Diagnostic Portal" },
     ],
     role: "FULL STACK & AI SYSTEMS ARCHITECT",
     year: "2026",
@@ -80,17 +121,30 @@ const projects = [
     image: "/images/radix.png",
     imagePosition: "center top",
     liveUrl: "https://radix-ai-irqh.onrender.com/",
+    githubUrl: "https://github.com/NVINAYVARMA/radix-healthcare-ai",
   },
 ];
 
-function ProjectPreview({ project }) {
+function ProjectPreview({ project, onOpen }) {
   const displayAddress =
     project.liveUrl && project.liveUrl !== "#" && !project.liveUrl.includes("github.com")
       ? project.liveUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
       : `${project.title.toLowerCase().replaceAll(" ", "-")}.dev`;
 
   return (
-    <div className="project-preview">
+    <div
+      className="project-preview clickable"
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen?.();
+        }
+      }}
+      title={`Open Case Study for ${project.title}`}
+    >
       <div className="preview-grid" />
 
       <div className="browser-window">
@@ -136,7 +190,7 @@ export default function Projects() {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [selectedProject, setSelectedProject] = useState(null);
 
-  // Close modal on Escape key and lock background scroll
+  // Close modal on Escape key and prevent layout shift during scroll lock
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
@@ -149,12 +203,18 @@ export default function Projects() {
 
   useEffect(() => {
     if (selectedProject) {
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = "hidden";
+      if (scrollBarWidth > 0) {
+        document.body.style.paddingRight = `${scrollBarWidth}px`;
+      }
     } else {
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     }
     return () => {
       document.body.style.overflow = "";
+      document.body.style.paddingRight = "";
     };
   }, [selectedProject]);
 
@@ -237,7 +297,7 @@ export default function Projects() {
               <div className="project-number">{project.id}</div>
 
               {/* BROWSER PREVIEW */}
-              <ProjectPreview project={project} />
+              <ProjectPreview project={project} onOpen={() => setSelectedProject(project)} />
 
               {/* PROJECT INFORMATION */}
               <div className="project-information">
@@ -246,7 +306,19 @@ export default function Projects() {
                   <span>{project.year}</span>
                 </div>
 
-                <div className="project-heading">
+                <div
+                  className="project-heading clickable"
+                  onClick={() => setSelectedProject(project)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedProject(project);
+                    }
+                  }}
+                  title={`Open Case Study for ${project.title}`}
+                >
                   <h2>{project.title}</h2>
                   <span>{project.subtitle}</span>
                 </div>
@@ -283,8 +355,22 @@ export default function Projects() {
                         onClick={(e) => e.stopPropagation()}
                         aria-label={`Open live site for ${project.title}`}
                       >
+                        <ExternalLink size={12} />
                         <span>LIVE SITE</span>
-                        <span>↗</span>
+                      </a>
+                    )}
+
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="project-github-link"
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={`View GitHub repository for ${project.title}`}
+                      >
+                        <GitHubIcon size={12} />
+                        <span>GITHUB</span>
                       </a>
                     )}
 
@@ -292,11 +378,13 @@ export default function Projects() {
                       type="button"
                       className="project-view"
                       onClick={() => setSelectedProject(project)}
-                      whileHover={{ scale: 1.04, x: 2 }}
-                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ scale: 1.03, x: 2 }}
+                      whileTap={{ scale: 0.97 }}
+                      aria-label={`View Case Study for ${project.title}`}
                     >
-                      <span>VIEW CASE</span>
-                      <span>↗</span>
+                      <FileText size={13} />
+                      <span>VIEW CASE STUDY</span>
+                      <ArrowUpRight size={13} className="btn-arrow" />
                     </motion.button>
                   </div>
                 </div>
@@ -346,11 +434,11 @@ export default function Projects() {
 
         <div className="projects-footer-links" aria-label="Social profiles">
           <a
-            href="https://github.com/nvinayvarma"
+            href="https://github.com/NVINAYVARMA"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="GitHub Profile: @nvinayvarma (opens in new tab)"
-            title="GitHub — @nvinayvarma"
+            aria-label="GitHub Profile: @NVINAYVARMA (opens in new tab)"
+            title="GitHub — @NVINAYVARMA"
             className="footer-social-link"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -450,71 +538,142 @@ export default function Projects() {
       ===================================================== */}
       <AnimatePresence>
         {selectedProject && (
-          <div className="project-modal-backdrop" onClick={() => setSelectedProject(null)}>
+          <motion.div
+            className="project-modal-backdrop"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedProject(null);
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-project-title"
+          >
             <motion.div
               className="project-modal-content"
               onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: 0, scale: 0.92, y: 20 }}
+              initial={{ opacity: 0, scale: 0.94, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 20 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
             >
-              {/* Modal Header */}
+              {/* Modal Sticky Header */}
               <div className="modal-header">
-                <div>
+                <div className="modal-header-text">
                   <div className="modal-eyebrow">
-                    <span>{selectedProject.category}</span>
-                    <span>•</span>
-                    <span>{selectedProject.year}</span>
+                    <span className="modal-cat-tag">{selectedProject.category}</span>
+                    <span className="modal-dot-sep">•</span>
+                    <span className="modal-year-tag">{selectedProject.year}</span>
+                    <span className="modal-dot-sep">•</span>
+                    <span className={`modal-status-pill ${selectedProject.status.toLowerCase()}`}>
+                      <span className="status-dot" />
+                      <span>{selectedProject.status}</span>
+                    </span>
                   </div>
-                  <h2 className="modal-title">{selectedProject.title}</h2>
+                  <h2 id="modal-project-title" className="modal-title">{selectedProject.title}</h2>
                   <p className="modal-subtitle">{selectedProject.subtitle}</p>
                 </div>
 
-                <button
-                  type="button"
-                  className="modal-close-btn"
-                  onClick={() => setSelectedProject(null)}
-                  aria-label="Close modal"
-                >
-                  ✕
-                </button>
+                <div className="modal-close-group">
+                  <span className="modal-esc-hint" aria-hidden="true">ESC</span>
+                  <button
+                    type="button"
+                    className="modal-close-btn"
+                    onClick={() => setSelectedProject(null)}
+                    aria-label="Close case study modal"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
 
               {/* Modal Body */}
               <div className="modal-body">
+                {/* Hero Browser Mockup Preview */}
                 {selectedProject.image && (
                   <div className="modal-image-preview">
-                    <img src={selectedProject.image} alt={selectedProject.title} />
+                    <div className="modal-browser-bar">
+                      <div className="modal-browser-dots">
+                        <span />
+                        <span />
+                        <span />
+                      </div>
+                      <div className="modal-browser-url">
+                        {selectedProject.liveUrl && selectedProject.liveUrl !== "#"
+                          ? selectedProject.liveUrl.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                          : `${selectedProject.title.toLowerCase().replace(/ /g, "-")}.dev`}
+                      </div>
+                    </div>
+                    <img
+                      src={selectedProject.image}
+                      alt={selectedProject.title}
+                      style={{ objectPosition: selectedProject.imagePosition || "center" }}
+                    />
                   </div>
                 )}
 
+                {/* Key Metrics / Highlights Grid */}
+                {selectedProject.highlights && (
+                  <div className="modal-metrics-grid">
+                    {selectedProject.highlights.map((h, i) => (
+                      <div key={i} className="modal-metric-card">
+                        <span className="metric-card-label">{h.label}</span>
+                        <strong className="metric-card-value">{h.value}</strong>
+                        <span className="metric-card-sub">{h.sub}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Overview */}
                 <div className="modal-section">
-                  <h3>OVERVIEW</h3>
+                  <div className="modal-section-header">
+                    <Sparkles size={14} className="modal-section-icon" />
+                    <h3>PROJECT BRIEF &amp; OVERVIEW</h3>
+                  </div>
                   <p>{selectedProject.longDescription}</p>
                 </div>
 
+                {/* Key Features */}
                 {selectedProject.features && (
                   <div className="modal-section">
-                    <h3>KEY FEATURES</h3>
-                    <ul className="modal-feature-list">
+                    <div className="modal-section-header">
+                      <Layers size={14} className="modal-section-icon" />
+                      <h3>KEY ARCHITECTURAL HIGHLIGHTS</h3>
+                    </div>
+                    <div className="modal-features-grid">
                       {selectedProject.features.map((feat, i) => (
-                        <li key={i}>
-                          <span className="feat-check">✓</span>
+                        <div key={i} className="modal-feature-item">
+                          <CheckCircle2 size={16} className="feat-check-icon" />
                           <span>{feat}</span>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
 
+                {/* Role */}
                 <div className="modal-section">
-                  <h3>ROLE &amp; RESPONSIBILITIES</h3>
-                  <p className="modal-role-text">{selectedProject.role}</p>
+                  <div className="modal-section-header">
+                    <Terminal size={14} className="modal-section-icon" />
+                    <h3>ROLE &amp; RESPONSIBILITIES</h3>
+                  </div>
+                  <div className="modal-role-card">
+                    <strong className="modal-role-title">{selectedProject.role}</strong>
+                    <span className="modal-role-sub">
+                      End-to-end design, implementation, component engineering, performance tuning, and deployment.
+                    </span>
+                  </div>
                 </div>
 
+                {/* Technology Stack */}
                 <div className="modal-section">
-                  <h3>TECHNOLOGY STACK</h3>
+                  <div className="modal-section-header">
+                    <Code2 size={14} className="modal-section-icon" />
+                    <h3>TECHNOLOGY STACK</h3>
+                  </div>
                   <div className="modal-tech-pills">
                     {selectedProject.technologies.map((t) => (
                       <span key={t} className="modal-pill">
@@ -527,35 +686,62 @@ export default function Projects() {
 
               {/* Modal Footer */}
               <div className="modal-footer">
-                <div className="modal-status-badge">
-                  <span className="status-dot" />
-                  <span>STATUS: {selectedProject.status}</span>
+                <div className="modal-footer-brand">
+                  <span className="modal-id-tag">PROJECT {selectedProject.id} / 03</span>
+                  <span className="modal-dot-sep">•</span>
+                  <span className="modal-title-tag">{selectedProject.title}</span>
                 </div>
 
                 <div className="modal-actions">
-                  {selectedProject.liveUrl && selectedProject.liveUrl !== "#" ? (
+                  {selectedProject.liveUrl && selectedProject.liveUrl !== "#" && (
                     <a
                       href={selectedProject.liveUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="modal-link-btn"
+                      className="modal-action-btn primary"
                     >
-                      <span>
-                        {selectedProject.liveUrl.includes("github.com")
-                          ? "View Repository / Live Demo"
-                          : "Open Live Website"}
-                      </span>
-                      <span>↗</span>
+                      <ExternalLink size={14} />
+                      <span>Launch Live App</span>
+                      <ArrowUpRight size={14} />
                     </a>
-                  ) : (
-                    <span className="modal-link-btn is-disabled">
-                      <span>Link Coming Soon</span>
-                    </span>
+                  )}
+
+                  {selectedProject.githubUrl && (
+                    <a
+                      href={selectedProject.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="modal-action-btn secondary"
+                    >
+                      <GitHubIcon size={14} />
+                      <span>View GitHub</span>
+                      <ArrowUpRight size={14} />
+                    </a>
+                  )}
+
+                  {selectedProject.contactUrl && (
+                    <a
+                      href={selectedProject.contactUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="modal-action-btn whatsapp"
+                    >
+                      <MessageCircle size={14} />
+                      <span>Client Inquiry</span>
+                      <ArrowUpRight size={14} />
+                    </a>
+                  )}
+
+                  {selectedProject.status === "BUILDING" && !selectedProject.liveUrl && (
+                    <div className="modal-building-indicator">
+                      <span className="building-pulse" />
+                      <span>Release &amp; Live Demo in Progress (2026)</span>
+                    </div>
                   )}
                 </div>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </main>
