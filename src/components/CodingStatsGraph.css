@@ -5,20 +5,20 @@
    smooth Bézier curve, rating badges, HUD card & connected timeline
    ========================================================= */
 
-/* Main Card Container */
+/* Main Card Container: compact, balanced and proportional */
 .studio-coding-card {
   position: relative;
   width: 100%;
-  max-width: var(--container-max);
+  max-width: 860px;
   margin: 0 auto;
   background: #0f1014;
   border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 20px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
-  padding: 24px 28px;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
   overflow: hidden;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -35,21 +35,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .studio-brand-group {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 11px;
 }
 
 /* Squircle Logo Box */
 .studio-brand-icon-box {
-  width: 46px;
-  height: 46px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   background: #14151a;
   display: flex;
   align-items: center;
@@ -73,21 +73,21 @@
 .studio-brand-meta {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   text-align: left;
 }
 
 .studio-brand-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .studio-brand-title {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.015em;
   color: #ffffff;
@@ -99,13 +99,13 @@
   align-items: center;
   gap: 4px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   color: #a1a1aa;
   text-decoration: none;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 3px 9px;
+  padding: 2px 8px;
   border-radius: 9999px;
   transition: all 0.2s ease;
 }
@@ -129,7 +129,7 @@
 .studio-brand-sub {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 12.5px;
+  font-size: 11.5px;
   color: #8a8f98;
 }
 
@@ -137,21 +137,21 @@
 .studio-pill-nav {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .studio-pill-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 16px;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.09);
   color: #8a8f98;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -170,8 +170,8 @@
 }
 
 .studio-pill-dot {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   box-shadow: 0 0 6px currentColor;
   flex-shrink: 0;
@@ -184,16 +184,16 @@
 .studio-metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
+  gap: 10px;
   width: 100%;
 }
 
 .studio-metric-card {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px 18px;
-  border-radius: 14px;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
   background: #14151a;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.2s ease;
@@ -207,14 +207,14 @@
 /* Card 1 Highlight State (Orange Border & Ambient Glow) */
 .studio-metric-card.is-highlight {
   border: 1px solid #ff7a00;
-  box-shadow: 0 0 20px rgba(255, 122, 0, 0.16), inset 0 0 16px rgba(255, 122, 0, 0.06);
+  box-shadow: 0 0 16px rgba(255, 122, 0, 0.16), inset 0 0 12px rgba(255, 122, 0, 0.06);
   background: linear-gradient(135deg, rgba(255, 122, 0, 0.06) 0%, #14151a 100%);
 }
 
 .studio-card-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
@@ -227,15 +227,15 @@
 .studio-card-data {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   text-align: left;
 }
 
 .studio-metric-label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.6px;
   color: #8a8f98;
   text-transform: uppercase;
 }
@@ -243,12 +243,12 @@
 .studio-metric-val-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
 }
 
 .studio-metric-number {
   font-family: var(--font-sans);
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.015em;
   color: #ffffff;
@@ -258,14 +258,14 @@
 
 .studio-metric-delta {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #ff7a00;
 }
 
 .studio-metric-sub {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: #71717a;
 }
 
@@ -277,15 +277,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-top: 6px;
+  gap: 12px;
+  margin-top: 2px;
   flex-wrap: wrap;
 }
 
 .studio-chart-title-wrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .studio-chart-trend-icon {
@@ -295,16 +295,16 @@
 .studio-chart-title {
   margin: 0;
   font-family: var(--font-sans);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.2;
 }
 
 .studio-chart-sub {
-  margin: 2px 0 0;
+  margin: 1px 0 0;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 11px;
   color: #8a8f98;
 }
 
@@ -312,16 +312,16 @@
 .studio-range-filters {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .range-filter-btn {
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #a1a1aa;
   cursor: pointer;
@@ -343,14 +343,14 @@
 .studio-submissions-diff-chips {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .studio-chip {
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-xs);
 }
 
@@ -377,7 +377,7 @@
 .studio-chart-stage {
   position: relative;
   width: 100%;
-  height: 290px;
+  height: 195px;
   user-select: none;
   cursor: crosshair;
 }
@@ -390,7 +390,7 @@
 }
 
 .studio-point-badge rect {
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.65));
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.65));
 }
 
 .sonar-ripple-wave {
@@ -400,15 +400,15 @@
 
 @keyframes radarPulse {
   0% {
-    r: 6;
+    r: 5;
     opacity: 0.6;
   }
   75% {
-    r: 18;
+    r: 13;
     opacity: 0;
   }
   100% {
-    r: 18;
+    r: 13;
     opacity: 0;
   }
 }
@@ -422,29 +422,29 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid #ff7a00;
-  border-radius: 12px;
-  padding: 12px 16px;
+  border-radius: 10px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  min-width: 185px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.75), 0 0 16px rgba(255, 122, 0, 0.18);
+  gap: 5px;
+  min-width: 145px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75), 0 0 14px rgba(255, 122, 0, 0.16);
 }
 
 .hud-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: #ffffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 6px;
+  padding-bottom: 4px;
 }
 
 .hud-cal-icon {
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .hud-rating-row,
@@ -452,37 +452,37 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .hud-label {
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: #8a8f98;
 }
 
 .hud-val-group {
   display: flex;
   align-items: baseline;
-  gap: 5px;
+  gap: 4px;
 }
 
 .hud-val {
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 13.5px;
   font-weight: 800;
   color: #ffffff;
 }
 
 .hud-delta {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
 }
 
 .hud-meta-val {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #ffffff;
 }
@@ -494,8 +494,8 @@
 .studio-timeline-footer {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-top: 18px;
+  gap: 12px;
+  padding-top: 10px;
   border-top: 1px solid rgba(255, 255, 255, 0.07);
   overflow-x: auto;
   scrollbar-width: none;
@@ -508,14 +508,14 @@
 .studio-timeline-label-group {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-shrink: 0;
   user-select: none;
 }
 
 .timeline-clock-icon-wrap {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.25);
   display: flex;
@@ -526,7 +526,7 @@
 
 .studio-timeline-title {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #ffffff;
   white-space: nowrap;
@@ -547,7 +547,7 @@
 }
 
 .studio-timeline-dotted-line {
-  width: 28px;
+  width: 16px;
   border-top: 2px dotted #ff7a00;
   opacity: 0.65;
   flex-shrink: 0;
@@ -556,9 +556,9 @@
 .studio-timeline-card {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  border-radius: 10px;
+  gap: 7px;
+  padding: 5px 9px;
+  border-radius: 8px;
   background: #14151a;
   border: 1px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
@@ -574,12 +574,12 @@
 
 .studio-timeline-card.selected {
   background: rgba(255, 122, 0, 0.08);
-  box-shadow: 0 0 16px rgba(255, 122, 0, 0.25), inset 0 0 10px rgba(255, 122, 0, 0.12);
+  box-shadow: 0 0 14px rgba(255, 122, 0, 0.22), inset 0 0 8px rgba(255, 122, 0, 0.1);
 }
 
 .studio-timeline-dot {
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   flex-shrink: 0;
   box-shadow: 0 0 6px currentColor;
@@ -594,7 +594,7 @@
 
 .timeline-item-short {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   color: #8a8f98;
 }
 
@@ -605,16 +605,16 @@
 
 .timeline-item-val {
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #ffffff;
 }
 
 .timeline-item-gain {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  margin-left: 5px;
+  margin-left: 4px;
 }
 
 /* =========================================================
@@ -625,45 +625,45 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding-top: 4px;
+  gap: 10px;
+  padding-top: 2px;
 }
 
 .activity-calendar-scroll-area {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 6px;
+  padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
   -webkit-overflow-scrolling: touch;
 }
 
 .activity-calendar-scroll-area::-webkit-scrollbar {
-  height: 4px;
+  height: 3px;
 }
 
 .activity-calendar-scroll-area::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 .activity-calendar-grid-wrap {
   display: inline-flex;
   flex-direction: column;
-  gap: 6px;
-  min-width: 780px;
+  gap: 4px;
+  min-width: 580px;
 }
 
 .activity-months-row {
   display: flex;
   align-items: center;
-  height: 16px;
+  height: 14px;
   position: relative;
 }
 
 .activity-day-label-placeholder {
-  width: 28px;
+  width: 22px;
   flex-shrink: 0;
 }
 
@@ -677,7 +677,7 @@
   position: absolute;
   top: 0;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 8.5px;
   color: #8a8f98;
   user-select: none;
   white-space: nowrap;
@@ -686,23 +686,23 @@
 .activity-calendar-body {
   display: flex;
   align-items: flex-start;
-  gap: 4px;
+  gap: 3px;
 }
 
 .activity-weekdays-col {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  width: 24px;
+  gap: 2.5px;
+  width: 20px;
   flex-shrink: 0;
   user-select: none;
 }
 
 .activity-day-tag {
-  height: 11px;
-  line-height: 11px;
+  height: 8.5px;
+  line-height: 8.5px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 8px;
   color: #525866;
   opacity: 0;
 }
@@ -713,19 +713,19 @@
 
 .activity-weeks-track {
   display: flex;
-  gap: 3px;
+  gap: 2.5px;
 }
 
 .activity-week-col {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2.5px;
 }
 
 .activity-cell {
-  width: 11px;
-  height: 11px;
-  border-radius: 2.5px;
+  width: 8.5px;
+  height: 8.5px;
+  border-radius: 2px;
   cursor: pointer;
   transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms ease;
   will-change: transform;
@@ -888,12 +888,12 @@
 
 @media (max-width: 960px) {
   .studio-coding-card {
-    padding: 20px 18px;
+    padding: 14px 16px;
   }
 
   .studio-metrics-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
   }
 }
 
@@ -901,40 +901,47 @@
   .studio-card-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
+    gap: 12px;
   }
 
   .studio-pill-nav {
     width: 100%;
     overflow-x: auto;
+    gap: 4px;
   }
 
   .studio-pill-btn {
     flex: 1;
-    padding: 6px 12px;
-    font-size: 11px;
+    padding: 4px 10px;
+    font-size: 10.5px;
     white-space: nowrap;
     justify-content: center;
   }
 
   .studio-metrics-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .studio-chart-stage {
-    height: 250px;
+    height: 180px;
   }
 
   .studio-timeline-footer {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
   }
 
   .studio-timeline-track {
     width: 100%;
     overflow-x: auto;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
+  }
+}
+
+@media (max-width: 440px) {
+  .studio-metrics-grid {
+    grid-template-columns: 1fr;
   }
 }

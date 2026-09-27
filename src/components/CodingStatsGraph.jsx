@@ -439,13 +439,13 @@ export default function CodingStatsGraph() {
 
   const animatedRating = useAnimatedCounter(activeContestData.rating, 800);
 
-  // SVG Chart Geometry matching user screenshot
-  const svgWidth = 920;
-  const svgHeight = 290;
-  const paddingLeft = 72;
-  const paddingRight = 60;
-  const paddingTop = 44;
-  const paddingBottom = 48;
+  // SVG Chart Geometry: compact, balanced and proportional
+  const svgWidth = 840;
+  const svgHeight = 205;
+  const paddingLeft = 52;
+  const paddingRight = 44;
+  const paddingTop = 28;
+  const paddingBottom = 34;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
@@ -536,11 +536,11 @@ export default function CodingStatsGraph() {
           {/* SQUIRCLE ICON BOX */}
           <div className={`studio-brand-icon-box ${platform.startsWith("leetcode") ? "leetcode-accent" : "codechef-accent"}`}>
             {platform.startsWith("leetcode") ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <path d="M13.483 0a1.374 1.374 0 0 0-.961.438L7.116 6.226l-3.854 4.126a5.266 5.266 0 0 0-1.209 2.104 5.35 5.35 0 0 0-.125.513 5.527 5.527 0 0 0 .062 2.362 5.83 5.83 0 0 0 .349 1.017 5.938 5.938 0 0 0 4.818 3.593 5.992 5.992 0 0 0 2.215-.246 5.992 5.992 0 0 0 2.062-1.077l3.864-3.714a1.376 1.376 0 0 0-.131-2.062 1.376 1.376 0 0 0-1.931.131l-3.864 3.714a3.242 3.242 0 0 1-1.115.582 3.24 3.24 0 0 1-1.198.133 3.21 3.21 0 0 1-2.607-1.944 2.977 2.977 0 0 1-.189-.55 2.986 2.986 0 0 1-.034-1.278 2.852 2.852 0 0 1 .655-1.139l3.854-4.126 5.406-5.788a1.376 1.376 0 0 0-.978-2.352z" />
               </svg>
             ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M16 18l6-6-6-6" />
                 <path d="M8 6l-6 6 6 6" />
               </svg>
@@ -611,7 +611,7 @@ export default function CodingStatsGraph() {
             {/* CARD 1 (HIGHLIGHTED WITH ACCENT BORDER & GLOW) */}
             <div className="studio-metric-card is-highlight">
               <div className="studio-card-icon-box">
-                <BarChart3 size={18} />
+                <BarChart3 size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">TOTAL SUBMISSIONS</span>
@@ -626,7 +626,7 @@ export default function CodingStatsGraph() {
             {/* CARD 2 */}
             <div className="studio-metric-card">
               <div className="studio-card-icon-box">
-                <Flame size={18} />
+                <Flame size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">ACTIVE STREAK</span>
@@ -638,7 +638,7 @@ export default function CodingStatsGraph() {
             {/* CARD 3 */}
             <div className="studio-metric-card">
               <div className="studio-card-icon-box">
-                <CheckCircle2 size={18} />
+                <CheckCircle2 size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">PROBLEMS SOLVED</span>
@@ -652,7 +652,7 @@ export default function CodingStatsGraph() {
             {/* CARD 4 */}
             <div className="studio-metric-card">
               <div className="studio-card-icon-box">
-                <Calendar size={18} />
+                <Calendar size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">ACTIVE DAYS</span>
@@ -666,7 +666,7 @@ export default function CodingStatsGraph() {
             {/* CARD 1: CURRENT RATING (HIGHLIGHTED WITH ACCENT BORDER & GLOW) */}
             <div className="studio-metric-card is-highlight" style={{ borderColor: activeContestData.accent }}>
               <div className="studio-card-icon-box">
-                <BarChart3 size={18} />
+                <BarChart3 size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">CURRENT RATING</span>
@@ -685,7 +685,7 @@ export default function CodingStatsGraph() {
             {/* CARD 2: ALL-TIME PEAK */}
             <div className="studio-metric-card">
               <div className="studio-card-icon-box">
-                <Trophy size={18} />
+                <Trophy size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">ALL-TIME PEAK</span>
@@ -697,7 +697,7 @@ export default function CodingStatsGraph() {
             {/* CARD 3: GLOBAL STANDING */}
             <div className="studio-metric-card">
               <div className="studio-card-icon-box">
-                <Award size={18} />
+                <Award size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">GLOBAL STANDING</span>
@@ -709,7 +709,7 @@ export default function CodingStatsGraph() {
             {/* CARD 4: BEST CONTEST RANK */}
             <div className="studio-metric-card">
               <div className="studio-card-icon-box">
-                <Crown size={18} />
+                <Crown size={15} />
               </div>
               <div className="studio-card-data">
                 <span className="studio-metric-label">BEST CONTEST RANK</span>
@@ -724,7 +724,7 @@ export default function CodingStatsGraph() {
       {/* 3. MIDDLE SECTION: CHART HEADER & TIME FILTER */}
       <div className="studio-chart-header">
         <div className="studio-chart-title-wrap">
-          <TrendingUp size={20} className="studio-chart-trend-icon" style={{ color: activeContestData.accent }} />
+          <TrendingUp size={16} className="studio-chart-trend-icon" style={{ color: activeContestData.accent }} />
           <div>
             <h3 className="studio-chart-title">
               {isContestTab ? activeContestData.chartTitle : "52-Week Submission Matrix"}
@@ -792,14 +792,14 @@ export default function CodingStatsGraph() {
 
             {/* Y-Axis Sideways Label ("Rating") */}
             <text
-              x={18}
+              x={14}
               y={paddingTop + chartHeight / 2}
               fill="#8a8f98"
-              fontSize="11"
+              fontSize="9.5"
               fontFamily="var(--font-mono)"
               fontWeight="500"
               textAnchor="middle"
-              transform={`rotate(-90 18 ${paddingTop + chartHeight / 2})`}
+              transform={`rotate(-90 14 ${paddingTop + chartHeight / 2})`}
             >
               Rating
             </text>
@@ -817,10 +817,10 @@ export default function CodingStatsGraph() {
                   strokeWidth="1"
                 />
                 <text
-                  x={paddingLeft - 12}
-                  y={line.y + 3.5}
+                  x={paddingLeft - 8}
+                  y={line.y + 3}
                   fill="#8a8f98"
-                  fontSize="10"
+                  fontSize="9"
                   textAnchor="end"
                   fontFamily="var(--font-mono)"
                 >
@@ -845,7 +845,7 @@ export default function CodingStatsGraph() {
               d={pathD}
               fill="none"
               stroke={activeContestData.accent}
-              strokeWidth="7"
+              strokeWidth="4.5"
               strokeLinecap="round"
               strokeLinejoin="round"
               opacity={0.3}
@@ -861,7 +861,7 @@ export default function CodingStatsGraph() {
               d={pathD}
               fill="none"
               stroke={`url(#studio-stroke-grad-${platform})`}
-              strokeWidth="2.8"
+              strokeWidth="2.2"
               strokeLinecap="round"
               strokeLinejoin="round"
               initial={{ pathLength: 0 }}
@@ -891,20 +891,20 @@ export default function CodingStatsGraph() {
                   {/* Rating pill badge ABOVE the point */}
                   <g className="studio-point-badge">
                     <rect
-                      x={pt.x - 22}
-                      y={pt.y - 28}
-                      width="44"
-                      height="18"
-                      rx="5"
+                      x={pt.x - 18}
+                      y={pt.y - 23}
+                      width="36"
+                      height="15"
+                      rx="4"
                       fill="#14151a"
                       stroke={activeContestData.accent}
                       strokeWidth={isActive ? "1.5" : "1"}
                     />
                     <text
                       x={pt.x}
-                      y={pt.y - 15.5}
+                      y={pt.y - 12.5}
                       fill="#ffffff"
-                      fontSize="10"
+                      fontSize="8.5"
                       fontFamily="var(--font-mono)"
                       fontWeight="700"
                       textAnchor="middle"
@@ -918,7 +918,7 @@ export default function CodingStatsGraph() {
                     <circle
                       cx={pt.x}
                       cy={pt.y}
-                      r={14}
+                      r={11}
                       fill={activeContestData.accent}
                       opacity={0.25}
                       className="sonar-ripple-wave"
@@ -929,26 +929,26 @@ export default function CodingStatsGraph() {
                   <circle
                     cx={pt.x}
                     cy={pt.y}
-                    r={isActive ? 6.5 : 5}
+                    r={isActive ? 5 : 3.8}
                     fill="#16171d"
                     stroke={activeContestData.accent}
-                    strokeWidth={isActive ? 2.5 : 1.8}
+                    strokeWidth={isActive ? 2 : 1.5}
                   />
 
                   {/* Inner solid white dot */}
                   <circle
                     cx={pt.x}
                     cy={pt.y}
-                    r={isActive ? 2.8 : 2}
+                    r={isActive ? 2.2 : 1.6}
                     fill="#ffffff"
                   />
 
                   {/* X-Axis Contest Short Name */}
                   <text
                     x={pt.x}
-                    y={paddingTop + chartHeight + 18}
+                    y={paddingTop + chartHeight + 14}
                     fill={isActive ? "#ffffff" : "rgba(255, 255, 255, 0.75)"}
-                    fontSize="11"
+                    fontSize="9.5"
                     fontFamily="var(--font-mono)"
                     fontWeight={isActive ? "700" : "600"}
                     textAnchor="middle"
@@ -959,9 +959,9 @@ export default function CodingStatsGraph() {
                   {/* X-Axis Date Below */}
                   <text
                     x={pt.x}
-                    y={paddingTop + chartHeight + 31}
+                    y={paddingTop + chartHeight + 25}
                     fill="#8a8f98"
-                    fontSize="9.5"
+                    fontSize="8.5"
                     fontFamily="var(--font-mono)"
                     textAnchor="middle"
                   >
@@ -974,9 +974,9 @@ export default function CodingStatsGraph() {
             {/* X-Axis Centered Label ("Contests") */}
             <text
               x={paddingLeft + chartWidth / 2}
-              y={paddingTop + chartHeight + 46}
+              y={paddingTop + chartHeight + 35}
               fill="#8a8f98"
-              fontSize="10.5"
+              fontSize="9"
               fontFamily="var(--font-mono)"
               textAnchor="middle"
             >
@@ -1039,7 +1039,7 @@ export default function CodingStatsGraph() {
                 <div className="activity-day-label-placeholder" />
                 <div className="activity-months-track">
                   {monthLabels.map(({ month, weekIdx }, i) => (
-                    <span key={i} className="activity-month-tag" style={{ left: `${weekIdx * 14}px` }}>
+                    <span key={i} className="activity-month-tag" style={{ left: `${weekIdx * 11}px` }}>
                       {month}
                     </span>
                   ))}
@@ -1137,7 +1137,7 @@ export default function CodingStatsGraph() {
         <div className="studio-timeline-footer">
           <div className="studio-timeline-label-group">
             <div className="timeline-clock-icon-wrap">
-              <Clock size={15} />
+              <Clock size={13} />
             </div>
             <span className="studio-timeline-title">Contest Timeline</span>
           </div>
